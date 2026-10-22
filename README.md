@@ -178,6 +178,20 @@ flutter test
 flutter build web --release
 ```
 
+## Integración continua
+
+`.github/workflows/ci.yml` corre en cada *push* a `master` y en cada *pull request*, con
+Flutter 3.24.5 fijado:
+
+1. `flutter pub get --enforce-lockfile`
+2. `dart format --set-exit-if-changed .`
+3. `build_runner` + `git status --porcelain` vacío en `lib` y `test` (el código generado
+   versionado debe estar al día, sin archivos modificados ni nuevos)
+4. `flutter analyze --fatal-infos`
+5. `flutter test --coverage` (sube `coverage/lcov.info` como artefacto)
+6. `flutter build web --release`
+7. Job `docker`: construye la imagen y hace un *smoke test* contra `/healthz`, `/` y un deep link.
+
 ## Estado
 
 En construcción: base del proyecto (EPIC-001).
