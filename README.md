@@ -91,6 +91,45 @@ flutter build web --release \
 El resultado queda en `build/web` y se puede servir desde cualquier hosting estático con
 *fallback* a `index.html` (rutas SPA).
 
+## Docker
+
+Imagen *multi-stage*: compila con Flutter 3.24.5 (`ghcr.io/cirruslabs/flutter:3.24.5`) y sirve
+`build/web` con `nginx:1.27-alpine`. Las variables de compilación se pasan como `--build-arg`:
+
+```bash
+docker build -t pennypincher-frontend \
+  --build-arg API_BASE_URL=http://localhost:8080/api/v1 \
+  --build-arg API_ORIGIN=http://localhost:8080 \
+  --build-arg GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com \
+  --build-arg DEV_LOGIN=true .
+
+docker run --rm -p 3000:80 pennypincher-frontend
+# http://localhost:3000
+```
+
+| Parámetro | Tipo | Descripción |
+|---|---|---|
+| `API_BASE_URL`, `GOOGLE_CLIENT_ID`, `DEV_LOGIN` | build arg | Se convierten en `--dart-define` (ver *Configuración*). |
+| `FLUTTER_IMAGE` | build arg | Imagen de compilación (por defecto `ghcr.io/cirruslabs/flutter:3.24.5`; cualquier imagen con Flutter 3.24.5 sirve, p. ej. `instrumentisto/flutter:3.24.5`). |
+| `API_ORIGIN` | build arg y env | Origen del backend permitido en `connect-src` de la *Content-Security-Policy* (por defecto `http://localhost:8080`). Debe ser el `scheme://host[:puerto]` de `API_BASE_URL`: si cambias uno, cambia el otro. Se fija al construir y se puede sobrescribir al arrancar con `-e API_ORIGIN=...`. |
+
+`nginx.conf` es una plantilla que la imagen oficial de nginx procesa al arrancar. Incluye:
+
+- *Fallback* SPA: cualquier ruta sin archivo devuelve `index.html` (deep links de go_router).
+- Caché: `index.html`, el código de la app y `assets/` (manifiestos de assets y fuentes,
+  `NOTICES`, fuentes) se revalidan siempre (`no-cache` + ETag), porque Flutter no pone hash en
+  los nombres; `canvaskit/` e `icons/` se cachean 1 día.
+- Cabeceras de seguridad: CSP, `X-Frame-Options: DENY`, `X-Content-Type-Options`,
+  `Referrer-Policy`, `Permissions-Policy` y `Cross-Origin-Opener-Policy`
+  (`same-origin-allow-popups`, compatible con la ventana emergente del login de Google).
+  HSTS se configura en el proxy o CDN que termina TLS. `connect-src` también permite
+  `fonts.gstatic.com` (fuentes de respaldo de CanvasKit) y `*.googleusercontent.com` (fotos de
+  perfil de Google cargadas con `Image.network`). La página de retorno del login con Google
+  (`auth.html`) y sus ajustes de CSP llegan con EPIC-002; por ahora no hacen falta.
+- `GET /healthz` para *health checks* (usado por el `HEALTHCHECK` de la imagen).
+
+El bundle se compila con `--no-web-resources-cdn`, así CanvasKit se sirve desde la propia imagen.
+
 ## Estructura
 
 Arquitectura limpia por *feature*:

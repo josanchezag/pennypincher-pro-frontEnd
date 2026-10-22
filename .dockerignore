@@ -1,0 +1,17 @@
+# Keep the build context small and free of local state.
+.git
+.github
+.dart_tool
+.idea
+.vscode
+*.iml
+build
+coverage
+.flutter-plugins
+.flutter-plugins-dependencies
+.env
+.env.*
+dart_defines*.json
+Dockerfile
+.dockerignore
+README.md
