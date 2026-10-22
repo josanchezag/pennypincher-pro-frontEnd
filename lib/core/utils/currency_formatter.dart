@@ -13,6 +13,8 @@ abstract final class CurrencyFormatter {
   /// Symbol first, as written in Colombia; the `es_CO` locale data of
   /// intl places it after the number.
   static const String currencyPattern = '\u00A4\u00A0#,##0';
+  static const String currencyWithCentsPattern = '\u00A4\u00A0#,##0.00';
+  static const int centsDigits = 2;
 
   static final NumberFormat _currency = NumberFormat.currency(
     locale: locale,
@@ -20,11 +22,21 @@ abstract final class CurrencyFormatter {
     decimalDigits: 0,
     customPattern: currencyPattern,
   );
+  static final NumberFormat _currencyWithCents = NumberFormat.currency(
+    locale: locale,
+    symbol: symbol,
+    decimalDigits: centsDigits,
+    customPattern: currencyWithCentsPattern,
+  );
   static final NumberFormat _millions = NumberFormat('#,##0.#', locale);
   static final NumberFormat _whole = NumberFormat('#,##0', locale);
 
   /// `$ 1.500.000`.
   static String format(Money amount) => _currency.format(amount.pesos);
+
+  /// With both decimals, for rates where cents matter: `$ 3.950,25`.
+  static String formatWithCents(Money amount) =>
+      _currencyWithCents.format(amount.pesos);
 
   /// Always signed: `+$ 2.450.000` or `-$ 300.000`.
   static String formatSigned(Money amount) {

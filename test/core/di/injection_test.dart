@@ -9,7 +9,9 @@ import 'package:pennypincher_pro/core/router/app_router.dart';
 import 'package:pennypincher_pro/core/time/clock.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pennypincher_pro/features/budget/domain/repository/income_source_repository.dart';
+import 'package:pennypincher_pro/features/budget/domain/repository/monthly_budget_repository.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/income_source_bloc.dart';
+import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/repository/asset_repository.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/repository/liability_repository.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/asset_bloc.dart';
@@ -40,6 +42,15 @@ void main() {
     expect(income.first, isNot(same(income.last)));
     final overview = getIt<NetWorthBloc>();
     addTearDown(overview.close);
+    final budgets = [getIt<MonthlyBudgetBloc>(), getIt<MonthlyBudgetBloc>()];
+    for (final bloc in budgets) {
+      addTearDown(bloc.close);
+    }
+    expect(budgets.first, isNot(same(budgets.last)));
+    expect(
+      getIt<MonthlyBudgetRepository>(),
+      same(getIt<MonthlyBudgetRepository>()),
+    );
     expect(getIt<Clock>(), isA<SystemClock>());
     expect(getIt<AssetRepository>(), same(getIt<AssetRepository>()));
     expect(getIt<LiabilityRepository>(), same(getIt<LiabilityRepository>()));

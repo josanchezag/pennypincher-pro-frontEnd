@@ -11,7 +11,9 @@ import 'package:pennypincher_pro/core/widgets/placeholder_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/login_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/splash_screen.dart';
+import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart';
 import 'package:pennypincher_pro/features/budget/presentation/budget_pages.dart';
+import 'package:pennypincher_pro/features/budget/presentation/screen/budget_overview_screen.dart';
 import 'package:pennypincher_pro/features/budget/presentation/screen/income_sources_screen.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_pages.dart';
@@ -107,6 +109,7 @@ void main() {
   group('AppRouter', () {
     final placeholders = AppRoute.shellRoutes.where(
       (route) =>
+          route != AppRoute.budget &&
           !NetWorthPages.builders.containsKey(route) &&
           !BudgetPages.builders.containsKey(route),
     );
@@ -153,6 +156,21 @@ void main() {
 
       expect(find.byType(AppShell), findsOneWidget);
       expect(find.byType(LiabilitiesScreen), findsOneWidget);
+    });
+
+    testWidgets('opens the budget overview from the budget section',
+        (tester) async {
+      registerMonthlyBudgetBloc(MonthlyBudgetState(month: DateTime(2026, 10)));
+
+      await tester.pumpApp(location: AppRoute.budget.path);
+
+      expect(find.byType(AppShell), findsOneWidget);
+      expect(find.byType(BudgetOverviewScreen), findsOneWidget);
+      final router = GoRouter.of(tester.element(find.byType(AppShell)));
+      expect(
+        router.routeInformationProvider.value.uri.path,
+        AppRoute.budgetOverview.path,
+      );
     });
 
     testWidgets('renders the income sources screen inside the shell',
@@ -215,7 +233,7 @@ void main() {
         AuthAuthenticated(testUser),
         stream: states.stream,
       );
-      await tester.pumpApp(location: AppRoute.budget.path, authBloc: bloc);
+      await tester.pumpApp(location: AppRoute.goals.path, authBloc: bloc);
       final router = GoRouter.of(tester.element(find.byType(AppShell)));
 
       await tester.tap(find.byTooltip(AppShell.signOutTooltip));

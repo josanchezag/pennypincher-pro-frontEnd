@@ -5,6 +5,7 @@ import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/widgets/app_snackbar.dart';
+import 'package:pennypincher_pro/core/widgets/button_progress_icon.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
 import 'package:pennypincher_pro/core/widgets/status_message.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart';
@@ -111,9 +112,6 @@ class _Overview extends StatelessWidget {
 class _Header extends StatelessWidget {
   const _Header({required this.creating});
 
-  static const double progressSize = AppSpacing.md;
-  static const double progressStroke = 2;
-
   final bool creating;
 
   @override
@@ -144,10 +142,7 @@ class _Header extends StatelessWidget {
                   .read<NetWorthBloc>()
                   .add(const NetWorthSnapshotRequested()),
           icon: creating
-              ? const SizedBox.square(
-                  dimension: progressSize,
-                  child: CircularProgressIndicator(strokeWidth: progressStroke),
-                )
+              ? const ButtonProgressIcon()
               : const Icon(Icons.add_chart),
           label: const Text(NetWorthTexts.createSnapshot),
         ),

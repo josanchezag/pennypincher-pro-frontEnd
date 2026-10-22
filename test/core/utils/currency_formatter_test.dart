@@ -17,6 +17,17 @@ void main() {
     );
   });
 
+  test('keeps both decimals for rates', () {
+    expect(
+      _plain(CurrencyFormatter.formatWithCents(const Money.fromCents(395025))),
+      r'$ 3.950,25',
+    );
+    expect(
+      _plain(CurrencyFormatter.formatWithCents(const Money.fromPesos(3300))),
+      r'$ 3.300,00',
+    );
+  });
+
   test('always signs a delta', () {
     expect(
       _plain(CurrencyFormatter.formatSigned(const Money.fromPesos(2450000))),

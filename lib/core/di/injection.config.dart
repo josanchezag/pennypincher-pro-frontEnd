@@ -50,16 +50,26 @@ import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart'
     as _i238;
 import 'package:pennypincher_pro/features/budget/data/datasource/income_source_remote_datasource.dart'
     as _i578;
+import 'package:pennypincher_pro/features/budget/data/datasource/monthly_budget_remote_datasource.dart'
+    as _i542;
 import 'package:pennypincher_pro/features/budget/data/repository/income_source_repository_impl.dart'
     as _i1;
+import 'package:pennypincher_pro/features/budget/data/repository/monthly_budget_repository_impl.dart'
+    as _i833;
 import 'package:pennypincher_pro/features/budget/di/budget_module.dart'
     as _i445;
 import 'package:pennypincher_pro/features/budget/domain/entity/income_source_entity.dart'
     as _i161;
 import 'package:pennypincher_pro/features/budget/domain/repository/income_source_repository.dart'
     as _i116;
+import 'package:pennypincher_pro/features/budget/domain/repository/monthly_budget_repository.dart'
+    as _i867;
+import 'package:pennypincher_pro/features/budget/domain/usecase/monthly_budget_use_cases.dart'
+    as _i51;
 import 'package:pennypincher_pro/features/budget/presentation/bloc/income_source_bloc.dart'
     as _i11;
+import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart'
+    as _i105;
 import 'package:pennypincher_pro/features/net_worth/data/datasource/asset_remote_datasource.dart'
     as _i392;
 import 'package:pennypincher_pro/features/net_worth/data/datasource/liability_remote_datasource.dart'
@@ -177,10 +187,15 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i578.IncomeSourceRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i464.NetWorthRemoteDataSource>(
         () => _i464.NetWorthRemoteDataSource(gh<_i361.Dio>()));
+    gh.lazySingleton<_i542.MonthlyBudgetRemoteDataSource>(
+        () => _i542.MonthlyBudgetRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i446.AppRouter>(() => _i446.AppRouter(
           gh<_i504.AppConfig>(),
           gh<_i238.AuthBloc>(),
         ));
+    gh.lazySingleton<_i867.MonthlyBudgetRepository>(() =>
+        _i833.MonthlyBudgetRepositoryImpl(
+            gh<_i542.MonthlyBudgetRemoteDataSource>()));
     gh.lazySingleton<_i365.AssetRepository>(
         () => _i171.AssetRepositoryImpl(gh<_i392.AssetRemoteDataSource>()));
     gh.lazySingleton<_i116.IncomeSourceRepository>(() =>
@@ -196,6 +211,14 @@ extension GetItInjectableX on _i174.GetIt {
         budgetModule.deleteIncomeSource(gh<_i116.IncomeSourceRepository>()));
     gh.lazySingleton<_i90.LiabilityRepository>(() =>
         _i418.LiabilityRepositoryImpl(gh<_i277.LiabilityRemoteDataSource>()));
+    gh.factory<_i51.GetMonthlyBudget>(() =>
+        budgetModule.getMonthlyBudget(gh<_i867.MonthlyBudgetRepository>()));
+    gh.factory<_i51.CreateMonthlyBudget>(() =>
+        budgetModule.createMonthlyBudget(gh<_i867.MonthlyBudgetRepository>()));
+    gh.factory<_i51.UpdateMonthlyBudget>(() =>
+        budgetModule.updateMonthlyBudget(gh<_i867.MonthlyBudgetRepository>()));
+    gh.factory<_i51.RecalculateBudget>(() =>
+        budgetModule.recalculateBudget(gh<_i867.MonthlyBudgetRepository>()));
     gh.factory<_i678.GetItems<_i499.Asset, _i499.AssetCategory>>(
         () => netWorthModule.getAssets(gh<_i365.AssetRepository>()));
     gh.factory<_i678.SaveItem<_i499.Asset, _i499.AssetCategory>>(
@@ -217,6 +240,14 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i678.GetItems<_i161.IncomeSource, _i161.IncomeCategory>>(),
           gh<_i678.SaveItem<_i161.IncomeSource, _i161.IncomeCategory>>(),
           gh<_i678.DeleteItem<_i161.IncomeSource, _i161.IncomeCategory>>(),
+        ));
+    gh.factory<_i105.MonthlyBudgetBloc>(() => _i105.MonthlyBudgetBloc(
+          gh<_i51.GetMonthlyBudget>(),
+          gh<_i51.CreateMonthlyBudget>(),
+          gh<_i51.UpdateMonthlyBudget>(),
+          gh<_i51.RecalculateBudget>(),
+          gh<_i678.GetItems<_i161.IncomeSource, _i161.IncomeCategory>>(),
+          gh<_i656.Clock>(),
         ));
     gh.factory<_i944.LiabilityBloc>(() => _i944.LiabilityBloc(
           gh<_i678.GetItems<_i941.Liability, _i941.LiabilityCategory>>(),

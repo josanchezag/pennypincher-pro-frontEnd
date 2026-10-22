@@ -66,9 +66,15 @@ class AppRouter {
     ...BudgetPages.builders,
   };
 
+  /// Section roots that open one of their screens.
+  static const Map<AppRoute, AppRoute> _redirects = {
+    AppRoute.budget: AppRoute.budgetOverview,
+  };
+
   static GoRoute _shellRoute(AppRoute route) => GoRoute(
         path: route.path,
         name: route.name,
+        redirect: (context, state) => _redirects[route]?.path,
         builder: (context, state) =>
             _screens[route]?.call(context) ?? PlaceholderScreen(route: route),
       );

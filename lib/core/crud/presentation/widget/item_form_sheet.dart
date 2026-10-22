@@ -8,6 +8,7 @@ import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
+import 'package:pennypincher_pro/core/widgets/button_progress_icon.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 /// Bottom sheet that creates an item, or edits [initial] when given. It
@@ -19,8 +20,6 @@ class ItemFormSheet<T extends CategorizedItem<C>, C extends Enum>
 
   static const Key saveKey = Key('item-form-save');
   static const Key errorKey = Key('item-form-error');
-  static const double progressSize = AppSpacing.md;
-  static const double progressStroke = 2;
 
   final CrudScreenConfig<C> config;
   final T? initial;
@@ -175,13 +174,7 @@ class _SaveButton extends StatelessWidget {
       key: ItemFormSheet.saveKey,
       onPressed: saving ? null : onPressed,
       child: saving
-          ? const SizedBox.square(
-              dimension: ItemFormSheet.progressSize,
-              child: CircularProgressIndicator(
-                strokeWidth: ItemFormSheet.progressStroke,
-                semanticsLabel: CrudTexts.saving,
-              ),
-            )
+          ? const ButtonProgressIcon(semanticsLabel: CrudTexts.saving)
           : const Text(CrudTexts.save),
     );
   }

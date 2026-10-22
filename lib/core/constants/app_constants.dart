@@ -45,6 +45,8 @@ abstract final class ApiPaths {
   static const String netWorthSnapshots = '/net-worth/snapshots';
   static const String netWorthCurrent = '/net-worth/current';
   static const String incomeSources = '/income-sources';
+  static const String monthlyBudgets = '/monthly-budgets';
+  static const String recalculateSuffix = '/recalculate';
 }
 
 /// Keys of the backend response envelope (`{data, meta}` / `{error, meta}`).
@@ -71,4 +73,9 @@ abstract final class HttpHeaders {
 abstract final class HttpStatusCodes {
   static const int unauthorized = 401;
   static const int notFound = 404;
+}
+
+/// Backend error codes the client reacts to.
+abstract final class ApiErrorCodes {
+  static const String conflict = 'CONFLICT';
 }
