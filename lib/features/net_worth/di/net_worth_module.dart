@@ -4,6 +4,8 @@ import 'package:pennypincher_pro/features/net_worth/domain/entity/asset_entity.d
 import 'package:pennypincher_pro/features/net_worth/domain/entity/liability_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/repository/asset_repository.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/repository/liability_repository.dart';
+import 'package:pennypincher_pro/features/net_worth/domain/repository/net_worth_repository.dart';
+import 'package:pennypincher_pro/features/net_worth/domain/usecase/net_worth_use_cases.dart';
 
 /// Registers the net worth use cases, keeping the domain layer free of
 /// dependency injection annotations.
@@ -38,4 +40,16 @@ abstract class NetWorthModule {
     LiabilityRepository repository,
   ) =>
       DeleteItem(repository);
+
+  @injectable
+  GetNetWorthSnapshots getNetWorthSnapshots(NetWorthRepository repository) =>
+      GetNetWorthSnapshots(repository);
+
+  @injectable
+  GetCurrentNetWorth getCurrentNetWorth(NetWorthRepository repository) =>
+      GetCurrentNetWorth(repository);
+
+  @injectable
+  CreateSnapshot createSnapshot(NetWorthRepository repository) =>
+      CreateSnapshot(repository);
 }

@@ -1,6 +1,8 @@
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/asset_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/liability_entity.dart';
+import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_snapshot_entity.dart';
+import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_summary_entity.dart';
 
 const Asset apartment = Asset(
   id: 'a1',
@@ -52,4 +54,32 @@ const Map<String, Object?> nuCardJson = {
   'name': 'Tarjeta Nu Bank',
   'currentBalance': 3200000,
   'category': 'CREDIT_CARD',
+};
+
+NetWorthSnapshot snapshotOf(int year, int month, int netWorthPesos) =>
+    NetWorthSnapshot(
+      id: 's-$year-$month',
+      snapshotDate: DateTime(year, month),
+      totalAssets: Money.fromPesos(netWorthPesos + 10000000),
+      totalLiabilities: const Money.fromPesos(10000000),
+      netWorth: Money.fromPesos(netWorthPesos),
+    );
+
+final NetWorthSnapshot august = snapshotOf(2026, 8, 165000000);
+final NetWorthSnapshot september = snapshotOf(2026, 9, 170550000);
+
+const NetWorthSummary currentSummary = NetWorthSummary(
+  totalAssets: Money.fromPesos(185000000),
+  totalLiabilities: Money.fromPesos(12000000),
+  netWorth: Money.fromPesos(173000000),
+);
+
+const Map<String, Object?> septemberJson = {
+  'id': 's-2026-9',
+  'snapshotDate': '2026-09-01',
+  'totalAssets': 180550000.00,
+  'totalLiabilities': 10000000.00,
+  'netWorth': 170550000.00,
+  'createdAt': '2026-09-01T12:00:00Z',
+  'updatedAt': '2026-09-01T12:00:00Z',
 };

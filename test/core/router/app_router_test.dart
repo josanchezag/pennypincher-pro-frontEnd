@@ -11,9 +11,11 @@ import 'package:pennypincher_pro/core/widgets/placeholder_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/login_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/splash_screen.dart';
+import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_pages.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/assets_screen.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/liabilities_screen.dart';
+import 'package:pennypincher_pro/features/net_worth/presentation/screen/net_worth_screen.dart';
 
 import '../../helpers/mocks.dart';
 import '../../helpers/net_worth_mocks.dart';
@@ -117,6 +119,16 @@ void main() {
         );
       });
     }
+
+    testWidgets('renders the net worth screen inside the shell',
+        (tester) async {
+      registerNetWorthBloc(const NetWorthLoading());
+
+      await tester.pumpApp(location: AppRoute.netWorth.path);
+
+      expect(find.byType(AppShell), findsOneWidget);
+      expect(find.byType(NetWorthScreen), findsOneWidget);
+    });
 
     testWidgets('renders the assets screen inside the shell', (tester) async {
       registerAssetBloc(const CrudLoaded([]));

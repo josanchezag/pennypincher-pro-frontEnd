@@ -42,6 +42,8 @@ abstract final class ApiPaths {
   static const String logout = '/auth/logout';
   static const String assets = '/assets';
   static const String liabilities = '/liabilities';
+  static const String netWorthSnapshots = '/net-worth/snapshots';
+  static const String netWorthCurrent = '/net-worth/current';
 }
 
 /// Keys of the backend response envelope (`{data, meta}` / `{error, meta}`).

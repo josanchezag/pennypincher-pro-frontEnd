@@ -12,10 +12,11 @@ import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/widgets/confirmation_dialog.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
-import 'package:pennypincher_pro/core/widgets/placeholder_screen.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/asset_entity.dart';
+import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/assets_screen.dart';
+import 'package:pennypincher_pro/features/net_worth/presentation/screen/net_worth_screen.dart';
 
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/net_worth_fixtures.dart';
@@ -291,16 +292,11 @@ void main() {
 
   testWidgets('returns to the net worth screen', (tester) async {
     await pumpAssets(tester, _loaded);
+    registerNetWorthBloc(const NetWorthLoading());
 
     await tester.tap(find.byTooltip(_config.backTooltip));
     await tester.pumpAndSettle();
 
-    expect(
-      find.descendant(
-        of: find.byType(PlaceholderScreen),
-        matching: find.text(AppRoute.netWorth.title),
-      ),
-      findsOneWidget,
-    );
+    expect(find.byType(NetWorthScreen), findsOneWidget);
   });
 }

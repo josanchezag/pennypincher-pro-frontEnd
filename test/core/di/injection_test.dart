@@ -6,11 +6,13 @@ import 'package:pennypincher_pro/core/constants/app_constants.dart';
 import 'package:pennypincher_pro/core/di/injection.dart';
 import 'package:pennypincher_pro/core/network/auth_interceptor.dart';
 import 'package:pennypincher_pro/core/router/app_router.dart';
+import 'package:pennypincher_pro/core/time/clock.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/repository/asset_repository.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/repository/liability_repository.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/asset_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/liability_bloc.dart';
+import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart';
 
 void main() {
   setUp(configureDependencies);
@@ -32,6 +34,9 @@ void main() {
 
     expect(assets.first, isNot(same(assets.last)));
     expect(liabilities.first, isNot(same(liabilities.last)));
+    final overview = getIt<NetWorthBloc>();
+    addTearDown(overview.close);
+    expect(getIt<Clock>(), isA<SystemClock>());
     expect(getIt<AssetRepository>(), same(getIt<AssetRepository>()));
     expect(getIt<LiabilityRepository>(), same(getIt<LiabilityRepository>()));
   });

@@ -91,19 +91,25 @@ class _Header extends StatelessWidget {
 class _Value extends StatelessWidget {
   const _Value({required this.value, required this.color});
 
+  /// Fixed line height, so a value shrunk to fit keeps the card height.
+  static const double height = AppSpacing.xl;
+
   final String value;
   final Color? color;
 
   @override
   Widget build(BuildContext context) {
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      alignment: Alignment.centerLeft,
-      child: Text(
-        value,
-        style: AppTypography.monoLarge.copyWith(
-          fontSize: AppTypography.heading2Size,
-          color: color,
+    return SizedBox(
+      height: height,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerLeft,
+        child: Text(
+          value,
+          style: AppTypography.monoLarge.copyWith(
+            fontSize: AppTypography.heading2Size,
+            color: color,
+          ),
         ),
       ),
     );
@@ -112,6 +118,9 @@ class _Value extends StatelessWidget {
 
 class _Delta extends StatelessWidget {
   const _Delta({required this.delta});
+
+  /// Long deltas wrap so the reference, such as the month, stays visible.
+  static const int maxDeltaLines = 2;
 
   final StatDelta delta;
 
@@ -130,6 +139,7 @@ class _Delta extends StatelessWidget {
           child: Text(
             delta.text,
             style: AppTypography.monoSmall.copyWith(color: color),
+            maxLines: maxDeltaLines,
             overflow: TextOverflow.ellipsis,
           ),
         ),

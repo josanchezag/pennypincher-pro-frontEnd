@@ -113,7 +113,12 @@ class _CategoryChip extends StatelessWidget {
         color: AppColors.backgroundTertiary,
         borderRadius: BorderRadius.all(Radius.circular(AppSpacing.radiusCard)),
       ),
-      child: Text(label.toUpperCase(), style: AppTypography.label),
+      child: Text(
+        label.toUpperCase(),
+        style: AppTypography.label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
     );
   }
 }

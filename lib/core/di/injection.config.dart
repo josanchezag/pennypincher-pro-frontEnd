@@ -20,6 +20,7 @@ import 'package:pennypincher_pro/core/crud/domain/usecase/crud_use_cases.dart'
 import 'package:pennypincher_pro/core/network/auth_interceptor.dart' as _i93;
 import 'package:pennypincher_pro/core/network/network_module.dart' as _i683;
 import 'package:pennypincher_pro/core/router/app_router.dart' as _i446;
+import 'package:pennypincher_pro/core/time/clock.dart' as _i656;
 import 'package:pennypincher_pro/features/auth/data/datasource/auth_remote_datasource.dart'
     as _i113;
 import 'package:pennypincher_pro/features/auth/data/datasource/google_auth_datasource.dart'
@@ -51,10 +52,14 @@ import 'package:pennypincher_pro/features/net_worth/data/datasource/asset_remote
     as _i392;
 import 'package:pennypincher_pro/features/net_worth/data/datasource/liability_remote_datasource.dart'
     as _i277;
+import 'package:pennypincher_pro/features/net_worth/data/datasource/net_worth_remote_datasource.dart'
+    as _i464;
 import 'package:pennypincher_pro/features/net_worth/data/repository/asset_repository_impl.dart'
     as _i171;
 import 'package:pennypincher_pro/features/net_worth/data/repository/liability_repository_impl.dart'
     as _i418;
+import 'package:pennypincher_pro/features/net_worth/data/repository/net_worth_repository_impl.dart'
+    as _i257;
 import 'package:pennypincher_pro/features/net_worth/di/net_worth_module.dart'
     as _i125;
 import 'package:pennypincher_pro/features/net_worth/domain/entity/asset_entity.dart'
@@ -65,10 +70,16 @@ import 'package:pennypincher_pro/features/net_worth/domain/repository/asset_repo
     as _i365;
 import 'package:pennypincher_pro/features/net_worth/domain/repository/liability_repository.dart'
     as _i90;
+import 'package:pennypincher_pro/features/net_worth/domain/repository/net_worth_repository.dart'
+    as _i606;
+import 'package:pennypincher_pro/features/net_worth/domain/usecase/net_worth_use_cases.dart'
+    as _i424;
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/asset_bloc.dart'
     as _i1068;
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/liability_bloc.dart'
     as _i944;
+import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart'
+    as _i697;
 
 extension GetItInjectableX on _i174.GetIt {
 // initializes the registration of main-scope dependencies inside of GetIt
@@ -93,6 +104,7 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i361.HttpClientAdapter>(
         () => networkModule.httpClientAdapter);
+    gh.lazySingleton<_i656.Clock>(() => _i656.SystemClock());
     gh.lazySingleton<_i361.Dio>(
       () => networkModule.plainDio(
         gh<_i504.AppConfig>(),
@@ -148,12 +160,16 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i392.AssetRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i277.LiabilityRemoteDataSource>(
         () => _i277.LiabilityRemoteDataSource(gh<_i361.Dio>()));
+    gh.lazySingleton<_i464.NetWorthRemoteDataSource>(
+        () => _i464.NetWorthRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i446.AppRouter>(() => _i446.AppRouter(
           gh<_i504.AppConfig>(),
           gh<_i238.AuthBloc>(),
         ));
     gh.lazySingleton<_i365.AssetRepository>(
         () => _i171.AssetRepositoryImpl(gh<_i392.AssetRemoteDataSource>()));
+    gh.lazySingleton<_i606.NetWorthRepository>(() =>
+        _i257.NetWorthRepositoryImpl(gh<_i464.NetWorthRemoteDataSource>()));
     gh.lazySingleton<_i90.LiabilityRepository>(() =>
         _i418.LiabilityRepositoryImpl(gh<_i277.LiabilityRemoteDataSource>()));
     gh.factory<_i678.GetItems<_i499.Asset, _i499.AssetCategory>>(
@@ -177,6 +193,18 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i678.GetItems<_i941.Liability, _i941.LiabilityCategory>>(),
           gh<_i678.SaveItem<_i941.Liability, _i941.LiabilityCategory>>(),
           gh<_i678.DeleteItem<_i941.Liability, _i941.LiabilityCategory>>(),
+        ));
+    gh.factory<_i424.GetNetWorthSnapshots>(() =>
+        netWorthModule.getNetWorthSnapshots(gh<_i606.NetWorthRepository>()));
+    gh.factory<_i424.GetCurrentNetWorth>(() =>
+        netWorthModule.getCurrentNetWorth(gh<_i606.NetWorthRepository>()));
+    gh.factory<_i424.CreateSnapshot>(
+        () => netWorthModule.createSnapshot(gh<_i606.NetWorthRepository>()));
+    gh.factory<_i697.NetWorthBloc>(() => _i697.NetWorthBloc(
+          gh<_i424.GetCurrentNetWorth>(),
+          gh<_i424.GetNetWorthSnapshots>(),
+          gh<_i424.CreateSnapshot>(),
+          gh<_i656.Clock>(),
         ));
     return this;
   }
