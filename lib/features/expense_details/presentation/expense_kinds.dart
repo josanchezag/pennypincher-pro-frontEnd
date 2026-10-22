@@ -42,7 +42,7 @@ class ExpenseKindView {
       route: AppRoute.expensesLoans,
       icon: Icons.account_balance_outlined,
       monthlyLabel: ExpenseTexts.totalMonthlyPayments,
-      balanceLabel: ExpenseTexts.totalOutstandingBalance,
+      balanceLabel: ExpenseTexts.totalOutstandingDebt,
       singular: ExpenseTexts.loanNoun,
       plural: ExpenseTexts.loansNoun,
     ),

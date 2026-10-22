@@ -2,8 +2,10 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:pennypincher_pro/core/crud/domain/balance_item.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/credit_card_entity.dart';
+import 'package:pennypincher_pro/features/expense_details/domain/entity/loan_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/credit_card_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/expenses_hub_bloc.dart';
+import 'package:pennypincher_pro/features/expense_details/presentation/bloc/loan_bloc.dart';
 
 import 'net_worth_mocks.dart';
 
@@ -33,3 +35,16 @@ MockCreditCardBloc registerCreditCardBloc(
       state,
       stream: stream,
     ) as MockCreditCardBloc;
+
+class MockLoanBloc extends MockBloc<CrudEvent<BalanceDraft>, CrudState<Loan>>
+    implements LoanBloc {}
+
+MockLoanBloc registerLoanBloc(
+  CrudState<Loan> state, {
+  Stream<CrudState<Loan>> stream = const Stream.empty(),
+}) =>
+    registerBloc<LoanBloc, CrudState<Loan>>(
+      MockLoanBloc(),
+      state,
+      stream: stream,
+    ) as MockLoanBloc;

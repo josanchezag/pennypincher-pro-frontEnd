@@ -4,6 +4,10 @@ abstract final class ExpenseTexts {
   static const String totalMonthlyPayments = 'Total monthly payments';
   static const String totalBalance = 'Total balance';
   static const String totalOutstandingBalance = 'Total outstanding balance';
+  static const String monthlyInstallment = 'Monthly installment';
+  static const String remainingBalance = 'Remaining balance';
+  static const String originalAmount = 'Original amount';
+  static const String totalOutstandingDebt = 'Total outstanding debt';
   static const String totalMonthlyAmount = 'Total monthly amount';
   static const String totalMonthlyContributions = 'Total monthly contributions';
   static const String totalSavingsBalance = 'Total savings balance';

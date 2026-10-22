@@ -3,7 +3,8 @@ import 'package:pennypincher_pro/core/crud/domain/balance_item.dart';
 import 'package:pennypincher_pro/core/network/api_envelope.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 
-/// JSON shape of a balance item: `{id, name, <monthlyKey>, <balanceKey>}`.
+/// JSON shape of a balance item: `{id, name, <monthlyKey>, <balanceKey>}`,
+/// plus the optional `<originalAmountKey>` for resources that track it.
 /// Only the names of the amount fields change between resources, so one
 /// codec serves all of them.
 class BalanceJsonCodec<T extends BalanceItem>
@@ -12,10 +13,14 @@ class BalanceJsonCodec<T extends BalanceItem>
     required this.monthlyKey,
     required this.balanceKey,
     required this.build,
+    this.originalAmountKey,
   });
 
   final String monthlyKey;
   final String balanceKey;
+
+  /// Key of the optional original amount; null when it is not tracked.
+  final String? originalAmountKey;
 
   /// Creates the entity with [id] from the parsed fields.
   final T Function(String id, BalanceDraft fields) build;
@@ -27,13 +32,22 @@ class BalanceJsonCodec<T extends BalanceItem>
           name: json[ItemJsonKeys.name] as String,
           monthlyAmount: Money.fromJson(json[monthlyKey]),
           balance: Money.fromJson(json[balanceKey]),
+          originalAmount: _optionalAmount(json),
         ),
       );
+
+  Money? _optionalAmount(JsonMap json) {
+    final key = originalAmountKey;
+    final value = key == null ? null : json[key];
+    return value == null ? null : Money.fromJson(value);
+  }
 
   @override
   JsonMap toJson(BalanceDraft draft) => {
         ItemJsonKeys.name: draft.name,
         monthlyKey: draft.monthlyAmount.toJson(),
         balanceKey: draft.balance.toJson(),
+        if (originalAmountKey case final key?)
+          key: draft.originalAmount?.toJson(),
       };
 }

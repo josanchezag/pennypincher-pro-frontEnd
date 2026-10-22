@@ -23,6 +23,9 @@ class ItemTile extends StatelessWidget {
   /// details. Tiles grow when the name wraps or the text is scaled.
   static const double compactHeight = 76;
 
+  /// Minimum height of a tile that also has a footer.
+  static const double footerHeight = 100;
+
   /// Room for the second line of a wrapped name, and for the amount when
   /// it moves under the name.
   static const double lineHeight = 24;
@@ -109,6 +112,10 @@ class ItemTile extends StatelessWidget {
               _NameAndAmount(name: name, content: content, stacked: stacked),
               const SizedBox(height: AppSpacing.xxs),
               content.details,
+              if (content.footer != null) ...[
+                const SizedBox(height: AppSpacing.xs),
+                content.footer!,
+              ],
             ],
           ),
         ),
@@ -229,6 +236,40 @@ class LabeledAmount extends StatelessWidget {
       ),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
+    );
+  }
+}
+
+/// Progress bar of the share of something already done, such as a debt
+/// paid off, followed by [label] (`45,0 % paid`). Screen readers only read
+/// the label, since the bar repeats it.
+class ShareProgress extends StatelessWidget {
+  const ShareProgress({required this.share, required this.label, super.key});
+
+  static const double barHeight = 6;
+
+  /// From 0 to 1.
+  final double share;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: ExcludeSemantics(
+            child: LinearProgressIndicator(
+              value: share,
+              minHeight: barHeight,
+              color: AppColors.success,
+              backgroundColor: AppColors.backgroundTertiary,
+              borderRadius: const BorderRadius.all(Radius.circular(barHeight)),
+            ),
+          ),
+        ),
+        const SizedBox(width: AppSpacing.xs),
+        Text(label, style: AppTypography.monoSmall),
+      ],
     );
   }
 }

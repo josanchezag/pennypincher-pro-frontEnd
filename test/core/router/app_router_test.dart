@@ -19,6 +19,7 @@ import 'package:pennypincher_pro/features/expense_details/presentation/bloc/expe
 import 'package:pennypincher_pro/features/expense_details/presentation/expense_details_pages.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/credit_cards_screen.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/expenses_hub_screen.dart';
+import 'package:pennypincher_pro/features/expense_details/presentation/screen/loans_screen.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_pages.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/assets_screen.dart';
@@ -206,6 +207,15 @@ void main() {
 
       expect(find.byType(AppShell), findsOneWidget);
       expect(find.byType(CreditCardsScreen), findsOneWidget);
+    });
+
+    testWidgets('renders the loans screen inside the shell', (tester) async {
+      registerLoanBloc(const CrudLoaded([]));
+
+      await tester.pumpApp(location: AppRoute.expensesLoans.path);
+
+      expect(find.byType(AppShell), findsOneWidget);
+      expect(find.byType(LoansScreen), findsOneWidget);
     });
 
     testWidgets('renders the login route without the shell', (tester) async {

@@ -6,8 +6,10 @@ import 'package:pennypincher_pro/core/di/injection.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/credit_card_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/expenses_hub_bloc.dart';
+import 'package:pennypincher_pro/features/expense_details/presentation/bloc/loan_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/credit_cards_screen.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/expenses_hub_screen.dart';
+import 'package:pennypincher_pro/features/expense_details/presentation/screen/loans_screen.dart';
 
 /// Screens of the expenses section, each with a fresh bloc that starts
 /// loading as soon as the screen opens and closes with it.
@@ -22,6 +24,11 @@ abstract final class ExpenseDetailsPages {
           create: (_) => getIt<CreditCardBloc>()
             ..add(const CrudLoadRequested<BalanceDraft>()),
           child: const CreditCardsScreen(),
+        ),
+    AppRoute.expensesLoans: (_) => BlocProvider<LoanBloc>(
+          create: (_) =>
+              getIt<LoanBloc>()..add(const CrudLoadRequested<BalanceDraft>()),
+          child: const LoansScreen(),
         ),
   };
 }

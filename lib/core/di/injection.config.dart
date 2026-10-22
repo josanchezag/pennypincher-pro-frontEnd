@@ -77,24 +77,34 @@ import 'package:pennypincher_pro/features/expense_details/data/datasource/credit
     as _i129;
 import 'package:pennypincher_pro/features/expense_details/data/datasource/expense_summary_remote_datasource.dart'
     as _i459;
+import 'package:pennypincher_pro/features/expense_details/data/datasource/loan_remote_datasource.dart'
+    as _i627;
 import 'package:pennypincher_pro/features/expense_details/data/repository/credit_card_repository_impl.dart'
     as _i757;
 import 'package:pennypincher_pro/features/expense_details/data/repository/expense_summary_repository_impl.dart'
     as _i187;
+import 'package:pennypincher_pro/features/expense_details/data/repository/loan_repository_impl.dart'
+    as _i1050;
 import 'package:pennypincher_pro/features/expense_details/di/expense_details_module.dart'
     as _i539;
 import 'package:pennypincher_pro/features/expense_details/domain/entity/credit_card_entity.dart'
     as _i793;
+import 'package:pennypincher_pro/features/expense_details/domain/entity/loan_entity.dart'
+    as _i891;
 import 'package:pennypincher_pro/features/expense_details/domain/repository/credit_card_repository.dart'
     as _i379;
 import 'package:pennypincher_pro/features/expense_details/domain/repository/expense_summary_repository.dart'
     as _i436;
+import 'package:pennypincher_pro/features/expense_details/domain/repository/loan_repository.dart'
+    as _i322;
 import 'package:pennypincher_pro/features/expense_details/domain/usecase/get_expense_summary.dart'
     as _i1044;
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/credit_card_bloc.dart'
     as _i963;
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/expenses_hub_bloc.dart'
     as _i84;
+import 'package:pennypincher_pro/features/expense_details/presentation/bloc/loan_bloc.dart'
+    as _i613;
 import 'package:pennypincher_pro/features/net_worth/data/datasource/asset_remote_datasource.dart'
     as _i392;
 import 'package:pennypincher_pro/features/net_worth/data/datasource/liability_remote_datasource.dart'
@@ -213,6 +223,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i578.IncomeSourceRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i129.CreditCardRemoteDataSource>(
         () => _i129.CreditCardRemoteDataSource(gh<_i361.Dio>()));
+    gh.lazySingleton<_i627.LoanRemoteDataSource>(
+        () => _i627.LoanRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i464.NetWorthRemoteDataSource>(
         () => _i464.NetWorthRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i542.MonthlyBudgetRemoteDataSource>(
@@ -233,6 +245,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i116.IncomeSourceRepository>(() =>
         _i1.IncomeSourceRepositoryImpl(
             gh<_i578.IncomeSourceRemoteDataSource>()));
+    gh.lazySingleton<_i322.LoanRepository>(
+        () => _i1050.LoanRepositoryImpl(gh<_i627.LoanRemoteDataSource>()));
     gh.lazySingleton<_i606.NetWorthRepository>(() =>
         _i257.NetWorthRepositoryImpl(gh<_i464.NetWorthRemoteDataSource>()));
     gh.factory<
@@ -317,6 +331,12 @@ extension GetItInjectableX on _i174.GetIt {
         () => netWorthModule.deleteLiability(gh<_i90.LiabilityRepository>()));
     gh.factory<_i84.ExpensesHubBloc>(
         () => _i84.ExpensesHubBloc(gh<_i1044.GetExpenseSummary>()));
+    gh.factory<_i678.GetItems<_i891.Loan, _i642.BalanceDraft>>(
+        () => expenseDetailsModule.getLoans(gh<_i322.LoanRepository>()));
+    gh.factory<_i678.SaveItem<_i891.Loan, _i642.BalanceDraft>>(
+        () => expenseDetailsModule.saveLoan(gh<_i322.LoanRepository>()));
+    gh.factory<_i678.DeleteItem<_i891.Loan, _i642.BalanceDraft>>(
+        () => expenseDetailsModule.deleteLoan(gh<_i322.LoanRepository>()));
     gh.factory<_i424.GetNetWorthSnapshots>(() =>
         netWorthModule.getNetWorthSnapshots(gh<_i606.NetWorthRepository>()));
     gh.factory<_i424.GetCurrentNetWorth>(() =>
@@ -354,6 +374,11 @@ extension GetItInjectableX on _i174.GetIt {
           gh<
               _i678.DeleteItem<_i941.Liability,
                   _i953.CategorizedDraft<_i941.LiabilityCategory>>>(),
+        ));
+    gh.factory<_i613.LoanBloc>(() => _i613.LoanBloc(
+          gh<_i678.GetItems<_i891.Loan, _i642.BalanceDraft>>(),
+          gh<_i678.SaveItem<_i891.Loan, _i642.BalanceDraft>>(),
+          gh<_i678.DeleteItem<_i891.Loan, _i642.BalanceDraft>>(),
         ));
     return this;
   }

@@ -12,17 +12,31 @@ abstract interface class BalanceItem implements CrudItem {
 }
 
 /// The editable fields of a [BalanceItem], sent to create or update it.
+/// [originalAmount] is the amount a debt started from, for the items that
+/// track it (loans); null when it is not tracked.
 final class BalanceDraft extends Equatable {
   const BalanceDraft({
     required this.name,
     required this.monthlyAmount,
     required this.balance,
+    this.originalAmount,
   });
 
   final String name;
   final Money monthlyAmount;
   final Money balance;
+  final Money? originalAmount;
 
   @override
-  List<Object?> get props => [name, monthlyAmount, balance];
+  List<Object?> get props => [name, monthlyAmount, balance, originalAmount];
+}
+
+/// Share of [originalAmount] already paid off when [balance] is left, from
+/// 0 to 1: `1 - balance / originalAmount`, clamped. Null when the original
+/// amount is not tracked (null or zero).
+double? paidShare({required Money balance, Money? originalAmount}) {
+  if (originalAmount == null || originalAmount.cents <= 0) {
+    return null;
+  }
+  return (1 - balance.cents / originalAmount.cents).clamp(0, 1).toDouble();
 }

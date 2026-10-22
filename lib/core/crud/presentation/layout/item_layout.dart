@@ -11,6 +11,7 @@ class ItemTileContent {
     required this.details,
     required this.amount,
     required this.amountColor,
+    this.footer,
   });
 
   /// Line under the name, such as the category or a monthly amount.
@@ -19,6 +20,9 @@ class ItemTileContent {
   /// Formatted main amount of the item.
   final String amount;
   final Color amountColor;
+
+  /// Optional row under the tile content, such as a progress bar.
+  final Widget? footer;
 }
 
 /// What changes between list screens for one shape of item [T], edited

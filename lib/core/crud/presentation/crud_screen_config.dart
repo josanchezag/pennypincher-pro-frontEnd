@@ -71,6 +71,9 @@ abstract final class CrudTexts {
   static const String amountInvalid =
       'Enter an amount like 1.500.000 or 1.500.000,50, up to 13 digits.';
   static const String amountHelper = 'Example: 1.500.000 or 1.500.000,50';
+  static const String optionalAmountHelper =
+      'Optional. Example: 1.500.000 or 1.500.000,50';
+  static const String paidSuffix = 'paid';
   static const String saving = 'Saving';
   static const String categoryRequired = 'Choose a category.';
   static const String amountPrefix = r'$ ';

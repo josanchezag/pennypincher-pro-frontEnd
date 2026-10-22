@@ -32,13 +32,30 @@ abstract final class ItemFormFields {
         validators: [Validators.required, Validators.delegate(_amount)],
       );
 
+  /// Amount that may be left empty, prefilled with [initial].
+  static FormControl<String> optionalAmountControl(Money? initial) =>
+      FormControl(
+        value: initial?.toInputString(),
+        validators: [Validators.delegate(_amount)],
+      );
+
   static FormControl<C> categoryControl<C extends Enum>(C? initial) =>
       FormControl(value: initial, validators: [Validators.required]);
 
   static Widget nameField() => const _NameField();
 
-  static Widget amountField(String controlName, String label) =>
-      _AmountField(controlName: controlName, label: label);
+  /// Amount typed in the Colombian format; when [optional] it may be left
+  /// empty and its hint says so.
+  static Widget amountField(
+    String controlName,
+    String label, {
+    bool optional = false,
+  }) =>
+      _AmountField(
+        controlName: controlName,
+        label: label,
+        helper: optional ? CrudTexts.optionalAmountHelper : null,
+      );
 
   /// Drop-down with every category of [labels], in its order.
   static Widget categoryField<C extends Enum>(
@@ -61,7 +78,16 @@ abstract final class ItemFormFields {
 
   /// Amount of the control [controlName] of a valid [form].
   static Money amountOf(FormGroup form, String controlName) =>
-      Money.tryParseInput(form.control(controlName).value as String)!;
+      optionalAmountOf(form, controlName)!;
+
+  /// Amount of the control [controlName] of a valid [form], or null when it
+  /// was left empty.
+  static Money? optionalAmountOf(FormGroup form, String controlName) {
+    final text = form.control(controlName).value as String?;
+    return text == null || text.trim().isEmpty
+        ? null
+        : Money.tryParseInput(text);
+  }
 
   static Map<String, dynamic>? _amount(AbstractControl<dynamic> control) {
     final text = control.value;
@@ -93,10 +119,15 @@ class _NameField extends StatelessWidget {
 }
 
 class _AmountField extends StatelessWidget {
-  const _AmountField({required this.controlName, required this.label});
+  const _AmountField({
+    required this.controlName,
+    required this.label,
+    this.helper,
+  });
 
   final String controlName;
   final String label;
+  final String? helper;
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +138,7 @@ class _AmountField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         prefixText: CrudTexts.amountPrefix,
-        helperText: CrudTexts.amountHelper,
+        helperText: helper ?? CrudTexts.amountHelper,
       ),
       validationMessages: {
         ValidationMessage.required: (_) => CrudTexts.amountRequired,
