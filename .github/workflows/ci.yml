@@ -43,6 +43,11 @@ jobs:
       - name: Check generated code is up to date
         run: |
           dart run build_runner build --delete-conflicting-outputs
+          # injectable_generator orders registrations without dependencies between them with an
+          # unstable sort, so the DI config is compared ignoring line order.
+          config=lib/core/di/injection.config.dart
+          diff <(git show HEAD:$config | sort) <(sort $config)
+          git checkout -- $config
           git status --porcelain -- lib test
           git --no-pager diff -- lib test
           test -z "$(git status --porcelain -- lib test)"
