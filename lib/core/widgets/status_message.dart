@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 
-/// Centered icon, title and message, used for placeholder and error views.
+/// Centered icon, title, message and optional action, used for empty,
+/// placeholder and error views.
 class StatusMessage extends StatelessWidget {
   const StatusMessage({
     required this.icon,
     required this.title,
     required this.message,
+    this.action,
     super.key,
   });
 
@@ -16,6 +18,9 @@ class StatusMessage extends StatelessWidget {
   final IconData icon;
   final String title;
   final String message;
+
+  /// Optional button under the message, such as "Retry".
+  final Widget? action;
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +44,10 @@ class StatusMessage extends StatelessWidget {
               style: AppTypography.bodyMedium,
               textAlign: TextAlign.center,
             ),
+            if (action != null) ...[
+              const SizedBox(height: AppSpacing.lg),
+              action!,
+            ],
           ],
         ),
       ),

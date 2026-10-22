@@ -86,4 +86,108 @@ void main() {
       expect(exception.statusCode, isNull);
     });
   });
+
+  group('ApiEnvelope.parseList', () {
+    test('parses every object of the data array', () {
+      final names = ApiEnvelope.parseList(
+        {
+          'data': [
+            {'name': 'Ada'},
+            {'name': 'Grace'},
+          ],
+        },
+        (json) => json['name'] as String,
+      );
+
+      expect(names, ['Ada', 'Grace']);
+    });
+
+    test('rejects data that is not an array or holds other values', () {
+      final invalid = throwsA(
+        isA<AppException>()
+            .having((e) => e.code, 'code', ErrorCodes.invalidResponse),
+      );
+
+      expect(
+        () => ApiEnvelope.parseList({'data': <String, Object?>{}}, (j) => j),
+        invalid,
+      );
+      expect(
+        () => ApiEnvelope.parseList(
+          {
+            'data': [1],
+          },
+          (j) => j,
+        ),
+        invalid,
+      );
+    });
+  });
+
+  group('ApiEnvelope.send', () {
+    test('returns the response of a successful request', () async {
+      final options = RequestOptions(path: '/x');
+      final response = await ApiEnvelope.send(
+        () async => Response<Object?>(requestOptions: options, statusCode: 200),
+      );
+
+      expect(response.statusCode, 200);
+    });
+
+    test('converts a dio failure into an app exception', () {
+      expect(
+        () => ApiEnvelope.send(
+          () => Future.error(
+            _withResponse(404, {
+              'error': {'code': 'NOT_FOUND', 'message': 'Missing'},
+            }),
+          ),
+        ),
+        throwsA(
+          isA<AppException>()
+              .having((e) => e.code, 'code', 'NOT_FOUND')
+              .having((e) => e.statusCode, 'statusCode', 404),
+        ),
+      );
+    });
+  });
+
+  group('ApiEnvelope validation details', () {
+    test('appends the field errors to the message', () {
+      final exception = ApiEnvelope.exceptionFrom(
+        _withResponse(400, {
+          'error': {
+            'code': 'VALIDATION_FAILED',
+            'message': 'Validation failed for 2 field(s)',
+            'details': [
+              {'field': 'snapshotDate', 'message': 'must not be in the future'},
+              {'message': 'is invalid'},
+              'ignored',
+            ],
+          },
+        }),
+      );
+
+      expect(exception.code, 'VALIDATION_FAILED');
+      expect(
+        exception.message,
+        'Validation failed for 2 field(s): '
+        'snapshotDate must not be in the future; is invalid',
+      );
+    });
+
+    test('keeps the message when the details are empty', () {
+      final exception = ApiEnvelope.exceptionFrom(
+        _withResponse(400, {
+          'error': {
+            'code': 'VALIDATION_FAILED',
+            'message': 'Validation failed',
+            'details': <Object?>[],
+          },
+        }),
+      );
+
+      expect(exception.message, 'Validation failed');
+    });
+  });
 }

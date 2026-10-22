@@ -40,6 +40,7 @@ abstract final class ApiPaths {
   static const String devLogin = '/auth/dev-login';
   static const String refresh = '/auth/refresh';
   static const String logout = '/auth/logout';
+  static const String assets = '/assets';
 }
 
 /// Keys of the backend response envelope (`{data, meta}` / `{error, meta}`).
@@ -48,6 +49,8 @@ abstract final class ApiEnvelopeKeys {
   static const String error = 'error';
   static const String code = 'code';
   static const String message = 'message';
+  static const String details = 'details';
+  static const String field = 'field';
 }
 
 /// Names of the HTTP clients registered in the service locator.

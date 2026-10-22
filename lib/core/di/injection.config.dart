@@ -15,6 +15,8 @@ import 'package:pennypincher_pro/core/auth/session_refresher.dart' as _i1018;
 import 'package:pennypincher_pro/core/auth/token_service.dart' as _i852;
 import 'package:pennypincher_pro/core/config/app_config.dart' as _i504;
 import 'package:pennypincher_pro/core/config/config_module.dart' as _i544;
+import 'package:pennypincher_pro/core/crud/domain/usecase/crud_use_cases.dart'
+    as _i678;
 import 'package:pennypincher_pro/core/network/auth_interceptor.dart' as _i93;
 import 'package:pennypincher_pro/core/network/network_module.dart' as _i683;
 import 'package:pennypincher_pro/core/router/app_router.dart' as _i446;
@@ -45,6 +47,18 @@ import 'package:pennypincher_pro/features/auth/domain/usecase/watch_session_expi
     as _i614;
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart'
     as _i238;
+import 'package:pennypincher_pro/features/net_worth/data/datasource/asset_remote_datasource.dart'
+    as _i392;
+import 'package:pennypincher_pro/features/net_worth/data/repository/asset_repository_impl.dart'
+    as _i171;
+import 'package:pennypincher_pro/features/net_worth/di/net_worth_module.dart'
+    as _i125;
+import 'package:pennypincher_pro/features/net_worth/domain/entity/asset_entity.dart'
+    as _i499;
+import 'package:pennypincher_pro/features/net_worth/domain/repository/asset_repository.dart'
+    as _i365;
+import 'package:pennypincher_pro/features/net_worth/presentation/bloc/asset_bloc.dart'
+    as _i1068;
 
 extension GetItInjectableX on _i174.GetIt {
 // initializes the registration of main-scope dependencies inside of GetIt
@@ -60,6 +74,7 @@ extension GetItInjectableX on _i174.GetIt {
     final configModule = _$ConfigModule();
     final networkModule = _$NetworkModule();
     final authModule = _$AuthModule();
+    final netWorthModule = _$NetWorthModule();
     gh.singleton<_i504.AppConfig>(() => configModule.config);
     gh.lazySingleton<_i449.PkceGenerator>(() => _i449.PkceGenerator());
     gh.lazySingleton<_i852.TokenService>(
@@ -119,9 +134,24 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i361.HttpClientAdapter>(),
           gh<_i93.AuthInterceptor>(),
         ));
+    gh.lazySingleton<_i392.AssetRemoteDataSource>(
+        () => _i392.AssetRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i446.AppRouter>(() => _i446.AppRouter(
           gh<_i504.AppConfig>(),
           gh<_i238.AuthBloc>(),
+        ));
+    gh.lazySingleton<_i365.AssetRepository>(
+        () => _i171.AssetRepositoryImpl(gh<_i392.AssetRemoteDataSource>()));
+    gh.factory<_i678.GetItems<_i499.Asset, _i499.AssetCategory>>(
+        () => netWorthModule.getAssets(gh<_i365.AssetRepository>()));
+    gh.factory<_i678.SaveItem<_i499.Asset, _i499.AssetCategory>>(
+        () => netWorthModule.saveAsset(gh<_i365.AssetRepository>()));
+    gh.factory<_i678.DeleteItem<_i499.Asset, _i499.AssetCategory>>(
+        () => netWorthModule.deleteAsset(gh<_i365.AssetRepository>()));
+    gh.factory<_i1068.AssetBloc>(() => _i1068.AssetBloc(
+          gh<_i678.GetItems<_i499.Asset, _i499.AssetCategory>>(),
+          gh<_i678.SaveItem<_i499.Asset, _i499.AssetCategory>>(),
+          gh<_i678.DeleteItem<_i499.Asset, _i499.AssetCategory>>(),
         ));
     return this;
   }
@@ -132,3 +162,5 @@ class _$ConfigModule extends _i544.ConfigModule {}
 class _$NetworkModule extends _i683.NetworkModule {}
 
 class _$AuthModule extends _i381.AuthModule {}
+
+class _$NetWorthModule extends _i125.NetWorthModule {}

@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pennypincher_pro/core/constants/app_constants.dart';
-import 'package:pennypincher_pro/core/error/app_exception.dart';
 import 'package:pennypincher_pro/core/network/api_envelope.dart';
 import 'package:pennypincher_pro/features/auth/data/model/auth_session_model.dart';
 import 'package:pennypincher_pro/features/auth/data/model/google_authorization.dart';
@@ -45,20 +44,13 @@ class DioAuthRemoteDataSource implements AuthRemoteDataSource {
   Future<AuthSessionModel> refresh() => _postSession(ApiPaths.refresh);
 
   @override
-  Future<void> logout() => _send(() => _dio.delete<Object?>(ApiPaths.logout));
+  Future<void> logout() =>
+      ApiEnvelope.send(() => _dio.delete<Object?>(ApiPaths.logout));
 
   Future<AuthSessionModel> _postSession(String path, {Object? body}) async {
-    final response = await _send(() => _dio.post<Object?>(path, data: body));
+    final response = await ApiEnvelope.send(
+      () => _dio.post<Object?>(path, data: body),
+    );
     return ApiEnvelope.parseData(response.data, AuthSessionModel.fromJson);
-  }
-
-  static Future<Response<Object?>> _send(
-    Future<Response<Object?>> Function() request,
-  ) async {
-    try {
-      return await request();
-    } on DioException catch (exception) {
-      throw ApiEnvelope.exceptionFrom(exception);
-    }
   }
 }

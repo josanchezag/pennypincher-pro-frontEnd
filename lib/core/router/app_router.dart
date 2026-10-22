@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pennypincher_pro/core/config/app_config.dart';
@@ -9,6 +10,7 @@ import 'package:pennypincher_pro/core/widgets/placeholder_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/login_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/splash_screen.dart';
+import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_pages.dart';
 
 /// go_router configuration with a named route for every screen, protected
 /// by [AuthGuard] and re-evaluated on every session change.
@@ -53,13 +55,19 @@ class AppRouter {
             onSignOut: () => authBloc.add(const AuthSignOutRequested()),
             child: child,
           ),
-          routes: AppRoute.shellRoutes.map(_placeholderRoute).toList(),
+          routes: AppRoute.shellRoutes.map(_shellRoute).toList(),
         ),
       ];
 
-  static GoRoute _placeholderRoute(AppRoute route) => GoRoute(
+  /// Screens built by the features; every other route shows a placeholder.
+  static final Map<AppRoute, WidgetBuilder> _screens = {
+    ...NetWorthPages.builders,
+  };
+
+  static GoRoute _shellRoute(AppRoute route) => GoRoute(
         path: route.path,
         name: route.name,
-        builder: (context, state) => PlaceholderScreen(route: route),
+        builder: (context, state) =>
+            _screens[route]?.call(context) ?? PlaceholderScreen(route: route),
       );
 }

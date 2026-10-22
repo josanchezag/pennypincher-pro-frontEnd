@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/layout/app_shell.dart';
 import 'package:pennypincher_pro/core/router/app_destination.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
@@ -10,8 +11,11 @@ import 'package:pennypincher_pro/core/widgets/placeholder_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/login_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/splash_screen.dart';
+import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_pages.dart';
+import 'package:pennypincher_pro/features/net_worth/presentation/screen/assets_screen.dart';
 
 import '../../helpers/mocks.dart';
+import '../../helpers/net_worth_mocks.dart';
 import '../../helpers/pump_app.dart';
 
 String _concretePath(AppRoute route) =>
@@ -95,7 +99,9 @@ void main() {
   });
 
   group('AppRouter', () {
-    for (final route in AppRoute.shellRoutes) {
+    final placeholders = AppRoute.shellRoutes
+        .where((route) => !NetWorthPages.builders.containsKey(route));
+    for (final route in placeholders) {
       testWidgets('renders ${route.path} inside the shell', (tester) async {
         await tester.pumpApp(location: _concretePath(route));
 
@@ -110,6 +116,15 @@ void main() {
         );
       });
     }
+
+    testWidgets('renders the assets screen inside the shell', (tester) async {
+      registerAssetBloc(const CrudLoaded([]));
+
+      await tester.pumpApp(location: AppRoute.netWorthAssets.path);
+
+      expect(find.byType(AppShell), findsOneWidget);
+      expect(find.byType(AssetsScreen), findsOneWidget);
+    });
 
     testWidgets('renders the login route without the shell', (tester) async {
       await tester.pumpApp(

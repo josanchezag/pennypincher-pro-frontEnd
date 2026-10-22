@@ -7,6 +7,8 @@ import 'package:pennypincher_pro/core/di/injection.dart';
 import 'package:pennypincher_pro/core/network/auth_interceptor.dart';
 import 'package:pennypincher_pro/core/router/app_router.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:pennypincher_pro/features/net_worth/domain/repository/asset_repository.dart';
+import 'package:pennypincher_pro/features/net_worth/presentation/bloc/asset_bloc.dart';
 
 void main() {
   setUp(configureDependencies);
@@ -17,6 +19,16 @@ void main() {
     expect(getIt<AppRouter>(), same(getIt<AppRouter>()));
     expect(getIt<AuthBloc>(), same(getIt<AuthBloc>()));
     expect(getIt<SessionRefresher>(), isA<SessionRefresher>());
+  });
+
+  test('creates a fresh assets bloc for every screen', () {
+    final first = getIt<AssetBloc>();
+    addTearDown(first.close);
+    final second = getIt<AssetBloc>();
+    addTearDown(second.close);
+
+    expect(first, isNot(same(second)));
+    expect(getIt<AssetRepository>(), same(getIt<AssetRepository>()));
   });
 
   test('points the HTTP client at the configured API base URL', () {
