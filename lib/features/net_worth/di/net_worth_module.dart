@@ -1,7 +1,9 @@
 import 'package:injectable/injectable.dart';
 import 'package:pennypincher_pro/core/crud/domain/usecase/crud_use_cases.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/asset_entity.dart';
+import 'package:pennypincher_pro/features/net_worth/domain/entity/liability_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/repository/asset_repository.dart';
+import 'package:pennypincher_pro/features/net_worth/domain/repository/liability_repository.dart';
 
 /// Registers the net worth use cases, keeping the domain layer free of
 /// dependency injection annotations.
@@ -17,5 +19,23 @@ abstract class NetWorthModule {
 
   @injectable
   DeleteItem<Asset, AssetCategory> deleteAsset(AssetRepository repository) =>
+      DeleteItem(repository);
+
+  @injectable
+  GetItems<Liability, LiabilityCategory> getLiabilities(
+    LiabilityRepository repository,
+  ) =>
+      GetItems(repository);
+
+  @injectable
+  SaveItem<Liability, LiabilityCategory> saveLiability(
+    LiabilityRepository repository,
+  ) =>
+      SaveItem(repository);
+
+  @injectable
+  DeleteItem<Liability, LiabilityCategory> deleteLiability(
+    LiabilityRepository repository,
+  ) =>
       DeleteItem(repository);
 }

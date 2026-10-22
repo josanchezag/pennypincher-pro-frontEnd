@@ -4,8 +4,11 @@ import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/di/injection.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/asset_entity.dart';
+import 'package:pennypincher_pro/features/net_worth/domain/entity/liability_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/asset_bloc.dart';
+import 'package:pennypincher_pro/features/net_worth/presentation/bloc/liability_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/assets_screen.dart';
+import 'package:pennypincher_pro/features/net_worth/presentation/screen/liabilities_screen.dart';
 
 /// Screens of the net worth section, each with a fresh bloc that starts
 /// loading as soon as the screen opens and closes with it.
@@ -15,6 +18,11 @@ abstract final class NetWorthPages {
           create: (_) =>
               getIt<AssetBloc>()..add(const CrudLoadRequested<AssetCategory>()),
           child: const AssetsScreen(),
+        ),
+    AppRoute.netWorthLiabilities: (_) => BlocProvider<LiabilityBloc>(
+          create: (_) => getIt<LiabilityBloc>()
+            ..add(const CrudLoadRequested<LiabilityCategory>()),
+          child: const LiabilitiesScreen(),
         ),
   };
 }

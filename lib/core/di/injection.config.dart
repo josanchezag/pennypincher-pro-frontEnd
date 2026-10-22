@@ -49,16 +49,26 @@ import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart'
     as _i238;
 import 'package:pennypincher_pro/features/net_worth/data/datasource/asset_remote_datasource.dart'
     as _i392;
+import 'package:pennypincher_pro/features/net_worth/data/datasource/liability_remote_datasource.dart'
+    as _i277;
 import 'package:pennypincher_pro/features/net_worth/data/repository/asset_repository_impl.dart'
     as _i171;
+import 'package:pennypincher_pro/features/net_worth/data/repository/liability_repository_impl.dart'
+    as _i418;
 import 'package:pennypincher_pro/features/net_worth/di/net_worth_module.dart'
     as _i125;
 import 'package:pennypincher_pro/features/net_worth/domain/entity/asset_entity.dart'
     as _i499;
+import 'package:pennypincher_pro/features/net_worth/domain/entity/liability_entity.dart'
+    as _i941;
 import 'package:pennypincher_pro/features/net_worth/domain/repository/asset_repository.dart'
     as _i365;
+import 'package:pennypincher_pro/features/net_worth/domain/repository/liability_repository.dart'
+    as _i90;
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/asset_bloc.dart'
     as _i1068;
+import 'package:pennypincher_pro/features/net_worth/presentation/bloc/liability_bloc.dart'
+    as _i944;
 
 extension GetItInjectableX on _i174.GetIt {
 // initializes the registration of main-scope dependencies inside of GetIt
@@ -136,12 +146,16 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.lazySingleton<_i392.AssetRemoteDataSource>(
         () => _i392.AssetRemoteDataSource(gh<_i361.Dio>()));
+    gh.lazySingleton<_i277.LiabilityRemoteDataSource>(
+        () => _i277.LiabilityRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i446.AppRouter>(() => _i446.AppRouter(
           gh<_i504.AppConfig>(),
           gh<_i238.AuthBloc>(),
         ));
     gh.lazySingleton<_i365.AssetRepository>(
         () => _i171.AssetRepositoryImpl(gh<_i392.AssetRemoteDataSource>()));
+    gh.lazySingleton<_i90.LiabilityRepository>(() =>
+        _i418.LiabilityRepositoryImpl(gh<_i277.LiabilityRemoteDataSource>()));
     gh.factory<_i678.GetItems<_i499.Asset, _i499.AssetCategory>>(
         () => netWorthModule.getAssets(gh<_i365.AssetRepository>()));
     gh.factory<_i678.SaveItem<_i499.Asset, _i499.AssetCategory>>(
@@ -152,6 +166,17 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i678.GetItems<_i499.Asset, _i499.AssetCategory>>(),
           gh<_i678.SaveItem<_i499.Asset, _i499.AssetCategory>>(),
           gh<_i678.DeleteItem<_i499.Asset, _i499.AssetCategory>>(),
+        ));
+    gh.factory<_i678.GetItems<_i941.Liability, _i941.LiabilityCategory>>(
+        () => netWorthModule.getLiabilities(gh<_i90.LiabilityRepository>()));
+    gh.factory<_i678.SaveItem<_i941.Liability, _i941.LiabilityCategory>>(
+        () => netWorthModule.saveLiability(gh<_i90.LiabilityRepository>()));
+    gh.factory<_i678.DeleteItem<_i941.Liability, _i941.LiabilityCategory>>(
+        () => netWorthModule.deleteLiability(gh<_i90.LiabilityRepository>()));
+    gh.factory<_i944.LiabilityBloc>(() => _i944.LiabilityBloc(
+          gh<_i678.GetItems<_i941.Liability, _i941.LiabilityCategory>>(),
+          gh<_i678.SaveItem<_i941.Liability, _i941.LiabilityCategory>>(),
+          gh<_i678.DeleteItem<_i941.Liability, _i941.LiabilityCategory>>(),
         ));
     return this;
   }

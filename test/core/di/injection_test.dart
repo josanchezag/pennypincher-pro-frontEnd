@@ -8,7 +8,9 @@ import 'package:pennypincher_pro/core/network/auth_interceptor.dart';
 import 'package:pennypincher_pro/core/router/app_router.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/repository/asset_repository.dart';
+import 'package:pennypincher_pro/features/net_worth/domain/repository/liability_repository.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/asset_bloc.dart';
+import 'package:pennypincher_pro/features/net_worth/presentation/bloc/liability_bloc.dart';
 
 void main() {
   setUp(configureDependencies);
@@ -21,14 +23,17 @@ void main() {
     expect(getIt<SessionRefresher>(), isA<SessionRefresher>());
   });
 
-  test('creates a fresh assets bloc for every screen', () {
-    final first = getIt<AssetBloc>();
-    addTearDown(first.close);
-    final second = getIt<AssetBloc>();
-    addTearDown(second.close);
+  test('creates a fresh list bloc for every screen', () {
+    final assets = [getIt<AssetBloc>(), getIt<AssetBloc>()];
+    final liabilities = [getIt<LiabilityBloc>(), getIt<LiabilityBloc>()];
+    for (final bloc in [...assets, ...liabilities]) {
+      addTearDown(bloc.close);
+    }
 
-    expect(first, isNot(same(second)));
+    expect(assets.first, isNot(same(assets.last)));
+    expect(liabilities.first, isNot(same(liabilities.last)));
     expect(getIt<AssetRepository>(), same(getIt<AssetRepository>()));
+    expect(getIt<LiabilityRepository>(), same(getIt<LiabilityRepository>()));
   });
 
   test('points the HTTP client at the configured API base URL', () {

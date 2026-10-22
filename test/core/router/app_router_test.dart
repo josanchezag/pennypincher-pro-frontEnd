@@ -13,6 +13,7 @@ import 'package:pennypincher_pro/features/auth/presentation/screen/login_screen.
 import 'package:pennypincher_pro/features/auth/presentation/screen/splash_screen.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_pages.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/assets_screen.dart';
+import 'package:pennypincher_pro/features/net_worth/presentation/screen/liabilities_screen.dart';
 
 import '../../helpers/mocks.dart';
 import '../../helpers/net_worth_mocks.dart';
@@ -124,6 +125,16 @@ void main() {
 
       expect(find.byType(AppShell), findsOneWidget);
       expect(find.byType(AssetsScreen), findsOneWidget);
+    });
+
+    testWidgets('renders the liabilities screen inside the shell',
+        (tester) async {
+      registerLiabilityBloc(const CrudLoaded([]));
+
+      await tester.pumpApp(location: AppRoute.netWorthLiabilities.path);
+
+      expect(find.byType(AppShell), findsOneWidget);
+      expect(find.byType(LiabilitiesScreen), findsOneWidget);
     });
 
     testWidgets('renders the login route without the shell', (tester) async {
