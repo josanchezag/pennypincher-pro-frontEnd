@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pennypincher_pro/core/error/failure.dart';
 import 'package:pennypincher_pro/features/auth/domain/entity/user_entity.dart';
+import 'package:pennypincher_pro/features/auth/domain/usecase/restore_session.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_dev_login.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_google.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_out.dart';
@@ -21,11 +22,13 @@ typedef _SignInAction = Future<Either<Failure, User>> Function();
 @lazySingleton
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc(
+    this._restoreSession,
     this._signInWithGoogle,
     this._signInWithDevLogin,
     this._signOut,
     WatchSessionExpiry watchSessionExpiry,
   ) : super(const AuthInitial()) {
+    on<AuthCheckRequested>(_onCheckRequested);
     on<AuthSignInRequested>((_, emit) => _signIn(_signInWithGoogle.call, emit));
     on<AuthDevSignInRequested>(
       (_, emit) => _signIn(_signInWithDevLogin.call, emit),
@@ -37,6 +40,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  final RestoreSession _restoreSession;
   final SignInWithGoogle _signInWithGoogle;
   final SignInWithDevLogin _signInWithDevLogin;
   final SignOut _signOut;
@@ -56,14 +60,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  /// Any failure leaves the user signed out: they can still sign in.
+  Future<void> _onCheckRequested(
+    AuthCheckRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    if (state is AuthAuthenticated || state is AuthLoading) {
+      return;
+    }
+    emit(const AuthLoading());
+    final result = await _restoreSession();
+    emit(
+      result.fold(
+        (_) => const AuthUnauthenticated(),
+        AuthAuthenticated.new,
+      ),
+    );
+  }
+
   /// The local session ends even when the backend cannot be reached.
   Future<void> _onSignOutRequested(
     AuthSignOutRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(const AuthLoading());
     await _signOut();
-    emit(const AuthUnauthenticated());
+    emit(const AuthUnauthenticated(signedOut: true));
   }
 
   @override

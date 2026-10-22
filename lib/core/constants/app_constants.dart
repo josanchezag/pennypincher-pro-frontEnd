@@ -4,7 +4,10 @@ abstract final class AppConstants {
   static const String appName = 'PennyPincher Pro';
   static const String tagline = 'Your personal finance command center';
 
-  static const Duration splashDuration = Duration(milliseconds: 1500);
+  /// The splash screen stays at least [splashMinDuration] and, while the
+  /// session check is still running, at most [splashMaxDuration].
+  static const Duration splashMinDuration = Duration(seconds: 1);
+  static const Duration splashMaxDuration = Duration(seconds: 2);
   static const Duration connectTimeout = Duration(seconds: 15);
   static const Duration receiveTimeout = Duration(seconds: 30);
 

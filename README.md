@@ -48,9 +48,14 @@ el backend.
    tiene la cookie nueva); nunca lo trata como cierre de sesión.
 5. `AuthGuard` (redirect de go_router, reevaluado con cada cambio del `AuthBloc`) manda a `/login`
    a quien no tiene sesión (guardando la ruta pedida en `?from=`) y saca de `/login` a quien ya la
-   tiene (hacia `from` o `/dashboard`; `from` solo se sigue si es una ruta relativa conocida de la
+   tiene (hacia `from` o `/dashboard`; tras un *sign out* explícito va a `/login` sin `from`; `from` solo se sigue si es una ruta relativa conocida de la
    app, sin esquema, host ni barras invertidas). *Sign out* (`DELETE /auth/logout`) siempre limpia la sesión
    local, aunque falle la llamada.
+6. Al arrancar, la app envía `AuthCheckRequested`: como el *access token* no se persiste, la
+   sesión se restaura con un `POST /auth/refresh` silencioso usando la cookie. El *splash* se
+   muestra al menos 1 s; abre la ruta pedida (o `/dashboard`) si hay sesión, o `/login` si no.
+   Si el chequeo sigue en curso a los 2 s (por ejemplo, un arranque en frío del backend), pasa a
+   `/login`, y el guard redirige en cuanto la sesión se restaura.
 
 El token de Google **nunca** se usa directamente contra la API.
 
@@ -231,4 +236,5 @@ Flutter 3.24.5 fijado:
 
 ## Estado
 
-En construcción: base del proyecto (EPIC-001).
+En construcción: base del proyecto (EPIC-001) y autenticación con Google, protección de rutas y
+restauración de sesión (EPIC-002).

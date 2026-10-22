@@ -4,6 +4,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/error/failure.dart';
 import 'package:pennypincher_pro/features/auth/domain/entity/user_entity.dart';
 import 'package:pennypincher_pro/features/auth/domain/repository/auth_repository.dart';
+import 'package:pennypincher_pro/features/auth/domain/usecase/restore_session.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_dev_login.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_google.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_out.dart';
@@ -29,6 +30,12 @@ void main() {
     when(repository.signInWithDevLogin).thenAnswer((_) async => signedIn);
 
     expect(await SignInWithDevLogin(repository)(), signedIn);
+  });
+
+  test('RestoreSession refreshes the session', () async {
+    when(repository.refreshSession).thenAnswer((_) async => signedIn);
+
+    expect(await RestoreSession(repository)(), signedIn);
   });
 
   test('SignOut delegates to the repository', () async {

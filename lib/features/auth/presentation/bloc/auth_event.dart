@@ -8,6 +8,11 @@ sealed class AuthEvent extends Equatable {
   List<Object?> get props => const [];
 }
 
+/// The app started: restore the session from the refresh cookie.
+final class AuthCheckRequested extends AuthEvent {
+  const AuthCheckRequested();
+}
+
 /// The user pressed "Sign in with Google".
 final class AuthSignInRequested extends AuthEvent {
   const AuthSignInRequested();

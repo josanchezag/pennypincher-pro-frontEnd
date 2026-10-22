@@ -33,6 +33,8 @@ import 'package:pennypincher_pro/features/auth/data/repository/repository_sessio
 import 'package:pennypincher_pro/features/auth/di/auth_module.dart' as _i381;
 import 'package:pennypincher_pro/features/auth/domain/repository/auth_repository.dart'
     as _i246;
+import 'package:pennypincher_pro/features/auth/domain/usecase/restore_session.dart'
+    as _i180;
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_dev_login.dart'
     as _i440;
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_google.dart'
@@ -101,9 +103,12 @@ extension GetItInjectableX on _i174.GetIt {
         () => authModule.signInWithDevLogin(gh<_i246.AuthRepository>()));
     gh.factory<_i128.SignOut>(
         () => authModule.signOut(gh<_i246.AuthRepository>()));
+    gh.factory<_i180.RestoreSession>(
+        () => authModule.restoreSession(gh<_i246.AuthRepository>()));
     gh.factory<_i614.WatchSessionExpiry>(
         () => authModule.watchSessionExpiry(gh<_i246.AuthRepository>()));
     gh.lazySingleton<_i238.AuthBloc>(() => _i238.AuthBloc(
+          gh<_i180.RestoreSession>(),
           gh<_i255.SignInWithGoogle>(),
           gh<_i440.SignInWithDevLogin>(),
           gh<_i128.SignOut>(),

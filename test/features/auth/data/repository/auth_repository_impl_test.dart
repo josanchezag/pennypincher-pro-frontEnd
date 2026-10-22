@@ -12,6 +12,7 @@ import 'package:pennypincher_pro/features/auth/data/model/google_authorization.d
 import 'package:pennypincher_pro/features/auth/data/oauth/oauth_constants.dart';
 import 'package:pennypincher_pro/features/auth/data/oauth/oauth_exception.dart';
 import 'package:pennypincher_pro/features/auth/data/repository/auth_repository_impl.dart';
+import 'package:pennypincher_pro/features/auth/domain/usecase/restore_session.dart';
 
 import '../../../../helpers/fake_http_adapter.dart';
 import '../../../../helpers/mocks.dart';
@@ -195,6 +196,19 @@ void main() {
 
       expect(result.fold((f) => f, (_) => null), isA<UnauthorizedFailure>());
     });
+  });
+
+  test('restores the session on startup after a superseded refresh', () async {
+    var calls = 0;
+    when(remote.refresh).thenAnswer((_) async {
+      calls++;
+      return calls == 1 ? throw _superseded : session;
+    });
+
+    final result = await RestoreSession(repository)();
+
+    expect(result, Right<Failure, Object>(testUser));
+    expect(tokens.accessToken, 'access-1');
   });
 
   test('exposes the session expirations of the token service', () async {

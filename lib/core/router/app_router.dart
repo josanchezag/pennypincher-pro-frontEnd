@@ -38,7 +38,9 @@ class AppRouter {
         GoRoute(
           path: AppRoute.splash.path,
           name: AppRoute.splash.name,
-          builder: (context, state) => const SplashScreen(),
+          builder: (context, state) => SplashScreen(
+            from: state.uri.queryParameters[AuthGuard.fromParam],
+          ),
         ),
         GoRoute(
           path: AppRoute.login.path,

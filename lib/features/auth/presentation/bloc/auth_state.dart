@@ -28,7 +28,14 @@ final class AuthAuthenticated extends AuthState {
 }
 
 final class AuthUnauthenticated extends AuthState {
-  const AuthUnauthenticated();
+  const AuthUnauthenticated({this.signedOut = false});
+
+  /// The user signed out on purpose, so the current location is not kept
+  /// for after the next sign-in.
+  final bool signedOut;
+
+  @override
+  List<Object?> get props => [signedOut];
 }
 
 /// The last sign-in attempt failed; the user is not signed in.

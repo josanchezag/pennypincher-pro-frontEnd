@@ -1,12 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/layout/app_shell.dart';
 import 'package:pennypincher_pro/core/router/app_destination.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/widgets/placeholder_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/login_screen.dart';
+import 'package:pennypincher_pro/features/auth/presentation/screen/splash_screen.dart';
 
 import '../../helpers/mocks.dart';
 import '../../helpers/pump_app.dart';
@@ -149,6 +152,26 @@ void main() {
 
       expect(find.byType(LoginScreen), findsOneWidget);
       expect(find.byType(AppShell), findsNothing);
+    });
+
+    testWidgets('sign out from the shell lands on /login', (tester) async {
+      final states = StreamController<AuthState>.broadcast();
+      addTearDown(states.close);
+      final bloc = mockAuthBloc(
+        AuthAuthenticated(testUser),
+        stream: states.stream,
+      );
+      await tester.pumpApp(location: AppRoute.budget.path, authBloc: bloc);
+      final router = GoRouter.of(tester.element(find.byType(AppShell)));
+
+      await tester.tap(find.byTooltip(AppShell.signOutTooltip));
+      verify(() => bloc.add(const AuthSignOutRequested())).called(1);
+      states.add(const AuthUnauthenticated(signedOut: true));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(LoginScreen), findsOneWidget);
+      expect(find.byType(SplashScreen), findsNothing);
+      expect(router.routeInformationProvider.value.uri.toString(), '/login');
     });
 
     testWidgets('returns to login when the session expires', (tester) async {

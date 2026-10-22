@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pennypincher_pro/core/config/app_config.dart';
-import 'package:pennypincher_pro/core/constants/app_constants.dart';
 import 'package:pennypincher_pro/core/theme/app_breakpoints.dart';
-import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/widgets/app_snackbar.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:pennypincher_pro/features/auth/presentation/widget/brand_header.dart';
 import 'package:pennypincher_pro/features/auth/presentation/widget/google_sign_in_button.dart';
 
 /// Sign-in screen: a centered card on tablet and desktop, full screen on
@@ -19,7 +18,6 @@ class LoginScreen extends StatelessWidget {
   static const String notConfiguredMessage =
       'Google sign-in is not configured for this build.';
   static const double cardMaxWidth = 440;
-  static const double logoSize = AppSpacing.xxxl;
   static const Key cardKey = Key('login-card');
   static const Key devLoginKey = Key('dev-login-button');
 
@@ -108,7 +106,7 @@ class _LoginContent extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const _Brand(),
+        const BrandHeader(),
         const SizedBox(height: AppSpacing.xl),
         GoogleSignInButton(
           isLoading: isLoading,
@@ -135,35 +133,6 @@ class _LoginContent extends StatelessWidget {
 
 void _add(BuildContext context, AuthEvent event) =>
     context.read<AuthBloc>().add(event);
-
-class _Brand extends StatelessWidget {
-  const _Brand();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Column(
-      children: [
-        Icon(
-          Icons.account_balance_wallet_outlined,
-          size: LoginScreen.logoSize,
-          color: AppColors.accentGold,
-        ),
-        SizedBox(height: AppSpacing.md),
-        Text(
-          AppConstants.appName,
-          style: AppTypography.heading1,
-          textAlign: TextAlign.center,
-        ),
-        SizedBox(height: AppSpacing.xs),
-        Text(
-          AppConstants.tagline,
-          style: AppTypography.bodyMedium,
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-}
 
 class _DevLoginButton extends StatelessWidget {
   const _DevLoginButton({required this.isLoading});

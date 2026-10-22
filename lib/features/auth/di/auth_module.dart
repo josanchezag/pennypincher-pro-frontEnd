@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:pennypincher_pro/features/auth/domain/repository/auth_repository.dart';
+import 'package:pennypincher_pro/features/auth/domain/usecase/restore_session.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_dev_login.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_google.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_out.dart';
@@ -19,6 +20,10 @@ abstract class AuthModule {
 
   @injectable
   SignOut signOut(AuthRepository repository) => SignOut(repository);
+
+  @injectable
+  RestoreSession restoreSession(AuthRepository repository) =>
+      RestoreSession(repository);
 
   @injectable
   WatchSessionExpiry watchSessionExpiry(AuthRepository repository) =>

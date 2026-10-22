@@ -9,12 +9,19 @@ String? _redirect(AuthState state, String location) =>
 
 void main() {
   final signedIn = AuthAuthenticated(testUser);
-  const signedOut = <AuthState>[
-    AuthInitial(),
-    AuthLoading(),
-    AuthUnauthenticated(),
-    AuthError('failed'),
-  ];
+  const resolving = <AuthState>[AuthInitial(), AuthLoading()];
+  const signedOut = <AuthState>[AuthUnauthenticated(), AuthError('failed')];
+
+  group('while the session check runs', () {
+    for (final state in resolving) {
+      test('sends ${state.runtimeType} on a protected route to the splash', () {
+        expect(
+          _redirect(state, '/budget/income'),
+          '/?from=%2Fbudget%2Fincome',
+        );
+      });
+    }
+  });
 
   group('without a session', () {
     for (final state in signedOut) {
@@ -24,11 +31,20 @@ void main() {
           '/login?from=%2Fbudget%2Fincome',
         );
       });
+    }
 
+    for (final state in [...resolving, ...signedOut]) {
       test('keeps ${state.runtimeType} on the login screen', () {
         expect(_redirect(state, '/login'), isNull);
       });
     }
+  });
+
+  test('sends a signed-out user to login without keeping the location', () {
+    expect(
+      _redirect(const AuthUnauthenticated(signedOut: true), '/budget'),
+      '/login',
+    );
   });
 
   group('with a session', () {
@@ -55,6 +71,11 @@ void main() {
   test('never redirects away from the splash screen', () {
     expect(_redirect(const AuthUnauthenticated(), '/'), isNull);
     expect(_redirect(signedIn, '/'), isNull);
+  });
+
+  test('loginFor keeps the requested location', () {
+    expect(AuthGuard.loginFor(null), '/login');
+    expect(AuthGuard.loginFor('/goals'), '/login?from=%2Fgoals');
   });
 
   group('targetAfterSignIn', () {
