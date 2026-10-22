@@ -91,6 +91,54 @@ flutter build web --release \
 El resultado queda en `build/web` y se puede servir desde cualquier hosting estático con
 *fallback* a `index.html` (rutas SPA).
 
+## Estructura
+
+Arquitectura limpia por *feature*:
+
+```
+lib/
+├── core/
+│   ├── config/      # AppConfig (lee los --dart-define)
+│   ├── constants/   # AppConstants, EnvKeys, EnvDefaults
+│   ├── di/          # get_it + injectable (injection.dart y su .config.dart generado)
+│   ├── error/       # Failure (sealed) y AppException
+│   ├── layout/      # AppShell responsive (barra inferior / rail / rail expandido)
+│   ├── network/     # Cliente dio
+│   ├── router/      # AppRoute, AppDestination y AppRouter (go_router)
+│   ├── theme/       # AppColors, AppTypography, AppSpacing, AppBreakpoints, AppTheme
+│   └── widgets/     # Widgets reutilizables (placeholder, mensajes de estado)
+├── features/
+│   └── <feature>/{data,domain,presentation}
+├── app.dart
+└── main.dart
+```
+
+Breakpoints: móvil `< 600 px` (barra de navegación inferior), tablet `600–1023 px` (rail
+colapsado) y escritorio `>= 1024 px` (rail expandido con etiquetas); el contenido se limita a
+`1280 px` de ancho.
+
+Las fuentes **Inter** y **Roboto Mono** (licencia OFL) van empaquetadas en `assets/fonts`, así
+la app no descarga fuentes en tiempo de ejecución.
+
+## Código generado
+
+Los archivos generados por `build_runner` (`*.config.dart`, `*.g.dart`, `*.freezed.dart`)
+**se versionan**: CI y Docker compilan sin ejecutar el generador. Después de cambiar una clase
+anotada (`@injectable`, `@freezed`, `@JsonSerializable`) hay que regenerarlos y commitearlos:
+
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+## Calidad
+
+```bash
+dart format --set-exit-if-changed .
+flutter analyze --fatal-infos
+flutter test
+flutter build web --release
+```
+
 ## Estado
 
 En construcción: base del proyecto (EPIC-001).
