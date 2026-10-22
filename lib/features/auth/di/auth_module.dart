@@ -3,6 +3,7 @@ import 'package:pennypincher_pro/features/auth/domain/repository/auth_repository
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_dev_login.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_google.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_out.dart';
+import 'package:pennypincher_pro/features/auth/domain/usecase/watch_session_expiry.dart';
 
 /// Registers the auth use cases, keeping the domain layer free of
 /// dependency injection annotations.
@@ -18,4 +19,8 @@ abstract class AuthModule {
 
   @injectable
   SignOut signOut(AuthRepository repository) => SignOut(repository);
+
+  @injectable
+  WatchSessionExpiry watchSessionExpiry(AuthRepository repository) =>
+      WatchSessionExpiry(repository);
 }

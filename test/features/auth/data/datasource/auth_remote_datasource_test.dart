@@ -55,6 +55,15 @@ void main() {
     expect(session.user.name, 'Ada Lovelace');
   });
 
+  test('refreshes the session with the cookie, without a body', () async {
+    final session = await dataSource.refresh();
+
+    expect(adapter.requests.single.method, 'POST');
+    expect(adapter.requests.single.path, '/auth/refresh');
+    expect(adapter.requests.single.data, isNull);
+    expect(session.accessToken, 'access-1');
+  });
+
   test('deletes the session on logout', () async {
     adapter.handler = (_) async => const FakeResponse(204);
 

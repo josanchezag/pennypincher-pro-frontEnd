@@ -8,6 +8,11 @@ abstract final class AppConstants {
   static const Duration connectTimeout = Duration(seconds: 15);
   static const Duration receiveTimeout = Duration(seconds: 30);
 
+  /// Wait before repeating a refresh that another tab superseded, so the
+  /// browser has stored the cookie rotated by that tab.
+  static const Duration refreshSupersededRetryDelay =
+      Duration(milliseconds: 300);
+
   static const String contentTypeJson = 'application/json';
 }
 
@@ -30,6 +35,7 @@ abstract final class ApiPaths {
   static const String authPrefix = '/auth/';
   static const String googleCallback = '/auth/google/callback';
   static const String devLogin = '/auth/dev-login';
+  static const String refresh = '/auth/refresh';
   static const String logout = '/auth/logout';
 }
 
@@ -39,6 +45,16 @@ abstract final class ApiEnvelopeKeys {
   static const String error = 'error';
   static const String code = 'code';
   static const String message = 'message';
+}
+
+/// Names of the HTTP clients registered in the service locator.
+abstract final class NetworkNames {
+  static const String plainDio = 'plainDio';
+}
+
+/// HTTP header names set by the client.
+abstract final class HttpHeaders {
+  static const String authorization = 'Authorization';
 }
 
 /// HTTP status codes the client reacts to.

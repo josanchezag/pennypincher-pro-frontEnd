@@ -32,6 +32,12 @@ const AppException _unauthorized = AppException(
   statusCode: 401,
 );
 
+const AppException _superseded = AppException(
+  code: ErrorCodes.refreshSuperseded,
+  message: 'Refresh token superseded',
+  statusCode: 401,
+);
+
 void main() {
   late _MockGoogleAuthDataSource google;
   late _MockAuthRemoteDataSource remote;
@@ -138,5 +144,64 @@ void main() {
       expect(result.fold((f) => f, (_) => null), isA<ServerFailure>());
       expect(tokens.hasToken, isFalse);
     });
+  });
+
+  group('refreshSession', () {
+    test('stores the renewed token and returns the user', () async {
+      when(remote.refresh).thenAnswer((_) async => session);
+
+      final result = await repository.refreshSession();
+
+      expect(result, Right<Failure, Object>(testUser));
+      expect(tokens.accessToken, 'access-1');
+    });
+
+    test('retries once when another tab refreshed first', () async {
+      var calls = 0;
+      when(remote.refresh).thenAnswer((_) async {
+        calls++;
+        if (calls == 1) {
+          throw _superseded;
+        }
+        return session;
+      });
+
+      final result = await repository.refreshSession();
+
+      expect(result, Right<Failure, Object>(testUser));
+      expect(calls, 2);
+      expect(tokens.accessToken, 'access-1');
+    });
+
+    test('keeps the session when the refresh stays superseded', () async {
+      tokens.save('access-old');
+      when(remote.refresh).thenThrow(_superseded);
+
+      final result = await repository.refreshSession();
+
+      expect(
+        result.fold((f) => f, (_) => null),
+        isA<ServerFailure>()
+            .having((f) => f.code, 'code', ErrorCodes.refreshSuperseded),
+      );
+      verify(remote.refresh).called(2);
+      expect(tokens.accessToken, 'access-old');
+    });
+
+    test('maps a rejected cookie to an unauthorized failure', () async {
+      when(remote.refresh).thenThrow(_unauthorized);
+
+      final result = await repository.refreshSession();
+
+      expect(result.fold((f) => f, (_) => null), isA<UnauthorizedFailure>());
+    });
+  });
+
+  test('exposes the session expirations of the token service', () async {
+    final expired = expectLater(repository.sessionExpirations, emits(null));
+
+    tokens.expireSession();
+
+    await expired;
   });
 }

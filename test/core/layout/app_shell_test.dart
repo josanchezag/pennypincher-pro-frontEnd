@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/layout/app_shell.dart';
 import 'package:pennypincher_pro/core/router/app_destination.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/widgets/placeholder_screen.dart';
+import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 
+import '../../helpers/mocks.dart';
 import '../../helpers/pump_app.dart';
 
 void main() {
@@ -90,5 +93,17 @@ void main() {
       );
       expect(box.constraints.maxWidth, AppSpacing.maxContentWidth);
     });
+
+    for (final size in [TestViewports.mobile, TestViewports.desktop]) {
+      testWidgets('signs out from the shell at ${size.width} px',
+          (tester) async {
+        final bloc = mockAuthBloc(AuthAuthenticated(testUser));
+        await tester.pumpApp(size: size, authBloc: bloc);
+
+        await tester.tap(find.byTooltip(AppShell.signOutTooltip));
+
+        verify(() => bloc.add(const AuthSignOutRequested())).called(1);
+      });
+    }
   });
 }

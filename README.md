@@ -38,7 +38,19 @@ el backend.
      como `Authorization: Bearer <token>`.
    - *Refresh token* opaco y rotativo, enviado como cookie `httpOnly; Secure; SameSite=Strict`
      (el frontend nunca lo lee).
-4. Cuando la API responde `401`, el cliente llama a `POST /api/v1/auth/refresh` y reintenta una vez.
+4. `AuthInterceptor` (dio, `QueuedInterceptorsWrapper`) agrega el *bearer* a cada llamada que no
+   sea `/auth/*`. Ante un `401` llama una sola vez a `POST /api/v1/auth/refresh` (las peticiones
+   concurrentes comparten ese único *refresh*) y reintenta la petición original una vez, con un
+   cliente sin el interceptor, así que nunca entra en bucle. Si el *refresh* responde `401`, se
+   borra el token y la sesión pasa a *unauthenticated*; un error de red en el *refresh* no cierra
+   la sesión. Si otra pestaña rotó la cookie primero, el backend responde `401` con
+   `REFRESH_SUPERSEDED`: el cliente espera 300 ms y repite el *refresh* una vez (el navegador ya
+   tiene la cookie nueva); nunca lo trata como cierre de sesión.
+5. `AuthGuard` (redirect de go_router, reevaluado con cada cambio del `AuthBloc`) manda a `/login`
+   a quien no tiene sesión (guardando la ruta pedida en `?from=`) y saca de `/login` a quien ya la
+   tiene (hacia `from` o `/dashboard`; `from` solo se sigue si es una ruta relativa conocida de la
+   app, sin esquema, host ni barras invertidas). *Sign out* (`DELETE /auth/logout`) siempre limpia la sesión
+   local, aunque falle la llamada.
 
 El token de Google **nunca** se usa directamente contra la API.
 
@@ -161,13 +173,14 @@ Arquitectura limpia por *feature*:
 ```
 lib/
 ├── core/
+│   ├── auth/        # TokenService (access token solo en memoria) y SessionRefresher
 │   ├── config/      # AppConfig (lee los --dart-define)
 │   ├── constants/   # AppConstants, EnvKeys, EnvDefaults
 │   ├── di/          # get_it + injectable (injection.dart y su .config.dart generado)
 │   ├── error/       # Failure (sealed) y AppException
 │   ├── layout/      # AppShell responsive (barra inferior / rail / rail expandido)
-│   ├── network/     # Cliente dio
-│   ├── router/      # AppRoute, AppDestination y AppRouter (go_router)
+│   ├── network/     # Clientes dio (con y sin AuthInterceptor), sobre de la API
+│   ├── router/      # AppRoute, AppDestination, AppRouter (go_router) y AuthGuard
 │   ├── theme/       # AppColors, AppTypography, AppSpacing, AppBreakpoints, AppTheme
 │   └── widgets/     # Widgets reutilizables (placeholder, mensajes de estado)
 ├── features/

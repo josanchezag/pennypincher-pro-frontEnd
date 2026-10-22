@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:pennypincher_pro/core/config/app_config.dart';
 import 'package:pennypincher_pro/core/constants/app_constants.dart';
-import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_breakpoints.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
@@ -13,7 +11,7 @@ import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart'
 import 'package:pennypincher_pro/features/auth/presentation/widget/google_sign_in_button.dart';
 
 /// Sign-in screen: a centered card on tablet and desktop, full screen on
-/// mobile.
+/// mobile. Leaving it after signing in is the router guard's job.
 class LoginScreen extends StatelessWidget {
   const LoginScreen({required this.config, super.key});
 
@@ -45,14 +43,9 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  void _onStateChanged(BuildContext context, AuthState state) {
-    switch (state) {
-      case AuthError(:final message):
-        AppSnackbar.showError(context, message);
-      case AuthAuthenticated():
-        context.goNamed(AppRoute.dashboard.name);
-      case AuthInitial() || AuthLoading() || AuthUnauthenticated():
-        break;
+  static void _onStateChanged(BuildContext context, AuthState state) {
+    if (state is AuthError) {
+      AppSnackbar.showError(context, state.message);
     }
   }
 }

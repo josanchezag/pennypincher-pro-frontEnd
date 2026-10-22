@@ -17,6 +17,14 @@ void main() {
     expect(_map('UNAUTHORIZED', status: 401), isA<UnauthorizedFailure>());
   });
 
+  test('never maps a superseded refresh to unauthorized', () {
+    expect(
+      _map(ErrorCodes.refreshSuperseded, status: 401),
+      isA<ServerFailure>()
+          .having((f) => f.code, 'code', ErrorCodes.refreshSuperseded),
+    );
+  });
+
   test('maps 404 to a not found failure', () {
     expect(_map('NOT_FOUND', status: 404), isA<NotFoundFailure>());
   });

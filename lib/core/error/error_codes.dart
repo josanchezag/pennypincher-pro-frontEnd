@@ -4,6 +4,10 @@ abstract final class ErrorCodes {
   static const String networkError = 'NETWORK_ERROR';
   static const String invalidResponse = 'INVALID_RESPONSE';
   static const String unknown = 'UNKNOWN_ERROR';
+
+  /// Backend: another tab rotated the refresh cookie first. The browser
+  /// already holds the newer cookie, so the refresh is simply retried.
+  static const String refreshSuperseded = 'REFRESH_SUPERSEDED';
 }
 
 /// User-facing messages for errors without a backend message.

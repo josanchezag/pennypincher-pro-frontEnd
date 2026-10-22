@@ -27,17 +27,14 @@ extension PumpApp on WidgetTester {
     view.physicalSize = size;
     view.devicePixelRatio = 1;
     addTearDown(view.reset);
+    final bloc = authBloc ?? mockAuthBloc(AuthAuthenticated(testUser));
     final router = AppRouter.buildRouter(
       appConfig: config,
+      authBloc: bloc,
       initialLocation: location,
     );
     addTearDown(router.dispose);
-    await pumpWidget(
-      PennyPincherApp(
-        router: router,
-        authBloc: authBloc ?? mockAuthBloc(AuthAuthenticated(testUser)),
-      ),
-    );
+    await pumpWidget(PennyPincherApp(router: router, authBloc: bloc));
     if (settle) {
       await pumpAndSettle();
     }

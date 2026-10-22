@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +9,7 @@ import 'package:pennypincher_pro/features/auth/domain/entity/user_entity.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_dev_login.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_google.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_out.dart';
+import 'package:pennypincher_pro/features/auth/domain/usecase/watch_session_expiry.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -17,18 +20,27 @@ typedef _SignInAction = Future<Either<Failure, User>> Function();
 /// app so the router and every screen observe the same session.
 @lazySingleton
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  AuthBloc(this._signInWithGoogle, this._signInWithDevLogin, this._signOut)
-      : super(const AuthInitial()) {
+  AuthBloc(
+    this._signInWithGoogle,
+    this._signInWithDevLogin,
+    this._signOut,
+    WatchSessionExpiry watchSessionExpiry,
+  ) : super(const AuthInitial()) {
     on<AuthSignInRequested>((_, emit) => _signIn(_signInWithGoogle.call, emit));
     on<AuthDevSignInRequested>(
       (_, emit) => _signIn(_signInWithDevLogin.call, emit),
     );
     on<AuthSignOutRequested>(_onSignOutRequested);
+    on<AuthSessionExpired>((_, emit) => emit(const AuthUnauthenticated()));
+    _expirySubscription = watchSessionExpiry().listen(
+      (_) => add(const AuthSessionExpired()),
+    );
   }
 
   final SignInWithGoogle _signInWithGoogle;
   final SignInWithDevLogin _signInWithDevLogin;
   final SignOut _signOut;
+  late final StreamSubscription<void> _expirySubscription;
 
   Future<void> _signIn(_SignInAction action, Emitter<AuthState> emit) async {
     if (state is AuthLoading) {
@@ -52,5 +64,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const AuthLoading());
     await _signOut();
     emit(const AuthUnauthenticated());
+  }
+
+  @override
+  Future<void> close() async {
+    await _expirySubscription.cancel();
+    return super.close();
   }
 }

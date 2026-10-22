@@ -10,12 +10,19 @@ import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 /// bottom bar on mobile, collapsed rail on tablet and expanded rail on
 /// desktop.
 class AppShell extends StatelessWidget {
-  const AppShell({required this.location, required this.child, super.key});
+  const AppShell({
+    required this.location,
+    required this.onSignOut,
+    required this.child,
+    super.key,
+  });
 
   static const String settingsTooltip = 'Settings';
   static const String backTooltip = 'Back to dashboard';
+  static const String signOutTooltip = 'Sign out';
 
   final String location;
+  final VoidCallback onSignOut;
   final Widget child;
 
   @override
@@ -25,11 +32,16 @@ class AppShell extends StatelessWidget {
       builder: (context, constraints) {
         final size = ScreenSize.fromWidth(constraints.maxWidth);
         if (size == ScreenSize.mobile) {
-          return _MobileLayout(current: current, child: child);
+          return _MobileLayout(
+            current: current,
+            onSignOut: onSignOut,
+            child: child,
+          );
         }
         return _WideLayout(
           current: current,
           extended: size == ScreenSize.desktop,
+          onSignOut: onSignOut,
           child: child,
         );
       },
@@ -40,10 +52,30 @@ class AppShell extends StatelessWidget {
 void _goTo(BuildContext context, AppDestination destination) =>
     context.goNamed(destination.route.name);
 
+class _SignOutButton extends StatelessWidget {
+  const _SignOutButton({required this.onSignOut});
+
+  final VoidCallback onSignOut;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: AppShell.signOutTooltip,
+      icon: const Icon(Icons.logout),
+      onPressed: onSignOut,
+    );
+  }
+}
+
 class _MobileLayout extends StatelessWidget {
-  const _MobileLayout({required this.current, required this.child});
+  const _MobileLayout({
+    required this.current,
+    required this.onSignOut,
+    required this.child,
+  });
 
   final AppDestination current;
+  final VoidCallback onSignOut;
   final Widget child;
 
   bool get _inSettings => current == AppDestination.settings;
@@ -67,6 +99,7 @@ class _MobileLayout extends StatelessWidget {
               icon: Icon(AppDestination.settings.icon),
               onPressed: () => _goTo(context, AppDestination.settings),
             ),
+          _SignOutButton(onSignOut: onSignOut),
         ],
       ),
       body: _ConstrainedContent(child: child),
@@ -79,11 +112,13 @@ class _WideLayout extends StatelessWidget {
   const _WideLayout({
     required this.current,
     required this.extended,
+    required this.onSignOut,
     required this.child,
   });
 
   final AppDestination current;
   final bool extended;
+  final VoidCallback onSignOut;
   final Widget child;
 
   @override
@@ -91,7 +126,11 @@ class _WideLayout extends StatelessWidget {
     return Scaffold(
       body: Row(
         children: [
-          _SideRail(current: current, extended: extended),
+          _SideRail(
+            current: current,
+            extended: extended,
+            onSignOut: onSignOut,
+          ),
           const VerticalDivider(),
           Expanded(child: _ConstrainedContent(child: child)),
         ],
@@ -143,10 +182,15 @@ class _BottomBar extends StatelessWidget {
 }
 
 class _SideRail extends StatelessWidget {
-  const _SideRail({required this.current, required this.extended});
+  const _SideRail({
+    required this.current,
+    required this.extended,
+    required this.onSignOut,
+  });
 
   final AppDestination current;
   final bool extended;
+  final VoidCallback onSignOut;
 
   @override
   Widget build(BuildContext context) {
@@ -156,6 +200,15 @@ class _SideRail extends StatelessWidget {
       labelType: extended ? null : NavigationRailLabelType.none,
       onDestinationSelected: (index) =>
           _goTo(context, AppDestination.values[index]),
+      trailing: Expanded(
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.md),
+            child: _SignOutButton(onSignOut: onSignOut),
+          ),
+        ),
+      ),
       destinations: [
         for (final destination in AppDestination.values)
           NavigationRailDestination(

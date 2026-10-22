@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pennypincher_pro/core/layout/app_shell.dart';
 import 'package:pennypincher_pro/core/router/app_destination.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/widgets/placeholder_screen.dart';
+import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/login_screen.dart';
 
+import '../../helpers/mocks.dart';
 import '../../helpers/pump_app.dart';
 
 String _concretePath(AppRoute route) =>
@@ -38,6 +42,24 @@ void main() {
         ]),
       );
       expect(paths, hasLength(AppRoute.values.length));
+    });
+  });
+
+  group('AppRoute.matching', () {
+    test('matches static and parameterized paths exactly', () {
+      expect(AppRoute.matching('/budget/income'), AppRoute.budgetIncome);
+      expect(
+        AppRoute.matching('/goals/g1/projection'),
+        AppRoute.goalProjection,
+      );
+      expect(AppRoute.matching('/'), AppRoute.splash);
+    });
+
+    test('rejects unknown, partial and relative paths', () {
+      expect(AppRoute.matching('/budget/unknown'), isNull);
+      expect(AppRoute.matching('/goals//projection'), isNull);
+      expect(AppRoute.matching('/budget/'), isNull);
+      expect(AppRoute.matching('budget'), isNull);
     });
   });
 
@@ -87,7 +109,10 @@ void main() {
     }
 
     testWidgets('renders the login route without the shell', (tester) async {
-      await tester.pumpApp(location: AppRoute.login.path);
+      await tester.pumpApp(
+        location: AppRoute.login.path,
+        authBloc: mockAuthBloc(const AuthUnauthenticated()),
+      );
 
       expect(find.byType(AppShell), findsNothing);
       expect(find.byType(LoginScreen), findsOneWidget);
@@ -109,6 +134,89 @@ void main() {
         find.descendant(
           of: find.byType(PlaceholderScreen),
           matching: find.text(AppRoute.goals.title),
+        ),
+        findsOneWidget,
+      );
+    });
+  });
+
+  group('route protection', () {
+    testWidgets('sends signed-out users to the login screen', (tester) async {
+      await tester.pumpApp(
+        location: AppRoute.budgetIncome.path,
+        authBloc: mockAuthBloc(const AuthUnauthenticated()),
+      );
+
+      expect(find.byType(LoginScreen), findsOneWidget);
+      expect(find.byType(AppShell), findsNothing);
+    });
+
+    testWidgets('returns to login when the session expires', (tester) async {
+      final states = StreamController<AuthState>.broadcast();
+      addTearDown(states.close);
+      await tester.pumpApp(
+        authBloc: mockAuthBloc(
+          AuthAuthenticated(testUser),
+          stream: states.stream,
+        ),
+      );
+      expect(find.byType(AppShell), findsOneWidget);
+
+      states.add(const AuthUnauthenticated());
+      await tester.pumpAndSettle();
+
+      expect(find.byType(LoginScreen), findsOneWidget);
+    });
+
+    testWidgets('opens the requested location after signing in',
+        (tester) async {
+      final states = StreamController<AuthState>.broadcast();
+      addTearDown(states.close);
+      await tester.pumpApp(
+        location: AppRoute.goals.path,
+        authBloc: mockAuthBloc(
+          const AuthUnauthenticated(),
+          stream: states.stream,
+        ),
+      );
+      expect(find.byType(LoginScreen), findsOneWidget);
+
+      states.add(AuthAuthenticated(testUser));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.descendant(
+          of: find.byType(PlaceholderScreen),
+          matching: find.text(AppRoute.goals.title),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('ignores an unsafe return location after signing in',
+        (tester) async {
+      await tester.pumpApp(location: '/login?from=%2F%5Cevil.com');
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(LoginScreen), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byType(PlaceholderScreen),
+          matching: find.text(AppRoute.dashboard.title),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('keeps signed-in users away from the login screen',
+        (tester) async {
+      await tester.pumpApp(location: AppRoute.login.path);
+
+      expect(find.byType(LoginScreen), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byType(PlaceholderScreen),
+          matching: find.text(AppRoute.dashboard.title),
         ),
         findsOneWidget,
       );

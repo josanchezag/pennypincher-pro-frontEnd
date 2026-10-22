@@ -22,3 +22,9 @@ final class AuthDevSignInRequested extends AuthEvent {
 final class AuthSignOutRequested extends AuthEvent {
   const AuthSignOutRequested();
 }
+
+/// The session expired and could not be refreshed. Raised by the bloc
+/// itself from the session expiry notifications.
+final class AuthSessionExpired extends AuthEvent {
+  const AuthSessionExpired();
+}

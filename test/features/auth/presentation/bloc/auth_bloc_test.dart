@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,6 +8,7 @@ import 'package:pennypincher_pro/core/error/failure.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_dev_login.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_google.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_out.dart';
+import 'package:pennypincher_pro/features/auth/domain/usecase/watch_session_expiry.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 
 import '../../../../helpers/mocks.dart';
@@ -16,19 +19,32 @@ class _MockSignInWithDevLogin extends Mock implements SignInWithDevLogin {}
 
 class _MockSignOut extends Mock implements SignOut {}
 
+class _MockWatchSessionExpiry extends Mock implements WatchSessionExpiry {}
+
 void main() {
   late _MockSignInWithGoogle signInWithGoogle;
   late _MockSignInWithDevLogin signInWithDevLogin;
   late _MockSignOut signOut;
+  late _MockWatchSessionExpiry watchSessionExpiry;
+  late StreamController<void> expirations;
 
   setUp(() {
     signInWithGoogle = _MockSignInWithGoogle();
     signInWithDevLogin = _MockSignInWithDevLogin();
     signOut = _MockSignOut();
+    watchSessionExpiry = _MockWatchSessionExpiry();
+    expirations = StreamController<void>.broadcast();
+    when(watchSessionExpiry.call).thenAnswer((_) => expirations.stream);
   });
 
-  AuthBloc buildBloc() =>
-      AuthBloc(signInWithGoogle, signInWithDevLogin, signOut);
+  tearDown(() => expirations.close());
+
+  AuthBloc buildBloc() => AuthBloc(
+        signInWithGoogle,
+        signInWithDevLogin,
+        signOut,
+        watchSessionExpiry,
+      );
 
   test('starts unresolved', () {
     expect(buildBloc().state, const AuthInitial());
@@ -115,5 +131,24 @@ void main() {
       act: (bloc) => bloc.add(const AuthSignOutRequested()),
       expect: () => [const AuthLoading(), const AuthUnauthenticated()],
     );
+  });
+
+  group('AuthSessionExpired', () {
+    blocTest<AuthBloc, AuthState>(
+      'emits unauthenticated when the session can no longer be refreshed',
+      build: buildBloc,
+      seed: () => AuthAuthenticated(testUser),
+      act: (_) => expirations.add(null),
+      expect: () => const [AuthUnauthenticated()],
+    );
+
+    test('stops listening to expirations once closed', () async {
+      final bloc = buildBloc();
+      expect(expirations.hasListener, isTrue);
+
+      await bloc.close();
+
+      expect(expirations.hasListener, isFalse);
+    });
   });
 }

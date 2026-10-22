@@ -17,13 +17,18 @@ abstract interface class AuthRemoteDataSource {
   /// `POST /auth/dev-login`: session for the local test user.
   Future<AuthSessionModel> devLogin();
 
+  /// `POST /auth/refresh`: new session from the httpOnly refresh cookie.
+  Future<AuthSessionModel> refresh();
+
   /// `DELETE /auth/logout`: revokes the refresh cookie.
   Future<void> logout();
 }
 
+/// Uses the plain client: `/auth` calls rely on the cookie, never on the
+/// bearer token, and must not trigger the token refresh interceptor.
 @LazySingleton(as: AuthRemoteDataSource)
 class DioAuthRemoteDataSource implements AuthRemoteDataSource {
-  DioAuthRemoteDataSource(this._dio);
+  DioAuthRemoteDataSource(@Named(NetworkNames.plainDio) this._dio);
 
   final Dio _dio;
 
@@ -35,6 +40,9 @@ class DioAuthRemoteDataSource implements AuthRemoteDataSource {
 
   @override
   Future<AuthSessionModel> devLogin() => _postSession(ApiPaths.devLogin);
+
+  @override
+  Future<AuthSessionModel> refresh() => _postSession(ApiPaths.refresh);
 
   @override
   Future<void> logout() => _send(() => _dio.delete<Object?>(ApiPaths.logout));

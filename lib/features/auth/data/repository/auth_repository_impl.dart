@@ -1,7 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pennypincher_pro/core/auth/token_service.dart';
+import 'package:pennypincher_pro/core/constants/app_constants.dart';
 import 'package:pennypincher_pro/core/error/app_exception.dart';
+import 'package:pennypincher_pro/core/error/error_codes.dart';
 import 'package:pennypincher_pro/core/error/failure.dart';
 import 'package:pennypincher_pro/core/error/failure_mapper.dart';
 import 'package:pennypincher_pro/features/auth/data/datasource/auth_remote_datasource.dart';
@@ -37,6 +39,26 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(FailureMapper.fromException(exception));
     } finally {
       _tokens.clear();
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> refreshSession() =>
+      _openSession(_refreshRetryingSuperseded);
+
+  @override
+  Stream<void> get sessionExpirations => _tokens.sessionExpired;
+
+  /// Repeats the refresh once when a concurrent refresh in another tab won.
+  Future<AuthSessionModel> _refreshRetryingSuperseded() async {
+    try {
+      return await _remote.refresh();
+    } on AppException catch (exception) {
+      if (exception.code != ErrorCodes.refreshSuperseded) {
+        rethrow;
+      }
+      await Future<void>.delayed(AppConstants.refreshSupersededRetryDelay);
+      return _remote.refresh();
     }
   }
 

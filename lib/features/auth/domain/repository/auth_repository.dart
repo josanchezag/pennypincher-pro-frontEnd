@@ -13,4 +13,10 @@ abstract interface class AuthRepository {
   /// Revokes the refresh cookie and forgets the access token. The local
   /// session is always cleared, even when the backend call fails.
   Future<Either<Failure, Unit>> signOut();
+
+  /// Renews the session with the refresh cookie.
+  Future<Either<Failure, User>> refreshSession();
+
+  /// Emits when the session expired and could not be renewed.
+  Stream<void> get sessionExpirations;
 }
