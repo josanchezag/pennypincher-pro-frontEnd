@@ -3,6 +3,7 @@ import 'package:pennypincher_pro/core/layout/app_shell.dart';
 import 'package:pennypincher_pro/core/router/app_destination.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/widgets/placeholder_screen.dart';
+import 'package:pennypincher_pro/features/auth/presentation/screen/login_screen.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -89,7 +90,7 @@ void main() {
       await tester.pumpApp(location: AppRoute.login.path);
 
       expect(find.byType(AppShell), findsNothing);
-      expect(find.text(AppRoute.login.title), findsOneWidget);
+      expect(find.byType(LoginScreen), findsOneWidget);
     });
 
     testWidgets('shows the not found screen for unknown paths', (tester) async {

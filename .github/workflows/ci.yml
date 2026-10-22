@@ -64,6 +64,7 @@ jobs:
           flutter build web --release --no-web-resources-cdn
           --dart-define=API_BASE_URL=https://placeholder.onrender.com/api/v1
           --dart-define=GOOGLE_CLIENT_ID=placeholder
+          --dart-define=GOOGLE_REDIRECT_URI=https://placeholder.vercel.app/auth.html
 
   docker:
     name: Docker image
@@ -86,4 +87,6 @@ jobs:
           done
           curl --silent --fail http://localhost:8080/ | grep -q "<title>PennyPincher Pro</title>"
           curl --silent --fail http://localhost:8080/net-worth/assets | grep -q "flutter_bootstrap.js"
+          curl --silent --fail http://localhost:8080/auth.html | grep -q "auth_callback.js"
+          curl --silent --fail http://localhost:8080/auth_callback.js | grep -q "flutter-web-auth-2"
           docker rm --force frontend

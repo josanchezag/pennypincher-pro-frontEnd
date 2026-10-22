@@ -5,6 +5,8 @@
 #   docker build -t pennypincher-frontend \
 #     --build-arg API_BASE_URL=http://localhost:8080/api/v1 \
 #     --build-arg API_ORIGIN=http://localhost:8080 \
+#     --build-arg GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com \
+#     --build-arg GOOGLE_REDIRECT_URI=http://localhost:3000/auth.html \
 #     --build-arg DEV_LOGIN=true .
 #   docker run --rm -p 3000:80 pennypincher-frontend
 #
@@ -26,10 +28,12 @@ COPY . .
 
 ARG API_BASE_URL=http://localhost:8080/api/v1
 ARG GOOGLE_CLIENT_ID=
+ARG GOOGLE_REDIRECT_URI=http://localhost:3000/auth.html
 ARG DEV_LOGIN=false
 RUN flutter build web --release --no-web-resources-cdn \
       --dart-define=API_BASE_URL=${API_BASE_URL} \
       --dart-define=GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID} \
+      --dart-define=GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI} \
       --dart-define=DEV_LOGIN=${DEV_LOGIN}
 
 # ---- Stage 2: serve with nginx ----------------------------------------------

@@ -15,10 +15,34 @@ abstract final class AppConstants {
 abstract final class EnvKeys {
   static const String apiBaseUrl = 'API_BASE_URL';
   static const String googleClientId = 'GOOGLE_CLIENT_ID';
+  static const String googleRedirectUri = 'GOOGLE_REDIRECT_URI';
   static const String devLogin = 'DEV_LOGIN';
 }
 
 /// Values used when a `--dart-define` variable is not provided.
 abstract final class EnvDefaults {
   static const String apiBaseUrl = 'http://localhost:8080/api/v1';
+  static const String googleRedirectUri = 'http://localhost:3000/auth.html';
+}
+
+/// Backend endpoints, relative to the API base URL.
+abstract final class ApiPaths {
+  static const String authPrefix = '/auth/';
+  static const String googleCallback = '/auth/google/callback';
+  static const String devLogin = '/auth/dev-login';
+  static const String logout = '/auth/logout';
+}
+
+/// Keys of the backend response envelope (`{data, meta}` / `{error, meta}`).
+abstract final class ApiEnvelopeKeys {
+  static const String data = 'data';
+  static const String error = 'error';
+  static const String code = 'code';
+  static const String message = 'message';
+}
+
+/// HTTP status codes the client reacts to.
+abstract final class HttpStatusCodes {
+  static const int unauthorized = 401;
+  static const int notFound = 404;
 }

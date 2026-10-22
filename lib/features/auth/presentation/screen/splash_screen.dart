@@ -11,6 +11,8 @@ import 'package:pennypincher_pro/core/theme/app_typography.dart';
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
+  static const String progressLabel = 'Loading';
+
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
@@ -47,7 +49,9 @@ class _SplashScreenState extends State<SplashScreen> {
             SizedBox(height: AppSpacing.xs),
             Text(AppConstants.tagline, style: AppTypography.bodyMedium),
             SizedBox(height: AppSpacing.xl),
-            CircularProgressIndicator(),
+            CircularProgressIndicator(
+              semanticsLabel: SplashScreen.progressLabel,
+            ),
           ],
         ),
       ),

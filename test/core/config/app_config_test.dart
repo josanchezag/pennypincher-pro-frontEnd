@@ -9,6 +9,7 @@ void main() {
 
       expect(config.apiBaseUrl, EnvDefaults.apiBaseUrl);
       expect(config.googleClientId, isEmpty);
+      expect(config.googleRedirectUri, EnvDefaults.googleRedirectUri);
       expect(config.devLoginEnabled, isFalse);
       expect(config.isGoogleSignInConfigured, isFalse);
     });
@@ -18,6 +19,7 @@ void main() {
     const config = AppConfig(
       apiBaseUrl: EnvDefaults.apiBaseUrl,
       googleClientId: 'client.apps.googleusercontent.com',
+      googleRedirectUri: EnvDefaults.googleRedirectUri,
       devLoginEnabled: true,
     );
 

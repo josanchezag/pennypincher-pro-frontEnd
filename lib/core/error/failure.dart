@@ -26,3 +26,11 @@ final class UnauthorizedFailure extends Failure {
 final class NotFoundFailure extends Failure {
   const NotFoundFailure(super.message);
 }
+
+/// The sign-in flow with the identity provider did not complete
+/// (cancelled, misconfigured or tampered with).
+final class AuthorizationFailure extends Failure {
+  const AuthorizationFailure(super.message, {required this.code});
+
+  final String code;
+}

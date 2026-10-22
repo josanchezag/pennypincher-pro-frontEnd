@@ -27,8 +27,12 @@ el backend.
 
 ## Autenticación
 
-1. El usuario inicia sesión con **Google OAuth2** (authorization code + PKCE, vía `flutter_web_auth_2`).
-2. El frontend envía el `code` y el `codeVerifier` al backend (`POST /api/v1/auth/google/callback`).
+1. El usuario inicia sesión con **Google OAuth2** (authorization code + PKCE, vía `flutter_web_auth_2`):
+   el frontend genera un `code_verifier` aleatorio de 64 caracteres, su `code_challenge` S256 y un
+   `state` aleatorio, y abre `https://accounts.google.com/o/oauth2/v2/auth` en una pestaña nueva.
+2. Google redirige a `web/auth.html` (`GOOGLE_REDIRECT_URI`), cuyo script externo
+   `auth_callback.js` devuelve la URL de retorno a la app. La app verifica el `state` y envía
+   `code`, `redirectUri` y `codeVerifier` al backend (`POST /api/v1/auth/google/callback`).
 3. El backend valida la identidad con Google y emite **sus propios tokens**:
    - *Access token* JWT RS256 de 15 minutos, que el frontend guarda **solo en memoria** y envía
      como `Authorization: Bearer <token>`.
@@ -53,6 +57,7 @@ Las variables se pasan en tiempo de compilación con `--dart-define`; no se vers
 |---|---|---|---|
 | `API_BASE_URL` | No | `http://localhost:8080/api/v1` | URL base de la API (incluye `/api/v1`). Por defecto, la de desarrollo local. |
 | `GOOGLE_CLIENT_ID` | Para login con Google | `xxxx.apps.googleusercontent.com` | Client ID público de OAuth2. |
+| `GOOGLE_REDIRECT_URI` | Para login con Google | `http://localhost:3000/auth.html` | Página de retorno del flujo OAuth: siempre `<origen del frontend>/auth.html`. Debe estar registrada en Google Cloud Console y en `GOOGLE_ALLOWED_REDIRECT_URIS` del backend. Por defecto `http://localhost:3000/auth.html`. |
 | `DEV_LOGIN` | No | `true` | Muestra el botón *Dev login*, que usa `POST /auth/dev-login` (solo existe con el perfil `local` del backend). Por defecto `false`. |
 
 ## Ejecución local
@@ -75,17 +80,30 @@ flutter run -d web-server --web-port=3000 \
 Se usa el puerto `3000` porque es el origen que el backend permite por defecto en CORS.
 
 > El origen del frontend (por ejemplo `http://localhost:3000`) debe estar en `CORS_ALLOWED_ORIGINS`
-> del backend. Para el login con Google, en el cliente OAuth de Google Cloud Console hay que
-> registrar ese origen en *Authorized JavaScript origins* y la página de retorno del flujo PKCE
-> (por ejemplo `http://localhost:3000/auth.html`) en *Authorized redirect URIs*, igual para el
-> dominio de producción. Esa página de retorno se agrega junto con el login (EPIC-002).
+> del backend: el cliente envía las cookies (`withCredentials`) para que la cookie `httpOnly` del
+> *refresh token* llegue a `/auth/refresh` y `/auth/logout`.
+
+### Configurar Google Cloud Console
+
+1. En [Google Cloud Console](https://console.cloud.google.com) → *APIs & Services* → *Credentials*,
+   crear un *OAuth client ID* de tipo **Web application**.
+2. *Authorized JavaScript origins*: `http://localhost:3000` y el dominio de producción.
+3. *Authorized redirect URIs*: `http://localhost:3000/auth.html` y
+   `https://<dominio de producción>/auth.html` (el valor exacto de `GOOGLE_REDIRECT_URI`).
+4. Pasar el *Client ID* al frontend con `--dart-define=GOOGLE_CLIENT_ID=...`. El *Client secret*
+   solo lo usa el backend (`GOOGLE_CLIENT_SECRET`), que hace el intercambio del código.
+5. Agregar las mismas URIs de retorno a `GOOGLE_ALLOWED_REDIRECT_URIS` del backend.
+
+Sin `GOOGLE_CLIENT_ID` el botón *Sign in with Google* queda deshabilitado; para desarrollo local
+basta `--dart-define=DEV_LOGIN=true` con el backend en el perfil `local`.
 
 ## Build de producción
 
 ```bash
 flutter build web --release \
   --dart-define=API_BASE_URL=https://<backend>.onrender.com/api/v1 \
-  --dart-define=GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com
+  --dart-define=GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com \
+  --dart-define=GOOGLE_REDIRECT_URI=https://<frontend>/auth.html
 ```
 
 El resultado queda en `build/web` y se puede servir desde cualquier hosting estático con
@@ -101,6 +119,7 @@ docker build -t pennypincher-frontend \
   --build-arg API_BASE_URL=http://localhost:8080/api/v1 \
   --build-arg API_ORIGIN=http://localhost:8080 \
   --build-arg GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com \
+  --build-arg GOOGLE_REDIRECT_URI=http://localhost:3000/auth.html \
   --build-arg DEV_LOGIN=true .
 
 docker run --rm -p 3000:80 pennypincher-frontend
@@ -109,7 +128,7 @@ docker run --rm -p 3000:80 pennypincher-frontend
 
 | Parámetro | Tipo | Descripción |
 |---|---|---|
-| `API_BASE_URL`, `GOOGLE_CLIENT_ID`, `DEV_LOGIN` | build arg | Se convierten en `--dart-define` (ver *Configuración*). |
+| `API_BASE_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_REDIRECT_URI`, `DEV_LOGIN` | build arg | Se convierten en `--dart-define` (ver *Configuración*). |
 | `FLUTTER_IMAGE` | build arg | Imagen de compilación (por defecto `ghcr.io/cirruslabs/flutter:3.24.5`; cualquier imagen con Flutter 3.24.5 sirve, p. ej. `instrumentisto/flutter:3.24.5`). |
 | `API_ORIGIN` | build arg y env | Origen del backend permitido en `connect-src` de la *Content-Security-Policy* (por defecto `http://localhost:8080`). Debe ser el `scheme://host[:puerto]` de `API_BASE_URL`: si cambias uno, cambia el otro. Se fija al construir y se puede sobrescribir al arrancar con `-e API_ORIGIN=...`. |
 
@@ -125,7 +144,12 @@ docker run --rm -p 3000:80 pennypincher-frontend
   HSTS se configura en el proxy o CDN que termina TLS. `connect-src` también permite
   `fonts.gstatic.com` (fuentes de respaldo de CanvasKit) y `*.googleusercontent.com` (fotos de
   perfil de Google cargadas con `Image.network`). La página de retorno del login con Google
-  (`auth.html`) y sus ajustes de CSP llegan con EPIC-002; por ahora no hacen falta.
+  (`auth.html`) no necesita cambios en la CSP: su lógica está en el script externo
+  `auth_callback.js` (permitido por `script-src 'self'`) y su estilo en `auth.css`. La pestaña de
+  Google se abre con `noopener`, así que `auth.html` entrega la URL de retorno por `localStorage`
+  (clave `flutter-web-auth-2`), que la app lee y borra en menos de un segundo (y que además borra al arrancar y antes de cada
+  inicio de sesión, por si quedó de un intento abandonado); nunca se guardan
+  tokens: el código no sirve sin el `code_verifier`, que solo vive en memoria.
 - `GET /healthz` para *health checks* (usado por el `HEALTHCHECK` de la imagen).
 
 El bundle se compila con `--no-web-resources-cdn`, así CanvasKit se sirve desde la propia imagen.
