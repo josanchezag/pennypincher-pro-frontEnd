@@ -2,6 +2,8 @@
 # PennyPincher Pro - Frontend (Flutter app)
 # ============================================
 # Nota: pubspec.lock SÍ se versiona (es una app, no un paquete).
+# Nota: los archivos generados (*.g.dart, *.config.dart, *.freezed.dart)
+# SÍ se versionan para que CI y Docker no dependan de build_runner.
 
 # --- Secretos y configuración local ---
 .env
