@@ -44,6 +44,7 @@ abstract final class ApiPaths {
   static const String liabilities = '/liabilities';
   static const String netWorthSnapshots = '/net-worth/snapshots';
   static const String netWorthCurrent = '/net-worth/current';
+  static const String incomeSources = '/income-sources';
 }
 
 /// Keys of the backend response envelope (`{data, meta}` / `{error, meta}`).

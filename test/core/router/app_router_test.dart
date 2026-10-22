@@ -11,12 +11,15 @@ import 'package:pennypincher_pro/core/widgets/placeholder_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/login_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/splash_screen.dart';
+import 'package:pennypincher_pro/features/budget/presentation/budget_pages.dart';
+import 'package:pennypincher_pro/features/budget/presentation/screen/income_sources_screen.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_pages.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/assets_screen.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/liabilities_screen.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/net_worth_screen.dart';
 
+import '../../helpers/budget_mocks.dart';
 import '../../helpers/mocks.dart';
 import '../../helpers/net_worth_mocks.dart';
 import '../../helpers/pump_app.dart';
@@ -102,8 +105,11 @@ void main() {
   });
 
   group('AppRouter', () {
-    final placeholders = AppRoute.shellRoutes
-        .where((route) => !NetWorthPages.builders.containsKey(route));
+    final placeholders = AppRoute.shellRoutes.where(
+      (route) =>
+          !NetWorthPages.builders.containsKey(route) &&
+          !BudgetPages.builders.containsKey(route),
+    );
     for (final route in placeholders) {
       testWidgets('renders ${route.path} inside the shell', (tester) async {
         await tester.pumpApp(location: _concretePath(route));
@@ -147,6 +153,16 @@ void main() {
 
       expect(find.byType(AppShell), findsOneWidget);
       expect(find.byType(LiabilitiesScreen), findsOneWidget);
+    });
+
+    testWidgets('renders the income sources screen inside the shell',
+        (tester) async {
+      registerIncomeSourceBloc(const CrudLoaded([]));
+
+      await tester.pumpApp(location: AppRoute.budgetIncome.path);
+
+      expect(find.byType(AppShell), findsOneWidget);
+      expect(find.byType(IncomeSourcesScreen), findsOneWidget);
     });
 
     testWidgets('renders the login route without the shell', (tester) async {

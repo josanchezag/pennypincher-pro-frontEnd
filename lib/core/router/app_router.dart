@@ -10,6 +10,7 @@ import 'package:pennypincher_pro/core/widgets/placeholder_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/login_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/splash_screen.dart';
+import 'package:pennypincher_pro/features/budget/presentation/budget_pages.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_pages.dart';
 
 /// go_router configuration with a named route for every screen, protected
@@ -62,6 +63,7 @@ class AppRouter {
   /// Screens built by the features; every other route shows a placeholder.
   static final Map<AppRoute, WidgetBuilder> _screens = {
     ...NetWorthPages.builders,
+    ...BudgetPages.builders,
   };
 
   static GoRoute _shellRoute(AppRoute route) => GoRoute(

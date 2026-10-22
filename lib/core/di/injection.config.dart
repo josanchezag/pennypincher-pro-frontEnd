@@ -48,6 +48,18 @@ import 'package:pennypincher_pro/features/auth/domain/usecase/watch_session_expi
     as _i614;
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart'
     as _i238;
+import 'package:pennypincher_pro/features/budget/data/datasource/income_source_remote_datasource.dart'
+    as _i578;
+import 'package:pennypincher_pro/features/budget/data/repository/income_source_repository_impl.dart'
+    as _i1;
+import 'package:pennypincher_pro/features/budget/di/budget_module.dart'
+    as _i445;
+import 'package:pennypincher_pro/features/budget/domain/entity/income_source_entity.dart'
+    as _i161;
+import 'package:pennypincher_pro/features/budget/domain/repository/income_source_repository.dart'
+    as _i116;
+import 'package:pennypincher_pro/features/budget/presentation/bloc/income_source_bloc.dart'
+    as _i11;
 import 'package:pennypincher_pro/features/net_worth/data/datasource/asset_remote_datasource.dart'
     as _i392;
 import 'package:pennypincher_pro/features/net_worth/data/datasource/liability_remote_datasource.dart'
@@ -95,6 +107,7 @@ extension GetItInjectableX on _i174.GetIt {
     final configModule = _$ConfigModule();
     final networkModule = _$NetworkModule();
     final authModule = _$AuthModule();
+    final budgetModule = _$BudgetModule();
     final netWorthModule = _$NetWorthModule();
     gh.singleton<_i504.AppConfig>(() => configModule.config);
     gh.lazySingleton<_i449.PkceGenerator>(() => _i449.PkceGenerator());
@@ -160,6 +173,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i392.AssetRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i277.LiabilityRemoteDataSource>(
         () => _i277.LiabilityRemoteDataSource(gh<_i361.Dio>()));
+    gh.lazySingleton<_i578.IncomeSourceRemoteDataSource>(
+        () => _i578.IncomeSourceRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i464.NetWorthRemoteDataSource>(
         () => _i464.NetWorthRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i446.AppRouter>(() => _i446.AppRouter(
@@ -168,8 +183,17 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.lazySingleton<_i365.AssetRepository>(
         () => _i171.AssetRepositoryImpl(gh<_i392.AssetRemoteDataSource>()));
+    gh.lazySingleton<_i116.IncomeSourceRepository>(() =>
+        _i1.IncomeSourceRepositoryImpl(
+            gh<_i578.IncomeSourceRemoteDataSource>()));
     gh.lazySingleton<_i606.NetWorthRepository>(() =>
         _i257.NetWorthRepositoryImpl(gh<_i464.NetWorthRemoteDataSource>()));
+    gh.factory<_i678.GetItems<_i161.IncomeSource, _i161.IncomeCategory>>(() =>
+        budgetModule.getIncomeSources(gh<_i116.IncomeSourceRepository>()));
+    gh.factory<_i678.SaveItem<_i161.IncomeSource, _i161.IncomeCategory>>(() =>
+        budgetModule.saveIncomeSource(gh<_i116.IncomeSourceRepository>()));
+    gh.factory<_i678.DeleteItem<_i161.IncomeSource, _i161.IncomeCategory>>(() =>
+        budgetModule.deleteIncomeSource(gh<_i116.IncomeSourceRepository>()));
     gh.lazySingleton<_i90.LiabilityRepository>(() =>
         _i418.LiabilityRepositoryImpl(gh<_i277.LiabilityRemoteDataSource>()));
     gh.factory<_i678.GetItems<_i499.Asset, _i499.AssetCategory>>(
@@ -189,6 +213,11 @@ extension GetItInjectableX on _i174.GetIt {
         () => netWorthModule.saveLiability(gh<_i90.LiabilityRepository>()));
     gh.factory<_i678.DeleteItem<_i941.Liability, _i941.LiabilityCategory>>(
         () => netWorthModule.deleteLiability(gh<_i90.LiabilityRepository>()));
+    gh.factory<_i11.IncomeSourceBloc>(() => _i11.IncomeSourceBloc(
+          gh<_i678.GetItems<_i161.IncomeSource, _i161.IncomeCategory>>(),
+          gh<_i678.SaveItem<_i161.IncomeSource, _i161.IncomeCategory>>(),
+          gh<_i678.DeleteItem<_i161.IncomeSource, _i161.IncomeCategory>>(),
+        ));
     gh.factory<_i944.LiabilityBloc>(() => _i944.LiabilityBloc(
           gh<_i678.GetItems<_i941.Liability, _i941.LiabilityCategory>>(),
           gh<_i678.SaveItem<_i941.Liability, _i941.LiabilityCategory>>(),
@@ -215,5 +244,7 @@ class _$ConfigModule extends _i544.ConfigModule {}
 class _$NetworkModule extends _i683.NetworkModule {}
 
 class _$AuthModule extends _i381.AuthModule {}
+
+class _$BudgetModule extends _i445.BudgetModule {}
 
 class _$NetWorthModule extends _i125.NetWorthModule {}
