@@ -23,6 +23,7 @@ import 'package:pennypincher_pro/features/expense_details/presentation/bloc/loan
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/savings_account_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/variable_expense_bloc.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/repository/financial_goal_repository.dart';
+import 'package:pennypincher_pro/features/financial_goals/presentation/bloc/goal_projection_bloc.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/bloc/goals_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/repository/asset_repository.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/repository/liability_repository.dart';
@@ -106,11 +107,16 @@ void main() {
     );
   });
 
-  test('creates a fresh goals bloc over a shared repository', () {
+  test('creates fresh goal blocs over a shared repository', () {
     final blocs = [getIt<GoalsBloc>(), getIt<GoalsBloc>()];
-    for (final bloc in blocs) {
+    final projections = [
+      getIt<GoalProjectionBloc>(),
+      getIt<GoalProjectionBloc>(),
+    ];
+    for (final bloc in [...blocs, ...projections]) {
       addTearDown(bloc.close);
     }
+    expect(projections.first, isNot(same(projections.last)));
 
     expect(blocs.first, isNot(same(blocs.last)));
     expect(blocs.first.reloadAfterChange, isTrue);

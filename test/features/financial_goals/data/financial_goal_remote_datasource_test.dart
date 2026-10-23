@@ -104,6 +104,17 @@ void main() {
     );
   });
 
+  test('reads the projection of one goal', () async {
+    adapter.handler =
+        (_) async => FakeResponse(200, envelope(securityProjectionJson));
+
+    final projection = await dataSource.getProjection('g 1');
+
+    expect(adapter.requests.single.path, '/financial-goals/g%201/projection');
+    expect(projection.name, 'Seguridad Financiera');
+    expect(projection.dataPoints, hasLength(2));
+  });
+
   test('reads a projection that is not reachable', () async {
     adapter.handler = (_) async => FakeResponse(
           200,

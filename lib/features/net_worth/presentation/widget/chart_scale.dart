@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:pennypincher_pro/core/utils/chart_axis.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_snapshot_entity.dart';
 
 /// Axes of the net worth chart: one x unit per month counted from
@@ -23,7 +24,7 @@ class ChartScale {
     final values = history.map((snapshot) => snapshot.netWorth.pesos);
     final low = math.min(0, values.reduce(math.min)).toDouble();
     final high = math.max(0, values.reduce(math.max)).toDouble();
-    final interval = niceInterval(high - low);
+    final interval = ChartAxis.niceInterval(high - low);
     return ChartScale._(
       firstMonth: firstMonth,
       minX: math.min(0, maxX - (minVisibleMonths - 1)).toDouble(),
@@ -36,9 +37,6 @@ class ChartScale {
 
   static const int minVisibleMonths = 6;
   static const int monthsPerYear = 12;
-  static const int horizontalSteps = 4;
-  static const double _decimalBase = 10;
-  static const List<double> _niceFactors = [1, 2, 5, 10];
 
   final DateTime firstMonth;
   final double minX;
@@ -56,18 +54,4 @@ class ChartScale {
 
   static int monthsBetween(DateTime from, DateTime to) =>
       (to.year - from.year) * monthsPerYear + to.month - from.month;
-
-  /// Round step (1, 2 or 5 times a power of ten) that splits [range] into
-  /// about [horizontalSteps] parts.
-  static double niceInterval(double range) {
-    if (range <= 0) {
-      return 1;
-    }
-    final rough = range / horizontalSteps;
-    final magnitude = math
-        .pow(_decimalBase, (math.log(rough) / math.ln10).floor())
-        .toDouble();
-    final factor = _niceFactors.firstWhere((f) => f * magnitude >= rough);
-    return factor * magnitude;
-  }
 }

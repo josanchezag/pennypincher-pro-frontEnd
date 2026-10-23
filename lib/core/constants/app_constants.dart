@@ -57,6 +57,7 @@ abstract final class ApiPaths {
   static const String financialGoalDefaults = '/financial-goals/defaults';
   static const String financialGoalProjections =
       '/financial-goals/all-projections';
+  static const String projectionSuffix = '/projection';
 }
 
 /// Keys of the backend response envelope (`{data, meta}` / `{error, meta}`).

@@ -47,4 +47,26 @@ abstract final class GoalsTexts {
       'Enter a whole number from 1 to 100.';
   static const String targetYearsHelper = 'Optional. From 1 to 100';
   static const String yearsSuffix = 'years';
+  static const String seeProjection = 'See projection';
+  static const String backToGoals = 'Back to Goals';
+  static const String projectionLoading = 'Loading projection';
+  static const String projectionErrorTitle = 'Could not load the projection';
+  static const String goalNotFoundTitle = 'Goal not found';
+  static const String goalNotFoundMessage =
+      'This goal no longer exists. It may have been deleted.';
+  static const String chartTitle = 'Projected net worth';
+  static const String yearsFromNow = 'Years from now';
+  static const String targetLine = 'Target';
+  static const String chartDescriptionPrefix = 'Projection chart of';
+  static const String summaryPrefix = "At this rate, you'll reach";
+  static const String summaryIn = 'in';
+  static const String summaryOn = 'on';
+  static const String year = 'year';
+  static const String alreadyReachedPrefix = "You've already reached";
+  static const String alreadyReachedSuffix =
+      ': your current net worth covers its target.';
+  static const String notReachablePrefix = "At this rate, you won't reach";
+  static const String notReachableSuffix =
+      ' within ${GoalProjection.maxHorizonYears} years. Investing more each '
+      'month or a higher return brings it closer.';
 }

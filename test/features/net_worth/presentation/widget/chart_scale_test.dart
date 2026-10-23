@@ -4,13 +4,6 @@ import 'package:pennypincher_pro/features/net_worth/presentation/widget/chart_sc
 import '../../../../helpers/net_worth_fixtures.dart';
 
 void main() {
-  test('picks round intervals of 1, 2 or 5 times a power of ten', () {
-    expect(ChartScale.niceInterval(173000000), 50000000);
-    expect(ChartScale.niceInterval(7000000), 2000000);
-    expect(ChartScale.niceInterval(4), 1);
-    expect(ChartScale.niceInterval(0), 1);
-  });
-
   test('shows at least six months ending at the latest snapshot', () {
     final scale = ChartScale.of([august, september]);
 

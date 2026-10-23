@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_level.dart';
@@ -179,3 +181,50 @@ const Map<String, Object?> securityProjectionJson = {
     {'month': 1, 'date': '2026-11-01', 'projectedValue': 428040373.36},
   ],
 };
+
+/// Projection of a goal computed as the backend does: monthly rate
+/// `(1 + annual)^(1/12) - 1`, contributions at the end of each month, from
+/// October 2026, over at least 12 and at most 600 months.
+GoalProjection computedProjection({
+  required int target,
+  required Money current,
+  required int monthly,
+  double annual = 0.11,
+  String name = 'Seguridad Financiera',
+}) {
+  final rate = math.pow(1 + annual, 1 / 12) - 1;
+  double valueAt(int month) {
+    final growth = math.pow(1 + rate, month);
+    return current.pesos * growth + monthly * (growth - 1) / rate;
+  }
+
+  int? months;
+  for (var month = 0; month <= 600 && months == null; month++) {
+    if (valueAt(month) >= target) {
+      months = month;
+    }
+  }
+  final horizon = (months ?? 600).clamp(12, 600);
+  final percent = (current.pesos / target * 100).clamp(0, 100).toDouble();
+  return projection(
+    goalId: 'g1',
+    name: name,
+    target: target,
+    percent: double.parse(percent.toStringAsFixed(2)),
+    monthly: monthly,
+    months: months,
+    date: months == null ? null : DateTime(2026, 10 + months),
+    current: current,
+  ).copyWith(
+    projectedYearsToGoal:
+        months == null ? null : double.parse((months / 12).toStringAsFixed(2)),
+    dataPoints: [
+      for (var month = 0; month <= horizon; month++)
+        ProjectionPoint(
+          month: month,
+          date: DateTime(2026, 10 + month),
+          projectedValue: Money.fromCents((valueAt(month) * 100).round()),
+        ),
+    ],
+  );
+}

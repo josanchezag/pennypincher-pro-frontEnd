@@ -69,6 +69,28 @@ void main() {
     expect(result.isLeft(), isTrue);
   });
 
+  test('loads the projection of one goal', () async {
+    adapter.handler =
+        (_) async => FakeResponse(200, envelope(securityProjectionJson));
+
+    final result = await repository.getProjection('g1');
+
+    expect(adapter.requests.single.path, '/financial-goals/g1/projection');
+    expect(result.isRight(), isTrue);
+  });
+
+  test('reports a projection of a goal that does not exist', () async {
+    adapter.handler = (_) async =>
+        FakeResponse(404, errorEnvelope('NOT_FOUND', 'Goal not found'));
+
+    final result = await repository.getProjection('g9');
+
+    expect(
+      result.fold((failure) => failure, (_) => null),
+      isA<NotFoundFailure>(),
+    );
+  });
+
   test('adds the standard goals', () async {
     final result = await repository.createDefaults();
 

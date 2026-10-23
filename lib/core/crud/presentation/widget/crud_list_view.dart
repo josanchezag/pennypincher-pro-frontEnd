@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
 import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
 import 'package:pennypincher_pro/core/crud/presentation/layout/item_layout.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_tile.dart';
 import 'package:pennypincher_pro/core/theme/app_breakpoints.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
-import 'package:pennypincher_pro/core/theme/app_typography.dart';
+import 'package:pennypincher_pro/core/widgets/screen_title_row.dart';
 import 'package:pennypincher_pro/core/widgets/status_message.dart';
 
 /// Loaded content of a list screen: header, summary and the items as the
@@ -72,7 +71,7 @@ class CrudListView<T extends CrudItem, D> extends StatelessWidget {
   Widget _header() => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _TitleRow(
+          ScreenTitleRow(
             title: config.title,
             backTooltip: config.backTooltip,
             parent: config.parent.name,
@@ -112,38 +111,4 @@ class CrudListView<T extends CrudItem, D> extends StatelessWidget {
         onTap: busy ? null : () => onEdit(item),
         onDelete: busy ? null : () => onDelete(item),
       );
-}
-
-class _TitleRow extends StatelessWidget {
-  const _TitleRow({
-    required this.title,
-    required this.backTooltip,
-    required this.parent,
-  });
-
-  final String title;
-  final String backTooltip;
-
-  /// Name of the route the back button opens.
-  final String parent;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        IconButton(
-          tooltip: backTooltip,
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.goNamed(parent),
-        ),
-        const SizedBox(width: AppSpacing.xs),
-        Expanded(
-          child: Semantics(
-            header: true,
-            child: Text(title, style: AppTypography.heading1),
-          ),
-        ),
-      ],
-    );
-  }
 }

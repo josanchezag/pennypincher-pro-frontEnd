@@ -145,6 +145,10 @@ import 'package:pennypincher_pro/features/financial_goals/domain/entity/financia
     as _i308;
 import 'package:pennypincher_pro/features/financial_goals/domain/repository/financial_goal_repository.dart'
     as _i989;
+import 'package:pennypincher_pro/features/financial_goals/domain/usecase/get_goal_projection.dart'
+    as _i375;
+import 'package:pennypincher_pro/features/financial_goals/presentation/bloc/goal_projection_bloc.dart'
+    as _i1030;
 import 'package:pennypincher_pro/features/financial_goals/presentation/bloc/goals_bloc.dart'
     as _i869;
 import 'package:pennypincher_pro/features/net_worth/data/datasource/asset_remote_datasource.dart'
@@ -340,6 +344,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i678.CreateDefaultItems<_i308.FinancialGoal>>(() =>
         financialGoalsModule
             .createDefaultFinancialGoals(gh<_i989.FinancialGoalRepository>()));
+    gh.factory<_i375.GetGoalProjection>(() => financialGoalsModule
+        .getGoalProjection(gh<_i989.FinancialGoalRepository>()));
     gh.lazySingleton<_i90.LiabilityRepository>(() =>
         _i418.LiabilityRepositoryImpl(gh<_i277.LiabilityRemoteDataSource>()));
     gh.lazySingleton<_i563.VariableExpenseRepository>(() =>
@@ -479,6 +485,8 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i678.SaveItem<_i793.CreditCard, _i642.BalanceDraft>>(),
           gh<_i678.DeleteItem<_i793.CreditCard, _i642.BalanceDraft>>(),
         ));
+    gh.factory<_i1030.GoalProjectionBloc>(
+        () => _i1030.GoalProjectionBloc(gh<_i375.GetGoalProjection>()));
     gh.factory<_i105.MonthlyBudgetBloc>(() => _i105.MonthlyBudgetBloc(
           gh<_i51.GetMonthlyBudget>(),
           gh<_i51.CreateMonthlyBudget>(),

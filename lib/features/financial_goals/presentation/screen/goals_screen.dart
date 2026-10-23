@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
+import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/widgets/app_snackbar.dart';
 import 'package:pennypincher_pro/core/widgets/confirmation_dialog.dart';
@@ -129,6 +131,10 @@ class _GoalsScreenState extends State<GoalsScreen> {
         key: ValueKey(goal.id),
         goal: goal,
         onTap: busy ? null : () => _edit(context, goal),
+        onSeeProjection: () => context.goNamed(
+          AppRoute.goalProjection.name,
+          pathParameters: {AppRoute.goalIdParam: goal.id},
+        ),
         celebrate: _celebrating.contains(goal.id),
         onCelebrated: () => setState(
           () => _celebrating = {..._celebrating}..remove(goal.id),

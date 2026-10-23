@@ -28,14 +28,15 @@ class CrudRemoteDataSource<T extends CrudItem, D> {
 
   /// `PUT <path>/{id}`.
   Future<T> update(String id, D draft) => _parsed(
-        () => _dio.put<Object?>(_itemPath(id), data: codec.toJson(draft)),
+        () => _dio.put<Object?>(itemPath(id), data: codec.toJson(draft)),
       );
 
   /// `DELETE <path>/{id}`.
   Future<void> delete(String id) =>
-      ApiEnvelope.send(() => _dio.delete<Object?>(_itemPath(id)));
+      ApiEnvelope.send(() => _dio.delete<Object?>(itemPath(id)));
 
-  String _itemPath(String id) => '$path/${Uri.encodeComponent(id)}';
+  /// `<path>/{id}`, the path of one item.
+  String itemPath(String id) => '$path/${Uri.encodeComponent(id)}';
 
   Future<T> _parsed(Future<Response<Object?>> Function() request) async {
     final response = await ApiEnvelope.send(request);

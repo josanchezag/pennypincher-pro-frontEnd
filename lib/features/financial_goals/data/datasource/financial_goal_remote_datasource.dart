@@ -23,6 +23,16 @@ class FinancialGoalRemoteDataSource
     return ApiEnvelope.parseList(response.data, GoalProjectionJson.fromJson);
   }
 
+  /// `GET /financial-goals/{id}/projection`.
+  Future<GoalProjection> getProjection(String goalId) async {
+    final response = await ApiEnvelope.send(
+      () => client.get<Object?>(
+        '${itemPath(goalId)}${ApiPaths.projectionSuffix}',
+      ),
+    );
+    return ApiEnvelope.parseData(response.data, GoalProjectionJson.fromJson);
+  }
+
   /// `POST /financial-goals/defaults`: adds the standard goal of every
   /// level without goals and returns the whole list.
   Future<List<FinancialGoal>> createDefaults() async {

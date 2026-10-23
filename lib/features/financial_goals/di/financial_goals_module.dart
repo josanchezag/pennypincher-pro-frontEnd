@@ -2,6 +2,7 @@ import 'package:injectable/injectable.dart';
 import 'package:pennypincher_pro/core/crud/domain/usecase/crud_use_cases.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/repository/financial_goal_repository.dart';
+import 'package:pennypincher_pro/features/financial_goals/domain/usecase/get_goal_projection.dart';
 
 /// Registers the financial goal use cases, keeping the domain layer free
 /// of dependency injection annotations.
@@ -30,4 +31,8 @@ abstract class FinancialGoalsModule {
     FinancialGoalRepository repository,
   ) =>
       CreateDefaultItems(repository);
+
+  @injectable
+  GetGoalProjection getGoalProjection(FinancialGoalRepository repository) =>
+      GetGoalProjection(repository);
 }

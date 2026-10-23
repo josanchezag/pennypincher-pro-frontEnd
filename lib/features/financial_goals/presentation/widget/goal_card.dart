@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
+import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_figures.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_level_badge.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/halfway_celebration.dart';
@@ -13,15 +14,21 @@ class GoalCard extends StatelessWidget {
   const GoalCard({
     required this.goal,
     required this.onTap,
+    this.onSeeProjection,
     this.celebrate = false,
     this.onCelebrated,
     super.key,
   });
 
+  static const Key seeProjectionKey = Key('goal-card-see-projection');
+
   static const int nameMaxLines = 2;
 
   final FinancialGoal goal;
   final VoidCallback? onTap;
+
+  /// Opens the projection chart of the goal.
+  final VoidCallback? onSeeProjection;
   final bool celebrate;
   final VoidCallback? onCelebrated;
 
@@ -45,6 +52,15 @@ class GoalCard extends StatelessWidget {
                 GoalProgressSection(goal: goal),
                 const Divider(height: AppSpacing.lg),
                 GoalPlanSection(goal: goal),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton.icon(
+                    key: seeProjectionKey,
+                    onPressed: onSeeProjection,
+                    icon: const Icon(Icons.show_chart),
+                    label: const Text(GoalsTexts.seeProjection),
+                  ),
+                ),
               ],
             ),
           ),

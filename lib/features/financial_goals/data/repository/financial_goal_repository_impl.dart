@@ -36,6 +36,10 @@ class FinancialGoalRepositoryImpl
   }
 
   @override
+  Future<Either<Failure, GoalProjection>> getProjection(String goalId) =>
+      guardFailures(() => _goals.getProjection(goalId));
+
+  @override
   Future<Either<Failure, List<FinancialGoal>>> createDefaults() =>
       guardFailures(_goals.createDefaults);
 
