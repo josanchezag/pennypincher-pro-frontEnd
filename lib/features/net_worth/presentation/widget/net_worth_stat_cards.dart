@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
+import 'package:pennypincher_pro/core/time/month_format.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/widgets/responsive_card_row.dart';
@@ -18,8 +18,6 @@ class NetWorthStatCards extends StatelessWidget {
     required this.change,
     super.key,
   });
-
-  static final DateFormat baselineMonth = DateFormat('MMM yyyy');
 
   final NetWorthSummary current;
 
@@ -63,7 +61,7 @@ class NetWorthStatCards extends StatelessWidget {
     return StatDelta(
       text: '${CurrencyFormatter.formatSigned(difference)} '
           '${NetWorthTexts.versus} '
-          '${baselineMonth.format(reference.snapshotDate)}',
+          '${MonthFormat.short.format(reference.snapshotDate)}',
       isPositive: !difference.isNegative,
     );
   }

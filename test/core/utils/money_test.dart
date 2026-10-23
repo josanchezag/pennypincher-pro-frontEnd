@@ -27,6 +27,11 @@ void main() {
     });
   });
 
+  test('reads an optional amount', () {
+    expect(Money.fromOptionalJson(null), isNull);
+    expect(Money.fromOptionalJson(1500.5), const Money.fromCents(150050));
+  });
+
   group('Money.tryParseInput', () {
     test('reads Colombian grouping and decimal comma', () {
       expect(

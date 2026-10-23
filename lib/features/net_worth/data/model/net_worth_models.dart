@@ -1,21 +1,12 @@
-import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:pennypincher_pro/core/time/api_date.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_snapshot_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_summary_entity.dart';
 
 part 'net_worth_models.g.dart';
 
-/// ISO calendar date used by the API for snapshot months: `2026-10-01`.
-final DateFormat apiDateFormat = DateFormat('yyyy-MM-dd');
-
 Money _money(Object? json) => Money.fromJson(json);
-
-/// Keeps the calendar date only, as a local date without time.
-DateTime _date(String json) {
-  final parsed = DateTime.parse(json);
-  return DateTime(parsed.year, parsed.month, parsed.day);
-}
 
 /// JSON shape of a stored monthly snapshot.
 @JsonSerializable(createToJson: false)
@@ -32,7 +23,7 @@ class NetWorthSnapshotModel {
       _$NetWorthSnapshotModelFromJson(json);
 
   final String id;
-  @JsonKey(fromJson: _date)
+  @JsonKey(fromJson: ApiDate.parse)
   final DateTime snapshotDate;
   @JsonKey(fromJson: _money)
   final Money totalAssets;
@@ -80,7 +71,7 @@ class NetWorthSummaryModel {
 @JsonSerializable(createFactory: false)
 class SnapshotRequestModel {
   SnapshotRequestModel(DateTime month)
-      : snapshotDate = apiDateFormat.format(NetWorthSnapshot.monthOf(month));
+      : snapshotDate = ApiDate.format(NetWorthSnapshot.monthOf(month));
 
   final String snapshotDate;
 

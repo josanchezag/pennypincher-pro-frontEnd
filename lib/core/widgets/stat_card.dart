@@ -50,7 +50,7 @@ class StatCard extends StatelessWidget {
                 _Value(value: value, color: valueColor),
                 if (change != null) ...[
                   const SizedBox(height: AppSpacing.xxs),
-                  _Delta(delta: change),
+                  StatDeltaLine(delta: change),
                 ],
               ],
             ),
@@ -116,8 +116,9 @@ class _Value extends StatelessWidget {
   }
 }
 
-class _Delta extends StatelessWidget {
-  const _Delta({required this.delta});
+/// Arrow and text of a [StatDelta], green when positive and red otherwise.
+class StatDeltaLine extends StatelessWidget {
+  const StatDeltaLine({required this.delta, super.key});
 
   /// Long deltas wrap so the reference, such as the month, stays visible.
   static const int maxDeltaLines = 2;

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
-import 'package:pennypincher_pro/core/theme/app_typography.dart';
+import 'package:pennypincher_pro/core/time/month_format.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
+import 'package:pennypincher_pro/core/widgets/labeled_figure.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_projection_entity.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
@@ -13,7 +13,6 @@ import 'package:pennypincher_pro/features/financial_goals/presentation/widget/ci
 /// Formatted values of a goal card.
 abstract final class GoalFormat {
   static const int _percent = 100;
-  static final DateFormat month = DateFormat('MMMM yyyy');
 
   /// `$ 605.000.000`, or a dash when unknown.
   static String amount(Money? amount) =>
@@ -30,7 +29,7 @@ abstract final class GoalFormat {
       null => PercentFormatter.none,
       GoalProjection(alreadyReached: true) => GoalsTexts.goalReached,
       GoalProjection(reachable: false) => GoalsTexts.notReachable,
-      _ => date == null ? PercentFormatter.none : month.format(date),
+      _ => date == null ? PercentFormatter.none : MonthFormat.long.format(date),
     };
   }
 }
@@ -53,15 +52,15 @@ class GoalProgressSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              GoalFigure(
+              LabeledFigure(
                 label: GoalsTexts.target,
                 value: GoalFormat.amount(goal.targetAmount),
               ),
-              GoalFigure(
+              LabeledFigure(
                 label: GoalsTexts.currentNetWorth,
                 value: GoalFormat.amount(projection?.currentNetWorth),
               ),
-              GoalFigure(
+              LabeledFigure(
                 label: GoalsTexts.remaining,
                 value: GoalFormat.amount(projection?.remainingAmount),
               ),
@@ -84,21 +83,21 @@ class GoalPlanSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GoalFigure(
+        LabeledFigure(
           label: GoalsTexts.projectedDate,
           value: GoalFormat.achievement(goal.projection),
         ),
         Row(
           children: [
             Expanded(
-              child: GoalFigure(
+              child: LabeledFigure(
                 label: GoalsTexts.monthlyInvestment,
                 value: GoalFormat.amount(goal.monthlyInvestment),
               ),
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
-              child: GoalFigure(
+              child: LabeledFigure(
                 label: GoalsTexts.returnRate,
                 value: GoalFormat.rate(goal.expectedAnnualReturn),
               ),
@@ -106,37 +105,6 @@ class GoalPlanSection extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-}
-
-/// A small upper-case [label] over its [value].
-class GoalFigure extends StatelessWidget {
-  const GoalFigure({required this.label, required this.value, super.key});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxs),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label.toUpperCase(),
-            style: AppTypography.label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(value, style: AppTypography.monoMedium),
-          ),
-        ],
-      ),
     );
   }
 }

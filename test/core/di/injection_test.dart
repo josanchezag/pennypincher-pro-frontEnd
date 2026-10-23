@@ -12,6 +12,8 @@ import 'package:pennypincher_pro/features/budget/domain/repository/income_source
 import 'package:pennypincher_pro/features/budget/domain/repository/monthly_budget_repository.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/income_source_bloc.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart';
+import 'package:pennypincher_pro/features/dashboard/domain/repository/dashboard_repository.dart';
+import 'package:pennypincher_pro/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/repository/credit_card_repository.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/repository/expense_summary_repository.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/repository/loan_repository.dart';
@@ -124,6 +126,16 @@ void main() {
       getIt<FinancialGoalRepository>(),
       same(getIt<FinancialGoalRepository>()),
     );
+  });
+
+  test('creates a fresh dashboard bloc over a shared repository', () {
+    final blocs = [getIt<DashboardBloc>(), getIt<DashboardBloc>()];
+    for (final bloc in blocs) {
+      addTearDown(bloc.close);
+    }
+
+    expect(blocs.first, isNot(same(blocs.last)));
+    expect(getIt<DashboardRepository>(), same(getIt<DashboardRepository>()));
   });
 
   test('points the HTTP client at the configured API base URL', () {

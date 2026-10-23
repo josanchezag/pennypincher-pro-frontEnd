@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/time/calendar_month.dart';
+import 'package:pennypincher_pro/core/time/month_format.dart';
 
 /// `← October 2026 →`: shows [month] and moves one month back or forward.
 /// The arrows stop at [first] and [last] when given, and are disabled
@@ -24,7 +24,6 @@ class MonthSelector extends StatelessWidget {
 
   /// Wide enough for the longest month name, so the arrows never move.
   static const double labelWidth = 160;
-  static final DateFormat format = DateFormat('MMMM yyyy');
 
   /// Any day of the month shown.
   final DateTime month;
@@ -34,7 +33,7 @@ class MonthSelector extends StatelessWidget {
   final bool enabled;
 
   /// `October 2026`.
-  static String label(DateTime month) => format.format(month);
+  static String label(DateTime month) => MonthFormat.long.format(month);
 
   @override
   Widget build(BuildContext context) {

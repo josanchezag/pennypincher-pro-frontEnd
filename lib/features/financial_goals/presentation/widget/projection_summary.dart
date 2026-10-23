@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
+import 'package:pennypincher_pro/core/time/month_format.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_projection_entity.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
-import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_figures.dart';
 
 /// One sentence under the projection chart: when the goal is reached at
 /// the current pace, that it is already reached, or that it is out of
@@ -30,7 +30,7 @@ class ProjectionSummary extends StatelessWidget {
     }
     return '${GoalsTexts.summaryPrefix} $name ${GoalsTexts.summaryIn} '
         '${_yearsText(years)} ${GoalsTexts.summaryOn} '
-        '${GoalFormat.month.format(date)}';
+        '${MonthFormat.long.format(date)}';
   }
 
   static String _yearsText(double years) {

@@ -7,9 +7,6 @@ part 'monthly_budget_models.g.dart';
 
 Money _money(Object? json) => Money.fromJson(json);
 
-Money? _optionalMoney(Object? json) =>
-    json == null ? null : Money.fromJson(json);
-
 num? _optionalMoneyToJson(Money? money) => money?.toJson();
 
 double _percent(num json) => json.toDouble();
@@ -72,7 +69,7 @@ class MonthlyBudgetModel {
   final String id;
   final int year;
   final int month;
-  @JsonKey(fromJson: _optionalMoney)
+  @JsonKey(fromJson: Money.fromOptionalJson)
   final Money? exchangeRate;
   final int? workDays;
   @JsonKey(fromJson: _money)

@@ -10,6 +10,7 @@ import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart'
 import 'package:pennypincher_pro/features/auth/presentation/screen/login_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/splash_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/widget/brand_header.dart';
+import 'package:pennypincher_pro/features/dashboard/presentation/screen/dashboard_screen.dart';
 
 import '../../../../helpers/mocks.dart';
 import '../../../../helpers/pump_app.dart';
@@ -71,7 +72,7 @@ void main() {
 
     await settleAfter(tester, _justBefore);
     expect(find.byType(SplashScreen), findsNothing);
-    expect(_screenTitled(AppRoute.dashboard), findsOneWidget);
+    expect(find.byType(DashboardScreen), findsOneWidget);
   });
 
   testWidgets('opens the dashboard when the session is restored later',
@@ -83,7 +84,7 @@ void main() {
     states.add(AuthAuthenticated(testUser));
     await settleAfter(tester, _halfSecond ~/ 2);
 
-    expect(_screenTitled(AppRoute.dashboard), findsOneWidget);
+    expect(find.byType(DashboardScreen), findsOneWidget);
   });
 
   testWidgets('opens the login screen when there is no session',
@@ -116,7 +117,7 @@ void main() {
 
     states.add(AuthAuthenticated(testUser));
     await tester.pumpAndSettle();
-    expect(_screenTitled(AppRoute.dashboard), findsOneWidget);
+    expect(find.byType(DashboardScreen), findsOneWidget);
   });
 
   testWidgets('returns to the deep link that was requested', (tester) async {

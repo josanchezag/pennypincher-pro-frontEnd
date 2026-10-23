@@ -2,10 +2,10 @@ import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
+import 'package:pennypincher_pro/core/time/month_format.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_snapshot_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/widget/chart_scale.dart';
@@ -36,9 +36,6 @@ class NetWorthChart extends StatelessWidget {
   static const double dotRadius = 3;
   static const String semanticsPrefix = 'Net worth history chart';
 
-  static final DateFormat monthLabel = DateFormat("MMM ''yy");
-  static final DateFormat tooltipMonth = DateFormat('MMMM yyyy');
-
   /// Snapshots sorted from the oldest month; must not be empty.
   final List<NetWorthSnapshot> history;
 
@@ -63,10 +60,10 @@ class NetWorthChart extends StatelessWidget {
   }
 
   String _description() {
-    final first = tooltipMonth.format(history.first.snapshotDate);
+    final first = MonthFormat.long.format(history.first.snapshotDate);
     final last = history.last;
     return '$semanticsPrefix, ${history.length} months from $first to '
-        '${tooltipMonth.format(last.snapshotDate)}, latest '
+        '${MonthFormat.long.format(last.snapshotDate)}, latest '
         '${CurrencyFormatter.format(last.netWorth)}';
   }
 
@@ -228,7 +225,7 @@ class _ChartData {
       AppTypography.monoMedium,
       children: [
         TextSpan(
-          text: NetWorthChart.tooltipMonth.format(snapshot.snapshotDate),
+          text: MonthFormat.long.format(snapshot.snapshotDate),
           style: AppTypography.bodySmall,
         ),
       ],
@@ -242,7 +239,7 @@ class _ChartData {
     return SideTitleWidget(
       axisSide: meta.axisSide,
       child: Text(
-        NetWorthChart.monthLabel.format(scale.monthAt(value)),
+        MonthFormat.axis.format(scale.monthAt(value)),
         style: AppTypography.bodySmall,
       ),
     );

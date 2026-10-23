@@ -20,6 +20,10 @@ final class Money extends Equatable implements Comparable<Money> {
         _ => throw FormatException(invalidAmountMessage, json),
       };
 
+  /// Like [Money.fromJson], or `null` for a JSON `null`.
+  static Money? fromOptionalJson(Object? json) =>
+      json == null ? null : Money.fromJson(json);
+
   factory Money._fromDouble(double pesos) {
     if (!pesos.isFinite) {
       throw FormatException(invalidAmountMessage, pesos);

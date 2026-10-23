@@ -5,10 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/constants/app_constants.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
-import 'package:pennypincher_pro/core/widgets/placeholder_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/login_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/widget/google_sign_in_button.dart';
+import 'package:pennypincher_pro/features/dashboard/presentation/screen/dashboard_screen.dart';
 
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/mocks.dart';
@@ -98,13 +98,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(LoginScreen), findsNothing);
-    expect(
-      find.descendant(
-        of: find.byType(PlaceholderScreen),
-        matching: find.text(AppRoute.dashboard.title),
-      ),
-      findsOneWidget,
-    );
+    expect(find.byType(DashboardScreen), findsOneWidget);
   });
 
   testWidgets('uses a centered card on desktop', (tester) async {

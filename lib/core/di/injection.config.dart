@@ -73,6 +73,18 @@ import 'package:pennypincher_pro/features/budget/presentation/bloc/income_source
     as _i11;
 import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart'
     as _i105;
+import 'package:pennypincher_pro/features/dashboard/data/datasource/dashboard_remote_datasource.dart'
+    as _i19;
+import 'package:pennypincher_pro/features/dashboard/data/repository/dashboard_repository_impl.dart'
+    as _i19;
+import 'package:pennypincher_pro/features/dashboard/di/dashboard_module.dart'
+    as _i917;
+import 'package:pennypincher_pro/features/dashboard/domain/repository/dashboard_repository.dart'
+    as _i884;
+import 'package:pennypincher_pro/features/dashboard/domain/usecase/dashboard_use_cases.dart'
+    as _i77;
+import 'package:pennypincher_pro/features/dashboard/presentation/bloc/dashboard_bloc.dart'
+    as _i584;
 import 'package:pennypincher_pro/features/expense_details/data/datasource/credit_card_remote_datasource.dart'
     as _i129;
 import 'package:pennypincher_pro/features/expense_details/data/datasource/expense_summary_remote_datasource.dart'
@@ -202,6 +214,7 @@ extension GetItInjectableX on _i174.GetIt {
     final expenseDetailsModule = _$ExpenseDetailsModule();
     final financialGoalsModule = _$FinancialGoalsModule();
     final netWorthModule = _$NetWorthModule();
+    final dashboardModule = _$DashboardModule();
     gh.singleton<_i504.AppConfig>(() => configModule.config);
     gh.lazySingleton<_i449.PkceGenerator>(() => _i449.PkceGenerator());
     gh.lazySingleton<_i852.TokenService>(
@@ -286,6 +299,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i464.NetWorthRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i542.MonthlyBudgetRemoteDataSource>(
         () => _i542.MonthlyBudgetRemoteDataSource(gh<_i361.Dio>()));
+    gh.lazySingleton<_i19.DashboardRemoteDataSource>(
+        () => _i19.DashboardRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i446.AppRouter>(() => _i446.AppRouter(
           gh<_i504.AppConfig>(),
           gh<_i238.AuthBloc>(),
@@ -389,6 +404,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i436.ExpenseSummaryRepository>(() =>
         _i187.ExpenseSummaryRepositoryImpl(
             gh<_i459.ExpenseSummaryRemoteDataSource>()));
+    gh.lazySingleton<_i884.DashboardRepository>(() =>
+        _i19.DashboardRepositoryImpl(gh<_i19.DashboardRemoteDataSource>()));
     gh.factory<_i11.IncomeSourceBloc>(() => _i11.IncomeSourceBloc(
           gh<
               _i678.GetItems<_i161.IncomeSource,
@@ -508,6 +525,10 @@ extension GetItInjectableX on _i174.GetIt {
               _i678.DeleteItem<_i107.VariableExpense,
                   _i953.CategorizedDraft<_i107.VariableExpenseCategory>>>(),
         ));
+    gh.factory<_i77.GetDashboardSummary>(() =>
+        dashboardModule.getDashboardSummary(gh<_i884.DashboardRepository>()));
+    gh.factory<_i77.RecordNetWorthSnapshot>(() => dashboardModule
+        .recordNetWorthSnapshot(gh<_i884.DashboardRepository>()));
     gh.factory<_i689.SavingsAccountBloc>(() => _i689.SavingsAccountBloc(
           gh<_i678.GetItems<_i1038.SavingsAccount, _i642.BalanceDraft>>(),
           gh<_i678.SaveItem<_i1038.SavingsAccount, _i642.BalanceDraft>>(),
@@ -535,6 +556,11 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i678.SaveItem<_i891.Loan, _i642.BalanceDraft>>(),
           gh<_i678.DeleteItem<_i891.Loan, _i642.BalanceDraft>>(),
         ));
+    gh.factory<_i584.DashboardBloc>(() => _i584.DashboardBloc(
+          gh<_i77.GetDashboardSummary>(),
+          gh<_i77.RecordNetWorthSnapshot>(),
+          gh<_i656.Clock>(),
+        ));
     return this;
   }
 }
@@ -552,3 +578,5 @@ class _$ExpenseDetailsModule extends _i539.ExpenseDetailsModule {}
 class _$FinancialGoalsModule extends _i72.FinancialGoalsModule {}
 
 class _$NetWorthModule extends _i125.NetWorthModule {}
+
+class _$DashboardModule extends _i917.DashboardModule {}

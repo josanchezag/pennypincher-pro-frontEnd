@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
+import 'package:pennypincher_pro/core/time/month_format.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_projection_entity.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
@@ -86,7 +87,7 @@ class ProjectionChart extends StatelessWidget {
       '${GoalsTexts.targetLine} ${GoalFormat.amount(projection.targetAmount)}',
       if (last != null)
         '${GoalFormat.amount(last.projectedValue)} '
-            '${GoalsTexts.summaryOn} ${GoalFormat.month.format(last.date)}',
+            '${GoalsTexts.summaryOn} ${MonthFormat.long.format(last.date)}',
     ].join(', ');
   }
 }
@@ -200,7 +201,7 @@ class _ProjectionChartData {
       AppTypography.monoMedium,
       children: [
         TextSpan(
-          text: GoalFormat.month.format(point.date),
+          text: MonthFormat.long.format(point.date),
           style: AppTypography.bodySmall,
         ),
       ],

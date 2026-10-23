@@ -2,9 +2,13 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pennypincher_pro/app.dart';
 import 'package:pennypincher_pro/core/config/app_config.dart';
+import 'package:pennypincher_pro/core/di/injection.dart';
 import 'package:pennypincher_pro/core/router/app_router.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:pennypincher_pro/features/dashboard/domain/entity/part_of_day.dart';
+import 'package:pennypincher_pro/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 
+import 'dashboard_mocks.dart';
 import 'mocks.dart';
 import 'test_config.dart';
 
@@ -23,7 +27,9 @@ abstract final class TestViewports {
 }
 
 extension PumpApp on WidgetTester {
-  /// Pumps the whole app at [location] with a logical [size].
+  /// Pumps the whole app at [location] with a logical [size]. Signed-in
+  /// users land on the dashboard, so unless the test registered its own
+  /// dashboard bloc, one that stays loading is provided.
   Future<void> pumpApp({
     String location = '/dashboard',
     Size size = TestViewports.desktop,
@@ -34,6 +40,9 @@ extension PumpApp on WidgetTester {
     view.physicalSize = size;
     view.devicePixelRatio = 1;
     addTearDown(view.reset);
+    if (!getIt.isRegistered<DashboardBloc>()) {
+      registerDashboardBloc(const DashboardState(period: PartOfDay.morning));
+    }
     final bloc = authBloc ?? mockAuthBloc(AuthAuthenticated(testUser));
     final router = AppRouter.buildRouter(
       appConfig: config,

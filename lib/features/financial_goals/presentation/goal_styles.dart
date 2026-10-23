@@ -27,23 +27,3 @@ extension GoalLevelStyle on GoalLevel {
         GoalLevel.absoluteFreedom => AppColors.backgroundPrimary,
       };
 }
-
-/// Color bands of the progress toward a goal, from the highest: each one
-/// starts at [fromPercent].
-enum ProgressBand {
-  nearlyThere(75, AppColors.success),
-  halfway(50, AppColors.warning),
-  underway(25, AppColors.brandPrimary),
-  starting(0, AppColors.neutral);
-
-  const ProgressBand(this.fromPercent, this.color);
-
-  final double fromPercent;
-  final Color color;
-
-  /// Band of a progress of [percent], from 0 to 100.
-  static ProgressBand of(double percent) => values.firstWhere(
-        (band) => percent >= band.fromPercent,
-        orElse: () => starting,
-      );
-}

@@ -11,6 +11,7 @@ import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart'
 import 'package:pennypincher_pro/features/auth/presentation/screen/login_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/splash_screen.dart';
 import 'package:pennypincher_pro/features/budget/presentation/budget_pages.dart';
+import 'package:pennypincher_pro/features/dashboard/presentation/dashboard_pages.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/expense_details_pages.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/financial_goals_pages.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_pages.dart';
@@ -64,6 +65,7 @@ class AppRouter {
 
   /// Screens built by the features; every other route shows a placeholder.
   static final Map<AppRoute, WidgetBuilder> _screens = {
+    ...DashboardPages.builders,
     ...NetWorthPages.builders,
     ...BudgetPages.builders,
     ...ExpenseDetailsPages.builders,

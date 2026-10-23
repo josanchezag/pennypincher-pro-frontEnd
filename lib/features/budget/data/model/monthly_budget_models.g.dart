@@ -26,7 +26,7 @@ MonthlyBudgetModel _$MonthlyBudgetModelFromJson(Map<String, dynamic> json) =>
       components: (json['components'] as List<dynamic>)
           .map((e) => BudgetComponentModel.fromJson(e as Map<String, dynamic>))
           .toList(),
-      exchangeRate: _optionalMoney(json['exchangeRate']),
+      exchangeRate: Money.fromOptionalJson(json['exchangeRate']),
       workDays: (json['workDays'] as num?)?.toInt(),
     );
 

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_breakpoints.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
+import 'package:pennypincher_pro/core/widgets/labeled_figure.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
 import 'package:pennypincher_pro/core/widgets/responsive_card_row.dart';
 import 'package:pennypincher_pro/core/widgets/screen_title_row.dart';
@@ -152,21 +153,21 @@ class _Figures extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: GoalFigure(
+                    child: LabeledFigure(
                       label: GoalsTexts.target,
                       value: GoalFormat.amount(projection.targetAmount),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
-                    child: GoalFigure(
+                    child: LabeledFigure(
                       label: GoalsTexts.currentNetWorth,
                       value: GoalFormat.amount(projection.currentNetWorth),
                     ),
                   ),
                 ],
               ),
-              GoalFigure(
+              LabeledFigure(
                 label: GoalsTexts.projectedDate,
                 value: GoalFormat.achievement(projection),
               ),

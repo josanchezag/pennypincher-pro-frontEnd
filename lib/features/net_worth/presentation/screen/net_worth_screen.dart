@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
+import 'package:pennypincher_pro/core/time/month_format.dart';
 import 'package:pennypincher_pro/core/widgets/app_snackbar.dart';
 import 'package:pennypincher_pro/core/widgets/button_progress_icon.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
@@ -21,7 +21,6 @@ class NetWorthScreen extends StatelessWidget {
   const NetWorthScreen({super.key});
 
   static const Key createSnapshotKey = Key('create-snapshot-button');
-  static final DateFormat savedMonth = DateFormat('MMMM yyyy');
   static const List<double> skeletonHeights = [
     AppSpacing.xxl,
     AppSpacing.xxxl + AppSpacing.lg,
@@ -78,7 +77,7 @@ class NetWorthScreen extends StatelessWidget {
     AppSnackbar.showSuccess(
       context,
       '${NetWorthTexts.snapshotSavedPrefix} '
-      '${savedMonth.format(loaded.month)}',
+      '${MonthFormat.long.format(loaded.month)}',
     );
   }
 }

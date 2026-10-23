@@ -58,6 +58,14 @@ abstract final class ApiPaths {
   static const String financialGoalProjections =
       '/financial-goals/all-projections';
   static const String projectionSuffix = '/projection';
+  static const String dashboardSummary = '/dashboard/summary';
+}
+
+/// Query parameters of the backend endpoints.
+abstract final class ApiQueryParams {
+  /// Reference month of the endpoints that depend on the current month, as
+  /// `YYYY-MM` in the device's local time.
+  static const String month = 'month';
 }
 
 /// Keys of the backend response envelope (`{data, meta}` / `{error, meta}`).

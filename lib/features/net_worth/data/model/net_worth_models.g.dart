@@ -10,7 +10,7 @@ NetWorthSnapshotModel _$NetWorthSnapshotModelFromJson(
         Map<String, dynamic> json) =>
     NetWorthSnapshotModel(
       id: json['id'] as String,
-      snapshotDate: _date(json['snapshotDate'] as String),
+      snapshotDate: ApiDate.parse(json['snapshotDate'] as String),
       totalAssets: _money(json['totalAssets']),
       totalLiabilities: _money(json['totalLiabilities']),
       netWorth: _money(json['netWorth']),

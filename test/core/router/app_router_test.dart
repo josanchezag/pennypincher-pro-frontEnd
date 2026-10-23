@@ -15,6 +15,8 @@ import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budge
 import 'package:pennypincher_pro/features/budget/presentation/budget_pages.dart';
 import 'package:pennypincher_pro/features/budget/presentation/screen/budget_overview_screen.dart';
 import 'package:pennypincher_pro/features/budget/presentation/screen/income_sources_screen.dart';
+import 'package:pennypincher_pro/features/dashboard/presentation/dashboard_pages.dart';
+import 'package:pennypincher_pro/features/dashboard/presentation/screen/dashboard_screen.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/expenses_hub_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/expense_details_pages.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/credit_cards_screen.dart';
@@ -124,6 +126,7 @@ void main() {
           route != AppRoute.budget &&
           !NetWorthPages.builders.containsKey(route) &&
           !BudgetPages.builders.containsKey(route) &&
+          !DashboardPages.builders.containsKey(route) &&
           !ExpenseDetailsPages.builders.containsKey(route) &&
           !FinancialGoalsPages.builders.containsKey(route),
     );
@@ -142,6 +145,13 @@ void main() {
         );
       });
     }
+
+    testWidgets('renders the dashboard inside the shell', (tester) async {
+      await tester.pumpApp(location: AppRoute.dashboard.path);
+
+      expect(find.byType(AppShell), findsOneWidget);
+      expect(find.byType(DashboardScreen), findsOneWidget);
+    });
 
     testWidgets('renders the net worth screen inside the shell',
         (tester) async {
@@ -366,13 +376,7 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(find.byType(LoginScreen), findsNothing);
-      expect(
-        find.descendant(
-          of: find.byType(PlaceholderScreen),
-          matching: find.text(AppRoute.dashboard.title),
-        ),
-        findsOneWidget,
-      );
+      expect(find.byType(DashboardScreen), findsOneWidget);
     });
 
     testWidgets('keeps signed-in users away from the login screen',
@@ -380,13 +384,7 @@ void main() {
       await tester.pumpApp(location: AppRoute.login.path);
 
       expect(find.byType(LoginScreen), findsNothing);
-      expect(
-        find.descendant(
-          of: find.byType(PlaceholderScreen),
-          matching: find.text(AppRoute.dashboard.title),
-        ),
-        findsOneWidget,
-      );
+      expect(find.byType(DashboardScreen), findsOneWidget);
     });
   });
 }
