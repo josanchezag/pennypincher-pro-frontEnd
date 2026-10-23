@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/layout/app_shell.dart';
 import 'package:pennypincher_pro/core/router/app_destination.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
@@ -8,6 +9,7 @@ import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/widgets/placeholder_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 
+import '../../helpers/expense_mocks.dart';
 import '../../helpers/mocks.dart';
 import '../../helpers/pump_app.dart';
 
@@ -73,6 +75,7 @@ void main() {
 
     testWidgets('highlights the section of the current location',
         (tester) async {
+      registerFixedExpenseBloc(const CrudLoaded([]));
       await tester.pumpApp(location: '/expenses/fixed');
 
       final rail = tester.widget<NavigationRail>(find.byType(NavigationRail));

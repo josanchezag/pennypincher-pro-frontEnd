@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
 import 'package:pennypincher_pro/core/crud/domain/item_group.dart';
 import 'package:pennypincher_pro/core/crud/presentation/layout/item_layout.dart';
+import 'package:pennypincher_pro/core/crud/presentation/widget/category_filter_slivers.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_fields.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_sections.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_tile.dart';
@@ -10,7 +11,8 @@ import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 /// Layout of items with one amount and a category: a total card on top
-/// and the items grouped by category with their subtotals.
+/// and the items grouped by category with their subtotals, optionally
+/// [filterable] by category with chips.
 class CategorizedLayout<T extends CategorizedItem<C>, C extends Enum>
     extends ItemLayout<T, CategorizedDraft<C>> {
   const CategorizedLayout({
@@ -19,6 +21,7 @@ class CategorizedLayout<T extends CategorizedItem<C>, C extends Enum>
     required this.totalIcon,
     required this.totalColor,
     required this.categoryLabels,
+    this.filterable = false,
   });
 
   static const String amount = 'amount';
@@ -32,6 +35,9 @@ class CategorizedLayout<T extends CategorizedItem<C>, C extends Enum>
 
   /// Display name of every category, in display order.
   final Map<C, String> categoryLabels;
+
+  /// Whether chips above the list show the items of one category only.
+  final bool filterable;
 
   List<C> get categories => categoryLabels.keys.toList();
 
@@ -82,6 +88,17 @@ class CategorizedLayout<T extends CategorizedItem<C>, C extends Enum>
     required int columns,
     required ItemTileBuilder<T> tile,
   }) =>
+      filterable
+          ? [
+              CategoryFilterSlivers<T, C>(
+                items: items,
+                categoryLabels: categoryLabels,
+                sliversOf: (visible) => _groups(visible, columns, tile),
+              ),
+            ]
+          : _groups(items, columns, tile);
+
+  List<Widget> _groups(List<T> items, int columns, ItemTileBuilder<T> tile) =>
       ItemSections.grouped<T, C>(
         groups: ItemGroup.byCategory<T, C>(items, categories),
         labelOf: labelOf,

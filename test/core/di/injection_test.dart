@@ -17,7 +17,9 @@ import 'package:pennypincher_pro/features/expense_details/domain/repository/expe
 import 'package:pennypincher_pro/features/expense_details/domain/repository/loan_repository.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/credit_card_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/expenses_hub_bloc.dart';
+import 'package:pennypincher_pro/features/expense_details/presentation/bloc/fixed_expense_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/loan_bloc.dart';
+import 'package:pennypincher_pro/features/expense_details/presentation/bloc/variable_expense_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/repository/asset_repository.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/repository/liability_repository.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/asset_bloc.dart';
@@ -74,14 +76,18 @@ void main() {
       getIt<CreditCardBloc>(),
       getIt<LoanBloc>(),
       getIt<LoanBloc>(),
+      getIt<FixedExpenseBloc>(),
+      getIt<FixedExpenseBloc>(),
+      getIt<VariableExpenseBloc>(),
+      getIt<VariableExpenseBloc>(),
     ];
     for (final bloc in blocs) {
       addTearDown(bloc.close);
     }
 
-    expect(blocs[0], isNot(same(blocs[1])));
-    expect(blocs[2], isNot(same(blocs[3])));
-    expect(blocs[4], isNot(same(blocs[5])));
+    for (var index = 0; index < blocs.length; index += 2) {
+      expect(blocs[index], isNot(same(blocs[index + 1])));
+    }
     expect(getIt<LoanRepository>(), same(getIt<LoanRepository>()));
     expect(
       getIt<ExpenseSummaryRepository>(),

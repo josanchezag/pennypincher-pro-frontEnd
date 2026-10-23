@@ -74,6 +74,11 @@ abstract final class CrudTexts {
   static const String optionalAmountHelper =
       'Optional. Example: 1.500.000 or 1.500.000,50';
   static const String paidSuffix = 'paid';
+  static const String allCategories = 'All';
+  static const String categoryFilterLabel = 'Filter by category';
+  static const String emptyCategoryPrefix = 'Nothing in';
+  static const String emptyCategoryMessage =
+      'Items you add to this category will appear here.';
   static const String saving = 'Saving';
   static const String categoryRequired = 'Choose a category.';
   static const String amountPrefix = r'$ ';

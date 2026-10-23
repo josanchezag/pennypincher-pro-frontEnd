@@ -8,6 +8,7 @@ abstract final class ExpenseTexts {
   static const String remainingBalance = 'Remaining balance';
   static const String originalAmount = 'Original amount';
   static const String totalOutstandingDebt = 'Total outstanding debt';
+  static const String monthlyAmount = 'Monthly amount';
   static const String totalMonthlyAmount = 'Total monthly amount';
   static const String totalMonthlyContributions = 'Total monthly contributions';
   static const String totalSavingsBalance = 'Total savings balance';

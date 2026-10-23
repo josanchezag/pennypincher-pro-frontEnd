@@ -1,7 +1,9 @@
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/credit_card_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/expense_summary_entity.dart';
+import 'package:pennypincher_pro/features/expense_details/domain/entity/fixed_expense_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/loan_entity.dart';
+import 'package:pennypincher_pro/features/expense_details/domain/entity/variable_expense_entity.dart';
 
 const CreditCard nuCard = CreditCard(
   id: 'c1',
@@ -78,4 +80,69 @@ const Map<String, Object?> carLoanJson = {
   'originalAmount': 50000000.00,
   'createdAt': '2026-10-22T12:00:00Z',
   'updatedAt': '2026-10-22T12:00:00Z',
+};
+
+const FixedExpense schoolAna = FixedExpense(
+  id: 'f1',
+  name: 'Colegio Ana',
+  monthlyAmount: Money.fromPesos(1347709),
+  category: FixedExpenseCategory.education,
+);
+
+const FixedExpense englishClasses = FixedExpense(
+  id: 'f2',
+  name: 'clases de ingles',
+  monthlyAmount: Money.fromPesos(1000000),
+  category: FixedExpenseCategory.education,
+);
+
+const FixedExpense rent = FixedExpense(
+  id: 'f3',
+  name: 'Arriendo',
+  monthlyAmount: Money.fromCents(320000050),
+  category: FixedExpenseCategory.housing,
+);
+
+const FixedExpense tithe = FixedExpense(
+  id: 'f4',
+  name: 'Diezmo',
+  monthlyAmount: Money.fromPesos(3715292),
+  category: FixedExpenseCategory.charity,
+);
+
+const Map<String, Object?> schoolAnaJson = {
+  'id': 'f1',
+  'name': 'Colegio Ana',
+  'monthlyAmount': 1347709.00,
+  'category': 'EDUCATION',
+  'createdAt': '2026-10-22T12:00:00Z',
+  'updatedAt': '2026-10-22T12:00:00Z',
+};
+
+const VariableExpense netflix = VariableExpense(
+  id: 'v1',
+  name: 'Netflix',
+  monthlyAmount: Money.fromPesos(44900),
+  category: VariableExpenseCategory.streaming,
+);
+
+const VariableExpense nanny = VariableExpense(
+  id: 'v2',
+  name: 'Empleada',
+  monthlyAmount: Money.fromPesos(1800000),
+  category: VariableExpenseCategory.householdStaff,
+);
+
+const VariableExpense restaurants = VariableExpense(
+  id: 'v3',
+  name: 'Restaurantes',
+  monthlyAmount: Money.fromPesos(600000),
+  category: VariableExpenseCategory.dining,
+);
+
+const Map<String, Object?> nannyJson = {
+  'id': 'v2',
+  'name': 'Empleada',
+  'monthlyAmount': 1800000,
+  'category': 'HOUSEHOLD_STAFF',
 };
