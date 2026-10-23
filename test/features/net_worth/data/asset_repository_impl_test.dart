@@ -23,7 +23,7 @@ const AppException _notFound = AppException(
 void main() {
   late _MockAssetRemoteDataSource remote;
   late AssetRepositoryImpl repository;
-  final draft = ItemDraft(
+  final draft = CategorizedDraft(
     name: car.name,
     amount: car.value,
     category: car.category,

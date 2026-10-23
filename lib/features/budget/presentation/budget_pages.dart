@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/di/injection.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
@@ -20,7 +21,7 @@ abstract final class BudgetPages {
         ),
     AppRoute.budgetIncome: (_) => BlocProvider<IncomeSourceBloc>(
           create: (_) => getIt<IncomeSourceBloc>()
-            ..add(const CrudLoadRequested<IncomeCategory>()),
+            ..add(const CrudLoadRequested<CategorizedDraft<IncomeCategory>>()),
           child: const IncomeSourcesScreen(),
         ),
   };

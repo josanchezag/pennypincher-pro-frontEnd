@@ -22,7 +22,8 @@ import '../../../../helpers/budget_mocks.dart';
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/pump_app.dart';
 
-const CrudScreenConfig<IncomeCategory> _config = IncomeSourcesScreen.config;
+const CrudScreenConfig<IncomeSource, CategorizedDraft<IncomeCategory>> _config =
+    IncomeSourcesScreen.config;
 const CrudLoaded<IncomeSource> _loaded =
     CrudLoaded([arriendoMadera, remoti, avenueCode]);
 
@@ -30,7 +31,9 @@ Finder _field(String label) => find.widgetWithText(TextField, label);
 
 void main() {
   setUpAll(() {
-    registerFallbackValue(const CrudLoadRequested<IncomeCategory>());
+    registerFallbackValue(
+      const CrudLoadRequested<CategorizedDraft<IncomeCategory>>(),
+    );
     return loadAppFonts();
   });
 
@@ -51,7 +54,11 @@ void main() {
 
     expect(find.byType(IncomeSourcesScreen), findsOneWidget);
     expect(find.byType(LoadingSkeleton), findsOneWidget);
-    verify(() => bloc.add(const CrudLoadRequested<IncomeCategory>())).called(1);
+    verify(
+      () => bloc.add(
+        const CrudLoadRequested<CategorizedDraft<IncomeCategory>>(),
+      ),
+    ).called(1);
   });
 
   testWidgets('shows an encouraging empty state', (tester) async {
@@ -123,7 +130,7 @@ void main() {
     verify(
       () => bloc.add(
         const CrudSaveRequested(
-          ItemDraft(
+          CategorizedDraft(
             name: 'Airbnb Barranca',
             amount: Money.fromPesos(2500000),
             category: IncomeCategory.rental,
@@ -146,7 +153,7 @@ void main() {
     verify(
       () => bloc.add(
         const CrudSaveRequested(
-          ItemDraft(
+          CategorizedDraft(
             name: 'Remoti',
             amount: Money.fromPesos(9500000),
             category: IncomeCategory.employment,

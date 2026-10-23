@@ -1,53 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
+import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_fields.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
-import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/widgets/button_progress_icon.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 /// Bottom sheet that creates an item, or edits [initial] when given. It
 /// stays open while the bloc saves, shows a failed save inside the sheet
 /// so the typed values are kept, and closes once the item is saved.
-class ItemFormSheet<T extends CategorizedItem<C>, C extends Enum>
-    extends StatefulWidget {
+class ItemFormSheet<T extends CrudItem, D> extends StatefulWidget {
   const ItemFormSheet({required this.config, this.initial, super.key});
 
   static const Key saveKey = Key('item-form-save');
   static const Key errorKey = Key('item-form-error');
 
-  final CrudScreenConfig<C> config;
+  final CrudScreenConfig<T, D> config;
   final T? initial;
 
   /// Opens the sheet, saving through [bloc].
-  static Future<void> show<T extends CategorizedItem<C>, C extends Enum>(
+  static Future<void> show<T extends CrudItem, D>(
     BuildContext context, {
-    required CrudScreenConfig<C> config,
-    required CrudBloc<T, C> bloc,
+    required CrudScreenConfig<T, D> config,
+    required CrudBloc<T, D> bloc,
     T? initial,
   }) =>
       showModalBottomSheet<void>(
         context: context,
         isScrollControlled: true,
         useSafeArea: true,
-        builder: (_) => BlocProvider<CrudBloc<T, C>>.value(
+        builder: (_) => BlocProvider<CrudBloc<T, D>>.value(
           value: bloc,
-          child: ItemFormSheet<T, C>(config: config, initial: initial),
+          child: ItemFormSheet<T, D>(config: config, initial: initial),
         ),
       );
 
   @override
-  State<ItemFormSheet<T, C>> createState() => _ItemFormSheetState<T, C>();
+  State<ItemFormSheet<T, D>> createState() => _ItemFormSheetState<T, D>();
 }
 
-class _ItemFormSheetState<T extends CategorizedItem<C>, C extends Enum>
-    extends State<ItemFormSheet<T, C>> {
-  late final FormGroup _form = ItemFormFields.group<C>(widget.initial);
+class _ItemFormSheetState<T extends CrudItem, D>
+    extends State<ItemFormSheet<T, D>> {
+  late final FormGroup _form = widget.config.layout.formGroup(widget.initial);
   bool _saving = false;
   String? _error;
 
@@ -61,7 +59,7 @@ class _ItemFormSheetState<T extends CategorizedItem<C>, C extends Enum>
   Widget build(BuildContext context) {
     return PopScope(
       canPop: !_saving,
-      child: BlocListener<CrudBloc<T, C>, CrudState<T>>(
+      child: BlocListener<CrudBloc<T, D>, CrudState<T>>(
         listenWhen: (_, state) =>
             _saving && state is CrudLoaded<T> && !state.busy,
         listener: (context, state) => _onSaved(state as CrudLoaded<T>),
@@ -86,7 +84,7 @@ class _ItemFormSheetState<T extends CategorizedItem<C>, C extends Enum>
             child: Text(_title, style: AppTypography.heading3),
           ),
           const SizedBox(height: AppSpacing.lg),
-          ...ItemFormFields.build<C>(widget.config),
+          ...ItemFormFields.spaced(widget.config.layout.formFields()),
           if (_error != null) _ErrorText(message: _error!),
           const SizedBox(height: AppSpacing.lg),
           _SaveButton(saving: _saving, onPressed: _submit),
@@ -105,7 +103,7 @@ class _ItemFormSheetState<T extends CategorizedItem<C>, C extends Enum>
       );
 
   void _submit() {
-    final bloc = context.read<CrudBloc<T, C>>();
+    final bloc = context.read<CrudBloc<T, D>>();
     final state = bloc.state;
     if (state is! CrudLoaded<T> || state.busy) {
       return;
@@ -118,16 +116,13 @@ class _ItemFormSheetState<T extends CategorizedItem<C>, C extends Enum>
       _saving = true;
       _error = null;
     });
-    bloc.add(CrudSaveRequested<C>(_draft(), id: widget.initial?.id));
+    bloc.add(
+      CrudSaveRequested<D>(
+        widget.config.layout.draftOf(_form),
+        id: widget.initial?.id,
+      ),
+    );
   }
-
-  ItemDraft<C> _draft() => ItemDraft<C>(
-        name: (_form.control(ItemFormFields.name).value as String).trim(),
-        amount: Money.tryParseInput(
-          _form.control(ItemFormFields.amount).value as String,
-        )!,
-        category: _form.control(ItemFormFields.category).value as C,
-      );
 
   void _onSaved(CrudLoaded<T> state) {
     if (state.failedAction == CrudAction.save) {

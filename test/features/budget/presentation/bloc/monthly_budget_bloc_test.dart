@@ -4,6 +4,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
 import 'package:pennypincher_pro/core/crud/domain/usecase/crud_use_cases.dart';
 import 'package:pennypincher_pro/core/error/failure.dart';
 import 'package:pennypincher_pro/core/time/clock.dart';
@@ -24,7 +25,7 @@ class _MockUpdateBudget extends Mock implements UpdateMonthlyBudget {}
 class _MockRecalculateBudget extends Mock implements RecalculateBudget {}
 
 class _MockGetIncome extends Mock
-    implements GetItems<IncomeSource, IncomeCategory> {}
+    implements GetItems<IncomeSource, CategorizedDraft<IncomeCategory>> {}
 
 class _FixedClock implements Clock {
   @override

@@ -23,14 +23,17 @@ import '../../../../helpers/net_worth_fixtures.dart';
 import '../../../../helpers/net_worth_mocks.dart';
 import '../../../../helpers/pump_app.dart';
 
-const CrudScreenConfig<AssetCategory> _config = AssetsScreen.config;
+const CrudScreenConfig<Asset, CategorizedDraft<AssetCategory>> _config =
+    AssetsScreen.config;
 const CrudLoaded<Asset> _loaded = CrudLoaded([car, apartment, wallet]);
 
 Finder _field(String label) => find.widgetWithText(TextField, label);
 
 void main() {
   setUpAll(() {
-    registerFallbackValue(const CrudLoadRequested<AssetCategory>());
+    registerFallbackValue(
+      const CrudLoadRequested<CategorizedDraft<AssetCategory>>(),
+    );
     return loadAppFonts();
   });
 
@@ -51,7 +54,11 @@ void main() {
     expect(find.byType(AssetsScreen), findsOneWidget);
     expect(find.byType(LoadingSkeleton), findsOneWidget);
     expect(find.byKey(CrudScreen.addButtonKey), findsNothing);
-    verify(() => bloc.add(const CrudLoadRequested<AssetCategory>())).called(1);
+    verify(
+      () => bloc.add(
+        const CrudLoadRequested<CategorizedDraft<AssetCategory>>(),
+      ),
+    ).called(1);
   });
 
   testWidgets('offers a retry when loading fails', (tester) async {
@@ -65,7 +72,11 @@ void main() {
     expect(find.text('Could not reach the server.'), findsOneWidget);
     await tester.tap(find.text(CrudTexts.retry));
 
-    verify(() => bloc.add(const CrudLoadRequested<AssetCategory>())).called(1);
+    verify(
+      () => bloc.add(
+        const CrudLoadRequested<CategorizedDraft<AssetCategory>>(),
+      ),
+    ).called(1);
   });
 
   testWidgets('shows an empty state without assets', (tester) async {
@@ -146,7 +157,7 @@ void main() {
     verify(
       () => bloc.add(
         const CrudSaveRequested(
-          ItemDraft(
+          CategorizedDraft(
             name: 'Moto',
             amount: Money.fromCents(850000050),
             category: AssetCategory.vehicle,
@@ -156,13 +167,19 @@ void main() {
     ).called(1);
     states.add(const CrudLoaded([], busy: true));
     await tester.pump();
-    expect(find.byType(ItemFormSheet<Asset, AssetCategory>), findsOneWidget);
+    expect(
+      find.byType(ItemFormSheet<Asset, CategorizedDraft<AssetCategory>>),
+      findsOneWidget,
+    );
     final save = tester.widget<FilledButton>(find.byKey(ItemFormSheet.saveKey));
     expect(save.onPressed, isNull);
 
     states.add(const CrudLoaded([moto]));
     await tester.pumpAndSettle();
-    expect(find.byType(ItemFormSheet<Asset, AssetCategory>), findsNothing);
+    expect(
+      find.byType(ItemFormSheet<Asset, CategorizedDraft<AssetCategory>>),
+      findsNothing,
+    );
   });
 
   testWidgets('shows a failed save inside the sheet and keeps the input',
@@ -236,7 +253,7 @@ void main() {
     verify(
       () => bloc.add(
         const CrudSaveRequested(
-          ItemDraft(
+          CategorizedDraft(
             name: 'Carro Mazda',
             amount: Money.fromPesos(58000000),
             category: AssetCategory.vehicle,

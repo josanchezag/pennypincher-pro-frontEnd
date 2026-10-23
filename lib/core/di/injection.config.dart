@@ -15,6 +15,9 @@ import 'package:pennypincher_pro/core/auth/session_refresher.dart' as _i1018;
 import 'package:pennypincher_pro/core/auth/token_service.dart' as _i852;
 import 'package:pennypincher_pro/core/config/app_config.dart' as _i504;
 import 'package:pennypincher_pro/core/config/config_module.dart' as _i544;
+import 'package:pennypincher_pro/core/crud/domain/balance_item.dart' as _i642;
+import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart'
+    as _i953;
 import 'package:pennypincher_pro/core/crud/domain/usecase/crud_use_cases.dart'
     as _i678;
 import 'package:pennypincher_pro/core/network/auth_interceptor.dart' as _i93;
@@ -70,6 +73,28 @@ import 'package:pennypincher_pro/features/budget/presentation/bloc/income_source
     as _i11;
 import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart'
     as _i105;
+import 'package:pennypincher_pro/features/expense_details/data/datasource/credit_card_remote_datasource.dart'
+    as _i129;
+import 'package:pennypincher_pro/features/expense_details/data/datasource/expense_summary_remote_datasource.dart'
+    as _i459;
+import 'package:pennypincher_pro/features/expense_details/data/repository/credit_card_repository_impl.dart'
+    as _i757;
+import 'package:pennypincher_pro/features/expense_details/data/repository/expense_summary_repository_impl.dart'
+    as _i187;
+import 'package:pennypincher_pro/features/expense_details/di/expense_details_module.dart'
+    as _i539;
+import 'package:pennypincher_pro/features/expense_details/domain/entity/credit_card_entity.dart'
+    as _i793;
+import 'package:pennypincher_pro/features/expense_details/domain/repository/credit_card_repository.dart'
+    as _i379;
+import 'package:pennypincher_pro/features/expense_details/domain/repository/expense_summary_repository.dart'
+    as _i436;
+import 'package:pennypincher_pro/features/expense_details/domain/usecase/get_expense_summary.dart'
+    as _i1044;
+import 'package:pennypincher_pro/features/expense_details/presentation/bloc/credit_card_bloc.dart'
+    as _i963;
+import 'package:pennypincher_pro/features/expense_details/presentation/bloc/expenses_hub_bloc.dart'
+    as _i84;
 import 'package:pennypincher_pro/features/net_worth/data/datasource/asset_remote_datasource.dart'
     as _i392;
 import 'package:pennypincher_pro/features/net_worth/data/datasource/liability_remote_datasource.dart'
@@ -118,6 +143,7 @@ extension GetItInjectableX on _i174.GetIt {
     final networkModule = _$NetworkModule();
     final authModule = _$AuthModule();
     final budgetModule = _$BudgetModule();
+    final expenseDetailsModule = _$ExpenseDetailsModule();
     final netWorthModule = _$NetWorthModule();
     gh.singleton<_i504.AppConfig>(() => configModule.config);
     gh.lazySingleton<_i449.PkceGenerator>(() => _i449.PkceGenerator());
@@ -185,14 +211,20 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i277.LiabilityRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i578.IncomeSourceRemoteDataSource>(
         () => _i578.IncomeSourceRemoteDataSource(gh<_i361.Dio>()));
+    gh.lazySingleton<_i129.CreditCardRemoteDataSource>(
+        () => _i129.CreditCardRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i464.NetWorthRemoteDataSource>(
         () => _i464.NetWorthRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i542.MonthlyBudgetRemoteDataSource>(
         () => _i542.MonthlyBudgetRemoteDataSource(gh<_i361.Dio>()));
+    gh.lazySingleton<_i459.ExpenseSummaryRemoteDataSource>(
+        () => _i459.ExpenseSummaryRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i446.AppRouter>(() => _i446.AppRouter(
           gh<_i504.AppConfig>(),
           gh<_i238.AuthBloc>(),
         ));
+    gh.lazySingleton<_i379.CreditCardRepository>(() =>
+        _i757.CreditCardRepositoryImpl(gh<_i129.CreditCardRemoteDataSource>()));
     gh.lazySingleton<_i867.MonthlyBudgetRepository>(() =>
         _i833.MonthlyBudgetRepositoryImpl(
             gh<_i542.MonthlyBudgetRemoteDataSource>()));
@@ -203,12 +235,25 @@ extension GetItInjectableX on _i174.GetIt {
             gh<_i578.IncomeSourceRemoteDataSource>()));
     gh.lazySingleton<_i606.NetWorthRepository>(() =>
         _i257.NetWorthRepositoryImpl(gh<_i464.NetWorthRemoteDataSource>()));
-    gh.factory<_i678.GetItems<_i161.IncomeSource, _i161.IncomeCategory>>(() =>
+    gh.factory<
+        _i678.GetItems<_i161.IncomeSource,
+            _i953.CategorizedDraft<_i161.IncomeCategory>>>(() =>
         budgetModule.getIncomeSources(gh<_i116.IncomeSourceRepository>()));
-    gh.factory<_i678.SaveItem<_i161.IncomeSource, _i161.IncomeCategory>>(() =>
+    gh.factory<
+        _i678.SaveItem<_i161.IncomeSource,
+            _i953.CategorizedDraft<_i161.IncomeCategory>>>(() =>
         budgetModule.saveIncomeSource(gh<_i116.IncomeSourceRepository>()));
-    gh.factory<_i678.DeleteItem<_i161.IncomeSource, _i161.IncomeCategory>>(() =>
+    gh.factory<
+        _i678.DeleteItem<_i161.IncomeSource,
+            _i953.CategorizedDraft<_i161.IncomeCategory>>>(() =>
         budgetModule.deleteIncomeSource(gh<_i116.IncomeSourceRepository>()));
+    gh.factory<_i678.GetItems<_i793.CreditCard, _i642.BalanceDraft>>(() =>
+        expenseDetailsModule.getCreditCards(gh<_i379.CreditCardRepository>()));
+    gh.factory<_i678.SaveItem<_i793.CreditCard, _i642.BalanceDraft>>(() =>
+        expenseDetailsModule.saveCreditCard(gh<_i379.CreditCardRepository>()));
+    gh.factory<_i678.DeleteItem<_i793.CreditCard, _i642.BalanceDraft>>(() =>
+        expenseDetailsModule
+            .deleteCreditCard(gh<_i379.CreditCardRepository>()));
     gh.lazySingleton<_i90.LiabilityRepository>(() =>
         _i418.LiabilityRepositoryImpl(gh<_i277.LiabilityRemoteDataSource>()));
     gh.factory<_i51.GetMonthlyBudget>(() =>
@@ -219,52 +264,96 @@ extension GetItInjectableX on _i174.GetIt {
         budgetModule.updateMonthlyBudget(gh<_i867.MonthlyBudgetRepository>()));
     gh.factory<_i51.RecalculateBudget>(() =>
         budgetModule.recalculateBudget(gh<_i867.MonthlyBudgetRepository>()));
-    gh.factory<_i678.GetItems<_i499.Asset, _i499.AssetCategory>>(
+    gh.factory<
+            _i678.GetItems<_i499.Asset,
+                _i953.CategorizedDraft<_i499.AssetCategory>>>(
         () => netWorthModule.getAssets(gh<_i365.AssetRepository>()));
-    gh.factory<_i678.SaveItem<_i499.Asset, _i499.AssetCategory>>(
+    gh.factory<
+            _i678.SaveItem<_i499.Asset,
+                _i953.CategorizedDraft<_i499.AssetCategory>>>(
         () => netWorthModule.saveAsset(gh<_i365.AssetRepository>()));
-    gh.factory<_i678.DeleteItem<_i499.Asset, _i499.AssetCategory>>(
+    gh.factory<
+            _i678.DeleteItem<_i499.Asset,
+                _i953.CategorizedDraft<_i499.AssetCategory>>>(
         () => netWorthModule.deleteAsset(gh<_i365.AssetRepository>()));
-    gh.factory<_i1068.AssetBloc>(() => _i1068.AssetBloc(
-          gh<_i678.GetItems<_i499.Asset, _i499.AssetCategory>>(),
-          gh<_i678.SaveItem<_i499.Asset, _i499.AssetCategory>>(),
-          gh<_i678.DeleteItem<_i499.Asset, _i499.AssetCategory>>(),
-        ));
-    gh.factory<_i678.GetItems<_i941.Liability, _i941.LiabilityCategory>>(
-        () => netWorthModule.getLiabilities(gh<_i90.LiabilityRepository>()));
-    gh.factory<_i678.SaveItem<_i941.Liability, _i941.LiabilityCategory>>(
-        () => netWorthModule.saveLiability(gh<_i90.LiabilityRepository>()));
-    gh.factory<_i678.DeleteItem<_i941.Liability, _i941.LiabilityCategory>>(
-        () => netWorthModule.deleteLiability(gh<_i90.LiabilityRepository>()));
+    gh.lazySingleton<_i436.ExpenseSummaryRepository>(() =>
+        _i187.ExpenseSummaryRepositoryImpl(
+            gh<_i459.ExpenseSummaryRemoteDataSource>()));
     gh.factory<_i11.IncomeSourceBloc>(() => _i11.IncomeSourceBloc(
-          gh<_i678.GetItems<_i161.IncomeSource, _i161.IncomeCategory>>(),
-          gh<_i678.SaveItem<_i161.IncomeSource, _i161.IncomeCategory>>(),
-          gh<_i678.DeleteItem<_i161.IncomeSource, _i161.IncomeCategory>>(),
+          gh<
+              _i678.GetItems<_i161.IncomeSource,
+                  _i953.CategorizedDraft<_i161.IncomeCategory>>>(),
+          gh<
+              _i678.SaveItem<_i161.IncomeSource,
+                  _i953.CategorizedDraft<_i161.IncomeCategory>>>(),
+          gh<
+              _i678.DeleteItem<_i161.IncomeSource,
+                  _i953.CategorizedDraft<_i161.IncomeCategory>>>(),
         ));
-    gh.factory<_i105.MonthlyBudgetBloc>(() => _i105.MonthlyBudgetBloc(
-          gh<_i51.GetMonthlyBudget>(),
-          gh<_i51.CreateMonthlyBudget>(),
-          gh<_i51.UpdateMonthlyBudget>(),
-          gh<_i51.RecalculateBudget>(),
-          gh<_i678.GetItems<_i161.IncomeSource, _i161.IncomeCategory>>(),
-          gh<_i656.Clock>(),
+    gh.factory<_i1044.GetExpenseSummary>(() => expenseDetailsModule
+        .getExpenseSummary(gh<_i436.ExpenseSummaryRepository>()));
+    gh.factory<_i1068.AssetBloc>(() => _i1068.AssetBloc(
+          gh<
+              _i678.GetItems<_i499.Asset,
+                  _i953.CategorizedDraft<_i499.AssetCategory>>>(),
+          gh<
+              _i678.SaveItem<_i499.Asset,
+                  _i953.CategorizedDraft<_i499.AssetCategory>>>(),
+          gh<
+              _i678.DeleteItem<_i499.Asset,
+                  _i953.CategorizedDraft<_i499.AssetCategory>>>(),
         ));
-    gh.factory<_i944.LiabilityBloc>(() => _i944.LiabilityBloc(
-          gh<_i678.GetItems<_i941.Liability, _i941.LiabilityCategory>>(),
-          gh<_i678.SaveItem<_i941.Liability, _i941.LiabilityCategory>>(),
-          gh<_i678.DeleteItem<_i941.Liability, _i941.LiabilityCategory>>(),
-        ));
+    gh.factory<
+            _i678.GetItems<_i941.Liability,
+                _i953.CategorizedDraft<_i941.LiabilityCategory>>>(
+        () => netWorthModule.getLiabilities(gh<_i90.LiabilityRepository>()));
+    gh.factory<
+            _i678.SaveItem<_i941.Liability,
+                _i953.CategorizedDraft<_i941.LiabilityCategory>>>(
+        () => netWorthModule.saveLiability(gh<_i90.LiabilityRepository>()));
+    gh.factory<
+            _i678.DeleteItem<_i941.Liability,
+                _i953.CategorizedDraft<_i941.LiabilityCategory>>>(
+        () => netWorthModule.deleteLiability(gh<_i90.LiabilityRepository>()));
+    gh.factory<_i84.ExpensesHubBloc>(
+        () => _i84.ExpensesHubBloc(gh<_i1044.GetExpenseSummary>()));
     gh.factory<_i424.GetNetWorthSnapshots>(() =>
         netWorthModule.getNetWorthSnapshots(gh<_i606.NetWorthRepository>()));
     gh.factory<_i424.GetCurrentNetWorth>(() =>
         netWorthModule.getCurrentNetWorth(gh<_i606.NetWorthRepository>()));
     gh.factory<_i424.CreateSnapshot>(
         () => netWorthModule.createSnapshot(gh<_i606.NetWorthRepository>()));
+    gh.factory<_i963.CreditCardBloc>(() => _i963.CreditCardBloc(
+          gh<_i678.GetItems<_i793.CreditCard, _i642.BalanceDraft>>(),
+          gh<_i678.SaveItem<_i793.CreditCard, _i642.BalanceDraft>>(),
+          gh<_i678.DeleteItem<_i793.CreditCard, _i642.BalanceDraft>>(),
+        ));
+    gh.factory<_i105.MonthlyBudgetBloc>(() => _i105.MonthlyBudgetBloc(
+          gh<_i51.GetMonthlyBudget>(),
+          gh<_i51.CreateMonthlyBudget>(),
+          gh<_i51.UpdateMonthlyBudget>(),
+          gh<_i51.RecalculateBudget>(),
+          gh<
+              _i678.GetItems<_i161.IncomeSource,
+                  _i953.CategorizedDraft<_i161.IncomeCategory>>>(),
+          gh<_i656.Clock>(),
+        ));
     gh.factory<_i697.NetWorthBloc>(() => _i697.NetWorthBloc(
           gh<_i424.GetCurrentNetWorth>(),
           gh<_i424.GetNetWorthSnapshots>(),
           gh<_i424.CreateSnapshot>(),
           gh<_i656.Clock>(),
+        ));
+    gh.factory<_i944.LiabilityBloc>(() => _i944.LiabilityBloc(
+          gh<
+              _i678.GetItems<_i941.Liability,
+                  _i953.CategorizedDraft<_i941.LiabilityCategory>>>(),
+          gh<
+              _i678.SaveItem<_i941.Liability,
+                  _i953.CategorizedDraft<_i941.LiabilityCategory>>>(),
+          gh<
+              _i678.DeleteItem<_i941.Liability,
+                  _i953.CategorizedDraft<_i941.LiabilityCategory>>>(),
         ));
     return this;
   }
@@ -277,5 +366,7 @@ class _$NetworkModule extends _i683.NetworkModule {}
 class _$AuthModule extends _i381.AuthModule {}
 
 class _$BudgetModule extends _i445.BudgetModule {}
+
+class _$ExpenseDetailsModule extends _i539.ExpenseDetailsModule {}
 
 class _$NetWorthModule extends _i125.NetWorthModule {}

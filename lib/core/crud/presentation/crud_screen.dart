@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
+import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/crud_list_view.dart';
@@ -11,12 +11,12 @@ import 'package:pennypincher_pro/core/widgets/confirmation_dialog.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
 import 'package:pennypincher_pro/core/widgets/status_message.dart';
 
-/// List screen of categorized items driven by a [CrudBloc] of type [B]
-/// provided above it: total card, items grouped by category, add button,
-/// edit sheet and delete confirmation. Snack bars are shown in this
+/// List screen driven by a [CrudBloc] of type [B] provided above it:
+/// summary, items as the config's layout arranges them, add button, edit
+/// sheet and delete confirmation. Snack bars are shown in this
 /// screen's own scaffold so they push the add button up.
-class CrudScreen<T extends CategorizedItem<C>, C extends Enum,
-    B extends CrudBloc<T, C>> extends StatelessWidget {
+class CrudScreen<T extends CrudItem, D, B extends CrudBloc<T, D>>
+    extends StatelessWidget {
   const CrudScreen({required this.config, super.key});
 
   static const Key addButtonKey = Key('crud-add-button');
@@ -30,7 +30,7 @@ class CrudScreen<T extends CategorizedItem<C>, C extends Enum,
     AppSpacing.xxxl,
   ];
 
-  final CrudScreenConfig<C> config;
+  final CrudScreenConfig<T, D> config;
 
   @override
   Widget build(BuildContext context) {
@@ -64,12 +64,12 @@ class CrudScreen<T extends CategorizedItem<C>, C extends Enum,
             title: CrudTexts.loadErrorTitle,
             message: message,
             action: FilledButton.icon(
-              onPressed: () => context.read<B>().add(CrudLoadRequested<C>()),
+              onPressed: () => context.read<B>().add(CrudLoadRequested<D>()),
               icon: const Icon(Icons.refresh),
               label: const Text(CrudTexts.retry),
             ),
           ),
-        CrudLoaded<T>(:final items, :final busy) => CrudListView<T, C>(
+        CrudLoaded<T>(:final items, :final busy) => CrudListView<T, D>(
             config: config,
             items: items,
             busy: busy,
@@ -85,7 +85,7 @@ class CrudScreen<T extends CategorizedItem<C>, C extends Enum,
           ? state.errorMessage
           : null;
 
-  Future<void> _edit(BuildContext context, T? item) => ItemFormSheet.show<T, C>(
+  Future<void> _edit(BuildContext context, T? item) => ItemFormSheet.show<T, D>(
         context,
         config: config,
         bloc: context.read<B>(),
@@ -101,7 +101,7 @@ class CrudScreen<T extends CategorizedItem<C>, C extends Enum,
       confirmLabel: CrudTexts.delete,
     );
     if (confirmed) {
-      bloc.add(CrudDeleteRequested<C>(item.id));
+      bloc.add(CrudDeleteRequested<D>(item.id));
     }
   }
 }

@@ -12,15 +12,16 @@ import 'package:pennypincher_pro/features/budget/presentation/bloc/income_source
 
 import '../../../../helpers/budget_fixtures.dart';
 
-class _MockGet extends Mock implements GetItems<IncomeSource, IncomeCategory> {}
+class _MockGet extends Mock
+    implements GetItems<IncomeSource, CategorizedDraft<IncomeCategory>> {}
 
 class _MockSave extends Mock
-    implements SaveItem<IncomeSource, IncomeCategory> {}
+    implements SaveItem<IncomeSource, CategorizedDraft<IncomeCategory>> {}
 
 class _MockDelete extends Mock
-    implements DeleteItem<IncomeSource, IncomeCategory> {}
+    implements DeleteItem<IncomeSource, CategorizedDraft<IncomeCategory>> {}
 
-const ItemDraft<IncomeCategory> _draft = ItemDraft(
+const CategorizedDraft<IncomeCategory> _draft = CategorizedDraft(
   name: 'Remoti',
   amount: Money.fromPesos(9500000),
   category: IncomeCategory.employment,

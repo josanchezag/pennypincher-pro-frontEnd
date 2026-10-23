@@ -12,7 +12,7 @@ class _MockAssetRepository extends Mock implements AssetRepository {}
 
 void main() {
   late _MockAssetRepository repository;
-  final draft = ItemDraft(
+  final draft = CategorizedDraft(
     name: car.name,
     amount: car.value,
     category: car.category,
@@ -23,7 +23,8 @@ void main() {
   test('GetItems loads every item', () async {
     when(repository.getAll).thenAnswer((_) async => const Right([car]));
 
-    final result = await GetItems<Asset, AssetCategory>(repository)();
+    final result =
+        await GetItems<Asset, CategorizedDraft<AssetCategory>>(repository)();
 
     expect(result.getOrElse(() => []), [car]);
   });
@@ -33,7 +34,7 @@ void main() {
         .thenAnswer((_) async => const Right(car));
     when(() => repository.update('a2', draft))
         .thenAnswer((_) async => const Right(car));
-    final save = SaveItem<Asset, AssetCategory>(repository);
+    final save = SaveItem<Asset, CategorizedDraft<AssetCategory>>(repository);
 
     await save(draft);
     await save(draft, id: 'a2');
@@ -46,7 +47,9 @@ void main() {
     when(() => repository.delete('a2'))
         .thenAnswer((_) async => const Right(unit));
 
-    final result = await DeleteItem<Asset, AssetCategory>(repository)('a2');
+    final result = await DeleteItem<Asset, CategorizedDraft<AssetCategory>>(
+      repository,
+    )('a2');
 
     expect(result, const Right<Object, Unit>(unit));
   });

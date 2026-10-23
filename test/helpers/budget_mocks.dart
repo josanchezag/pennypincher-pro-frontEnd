@@ -1,4 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/income_source_entity.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/income_source_bloc.dart';
@@ -6,9 +7,9 @@ import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budge
 
 import 'net_worth_mocks.dart';
 
-class MockIncomeSourceBloc
-    extends MockBloc<CrudEvent<IncomeCategory>, CrudState<IncomeSource>>
-    implements IncomeSourceBloc {}
+class MockIncomeSourceBloc extends MockBloc<
+    CrudEvent<CategorizedDraft<IncomeCategory>>,
+    CrudState<IncomeSource>> implements IncomeSourceBloc {}
 
 MockIncomeSourceBloc registerIncomeSourceBloc(
   CrudState<IncomeSource> state, {

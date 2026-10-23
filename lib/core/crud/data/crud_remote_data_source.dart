@@ -1,16 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:pennypincher_pro/core/crud/data/item_json_codec.dart';
-import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
+import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
 import 'package:pennypincher_pro/core/network/api_envelope.dart';
 
-/// REST calls of a categorized item resource at [path]: list, create,
+/// REST calls of an item resource at [path]: list, create,
 /// update and delete. Every method throws `AppException` on failure.
-class CrudRemoteDataSource<T extends CategorizedItem<C>, C extends Enum> {
+class CrudRemoteDataSource<T extends CrudItem, D> {
   CrudRemoteDataSource(this._dio, {required this.path, required this.codec});
 
   final Dio _dio;
   final String path;
-  final ItemJsonCodec<T, C> codec;
+  final ItemJsonCodec<T, D> codec;
 
   /// `GET <path>`.
   Future<List<T>> getAll() async {
@@ -19,12 +19,12 @@ class CrudRemoteDataSource<T extends CategorizedItem<C>, C extends Enum> {
   }
 
   /// `POST <path>`.
-  Future<T> create(ItemDraft<C> draft) => _parsed(
+  Future<T> create(D draft) => _parsed(
         () => _dio.post<Object?>(path, data: codec.toJson(draft)),
       );
 
   /// `PUT <path>/{id}`.
-  Future<T> update(String id, ItemDraft<C> draft) => _parsed(
+  Future<T> update(String id, D draft) => _parsed(
         () => _dio.put<Object?>(_itemPath(id), data: codec.toJson(draft)),
       );
 

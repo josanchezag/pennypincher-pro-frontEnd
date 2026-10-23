@@ -1,7 +1,7 @@
 part of 'crud_bloc.dart';
 
 /// Inputs of a [CrudBloc].
-sealed class CrudEvent<C extends Enum> extends Equatable {
+sealed class CrudEvent<D> extends Equatable {
   const CrudEvent();
 
   @override
@@ -9,15 +9,15 @@ sealed class CrudEvent<C extends Enum> extends Equatable {
 }
 
 /// Load (or reload after an error) every item of the list.
-final class CrudLoadRequested<C extends Enum> extends CrudEvent<C> {
+final class CrudLoadRequested<D> extends CrudEvent<D> {
   const CrudLoadRequested();
 }
 
 /// Create an item from [draft], or update the item with [id].
-final class CrudSaveRequested<C extends Enum> extends CrudEvent<C> {
+final class CrudSaveRequested<D> extends CrudEvent<D> {
   const CrudSaveRequested(this.draft, {this.id});
 
-  final ItemDraft<C> draft;
+  final D draft;
   final String? id;
 
   @override
@@ -25,7 +25,7 @@ final class CrudSaveRequested<C extends Enum> extends CrudEvent<C> {
 }
 
 /// Delete the item with [id] (already confirmed by the user).
-final class CrudDeleteRequested<C extends Enum> extends CrudEvent<C> {
+final class CrudDeleteRequested<D> extends CrudEvent<D> {
   const CrudDeleteRequested(this.id);
 
   final String id;

@@ -88,17 +88,17 @@ class BudgetIncomeCard extends StatelessWidget {
         Text(BudgetTexts.noIncome, style: AppTypography.bodyMedium),
       ];
     }
-    const config = IncomeSourcesScreen.config;
+    const layout = IncomeSourcesScreen.layout;
     final groups = ItemGroup.byCategory<IncomeSource, IncomeCategory>(
       current,
-      config.categories,
+      layout.categories,
     );
     return [
       for (final group in groups)
         for (final source in group.items)
           _AmountLine(
             label: source.name,
-            detail: config.labelOf(source.category),
+            detail: layout.labelOf(source.category),
             amount: source.amount,
           ),
       const Divider(),

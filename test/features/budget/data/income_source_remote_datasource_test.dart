@@ -8,7 +8,7 @@ import 'package:pennypincher_pro/features/budget/domain/entity/income_source_ent
 import '../../../helpers/budget_fixtures.dart';
 import '../../../helpers/fake_http_adapter.dart';
 
-const ItemDraft<IncomeCategory> _draft = ItemDraft(
+const CategorizedDraft<IncomeCategory> _draft = CategorizedDraft(
   name: 'AvenueCode',
   amount: Money.fromCents(2415292236),
   category: IncomeCategory.employment,

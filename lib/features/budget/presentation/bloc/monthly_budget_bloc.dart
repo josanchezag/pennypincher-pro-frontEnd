@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pennypincher_pro/core/constants/app_constants.dart';
+import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
 import 'package:pennypincher_pro/core/crud/domain/usecase/crud_use_cases.dart';
 import 'package:pennypincher_pro/core/error/failure.dart';
 import 'package:pennypincher_pro/core/time/calendar_month.dart';
@@ -40,7 +41,8 @@ class MonthlyBudgetBloc extends Bloc<MonthlyBudgetEvent, MonthlyBudgetState> {
   final CreateMonthlyBudget _createBudget;
   final UpdateMonthlyBudget _updateBudget;
   final RecalculateBudget _recalculateBudget;
-  final GetItems<IncomeSource, IncomeCategory> _getIncomeSources;
+  final GetItems<IncomeSource, CategorizedDraft<IncomeCategory>>
+      _getIncomeSources;
 
   /// Loads the budget of [month] and the income sources in parallel. A
   /// failure of the income sources only affects their section, and they

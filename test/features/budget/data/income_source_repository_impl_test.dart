@@ -15,7 +15,7 @@ class _MockRemote extends Mock implements IncomeSourceRemoteDataSource {}
 void main() {
   late _MockRemote remote;
   late IncomeSourceRepositoryImpl repository;
-  final draft = ItemDraft(
+  final draft = CategorizedDraft(
     name: remoti.name,
     amount: remoti.amount,
     category: remoti.category,

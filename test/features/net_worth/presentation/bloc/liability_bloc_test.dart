@@ -13,15 +13,15 @@ import 'package:pennypincher_pro/features/net_worth/presentation/bloc/liability_
 import '../../../../helpers/net_worth_fixtures.dart';
 
 class _MockGetLiabilities extends Mock
-    implements GetItems<Liability, LiabilityCategory> {}
+    implements GetItems<Liability, CategorizedDraft<LiabilityCategory>> {}
 
 class _MockSaveLiability extends Mock
-    implements SaveItem<Liability, LiabilityCategory> {}
+    implements SaveItem<Liability, CategorizedDraft<LiabilityCategory>> {}
 
 class _MockDeleteLiability extends Mock
-    implements DeleteItem<Liability, LiabilityCategory> {}
+    implements DeleteItem<Liability, CategorizedDraft<LiabilityCategory>> {}
 
-const ItemDraft<LiabilityCategory> _draft = ItemDraft(
+const CategorizedDraft<LiabilityCategory> _draft = CategorizedDraft(
   name: 'Tarjeta Nu Bank',
   amount: Money.fromPesos(2900000),
   category: LiabilityCategory.creditCard,

@@ -9,7 +9,7 @@ import 'package:pennypincher_pro/features/net_worth/domain/entity/asset_entity.d
 import '../../../helpers/fake_http_adapter.dart';
 import '../../../helpers/net_worth_fixtures.dart';
 
-const ItemDraft<AssetCategory> _draft = ItemDraft(
+const CategorizedDraft<AssetCategory> _draft = CategorizedDraft(
   name: 'Apto Madera',
   amount: Money.fromCents(35000000050),
   category: AssetCategory.realEstate,

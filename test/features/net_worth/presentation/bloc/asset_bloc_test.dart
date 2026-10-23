@@ -12,14 +12,16 @@ import 'package:pennypincher_pro/features/net_worth/presentation/bloc/asset_bloc
 
 import '../../../../helpers/net_worth_fixtures.dart';
 
-class _MockGetAssets extends Mock implements GetItems<Asset, AssetCategory> {}
+class _MockGetAssets extends Mock
+    implements GetItems<Asset, CategorizedDraft<AssetCategory>> {}
 
-class _MockSaveAsset extends Mock implements SaveItem<Asset, AssetCategory> {}
+class _MockSaveAsset extends Mock
+    implements SaveItem<Asset, CategorizedDraft<AssetCategory>> {}
 
 class _MockDeleteAsset extends Mock
-    implements DeleteItem<Asset, AssetCategory> {}
+    implements DeleteItem<Asset, CategorizedDraft<AssetCategory>> {}
 
-const ItemDraft<AssetCategory> _draft = ItemDraft(
+const CategorizedDraft<AssetCategory> _draft = CategorizedDraft(
   name: 'Carro Mazda',
   amount: Money.fromPesos(58000000),
   category: AssetCategory.vehicle,

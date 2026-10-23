@@ -1,4 +1,5 @@
 import 'package:injectable/injectable.dart';
+import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
 import 'package:pennypincher_pro/core/crud/domain/usecase/crud_use_cases.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/asset_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/liability_entity.dart';
@@ -12,31 +13,37 @@ import 'package:pennypincher_pro/features/net_worth/domain/usecase/net_worth_use
 @module
 abstract class NetWorthModule {
   @injectable
-  GetItems<Asset, AssetCategory> getAssets(AssetRepository repository) =>
+  GetItems<Asset, CategorizedDraft<AssetCategory>> getAssets(
+    AssetRepository repository,
+  ) =>
       GetItems(repository);
 
   @injectable
-  SaveItem<Asset, AssetCategory> saveAsset(AssetRepository repository) =>
+  SaveItem<Asset, CategorizedDraft<AssetCategory>> saveAsset(
+    AssetRepository repository,
+  ) =>
       SaveItem(repository);
 
   @injectable
-  DeleteItem<Asset, AssetCategory> deleteAsset(AssetRepository repository) =>
+  DeleteItem<Asset, CategorizedDraft<AssetCategory>> deleteAsset(
+    AssetRepository repository,
+  ) =>
       DeleteItem(repository);
 
   @injectable
-  GetItems<Liability, LiabilityCategory> getLiabilities(
+  GetItems<Liability, CategorizedDraft<LiabilityCategory>> getLiabilities(
     LiabilityRepository repository,
   ) =>
       GetItems(repository);
 
   @injectable
-  SaveItem<Liability, LiabilityCategory> saveLiability(
+  SaveItem<Liability, CategorizedDraft<LiabilityCategory>> saveLiability(
     LiabilityRepository repository,
   ) =>
       SaveItem(repository);
 
   @injectable
-  DeleteItem<Liability, LiabilityCategory> deleteLiability(
+  DeleteItem<Liability, CategorizedDraft<LiabilityCategory>> deleteLiability(
     LiabilityRepository repository,
   ) =>
       DeleteItem(repository);

@@ -11,15 +11,15 @@ abstract final class LiabilityJsonKeys {
 }
 
 /// JSON shape of a liability: `{id, name, currentBalance, category}`.
-const ItemJsonCodec<Liability, LiabilityCategory> liabilityJsonCodec =
-    ItemJsonCodec(
+const CategorizedJsonCodec<Liability, LiabilityCategory> liabilityJsonCodec =
+    CategorizedJsonCodec(
   amountKey: LiabilityJsonKeys.currentBalance,
   categories: LiabilityCategory.values,
   fallbackCategory: LiabilityCategory.other,
   build: _liability,
 );
 
-Liability _liability(String id, ItemDraft<LiabilityCategory> fields) =>
+Liability _liability(String id, CategorizedDraft<LiabilityCategory> fields) =>
     Liability(
       id: id,
       name: fields.name,
@@ -29,8 +29,8 @@ Liability _liability(String id, ItemDraft<LiabilityCategory> fields) =>
 
 /// `/liabilities` endpoints, called with the authenticated client.
 @lazySingleton
-class LiabilityRemoteDataSource
-    extends CrudRemoteDataSource<Liability, LiabilityCategory> {
+class LiabilityRemoteDataSource extends CrudRemoteDataSource<Liability,
+    CategorizedDraft<LiabilityCategory>> {
   LiabilityRemoteDataSource(super.dio)
       : super(path: ApiPaths.liabilities, codec: liabilityJsonCodec);
 }

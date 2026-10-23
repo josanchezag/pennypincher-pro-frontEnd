@@ -15,6 +15,10 @@ import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budge
 import 'package:pennypincher_pro/features/budget/presentation/budget_pages.dart';
 import 'package:pennypincher_pro/features/budget/presentation/screen/budget_overview_screen.dart';
 import 'package:pennypincher_pro/features/budget/presentation/screen/income_sources_screen.dart';
+import 'package:pennypincher_pro/features/expense_details/presentation/bloc/expenses_hub_bloc.dart';
+import 'package:pennypincher_pro/features/expense_details/presentation/expense_details_pages.dart';
+import 'package:pennypincher_pro/features/expense_details/presentation/screen/credit_cards_screen.dart';
+import 'package:pennypincher_pro/features/expense_details/presentation/screen/expenses_hub_screen.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_pages.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/assets_screen.dart';
@@ -22,6 +26,7 @@ import 'package:pennypincher_pro/features/net_worth/presentation/screen/liabilit
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/net_worth_screen.dart';
 
 import '../../helpers/budget_mocks.dart';
+import '../../helpers/expense_mocks.dart';
 import '../../helpers/mocks.dart';
 import '../../helpers/net_worth_mocks.dart';
 import '../../helpers/pump_app.dart';
@@ -111,7 +116,8 @@ void main() {
       (route) =>
           route != AppRoute.budget &&
           !NetWorthPages.builders.containsKey(route) &&
-          !BudgetPages.builders.containsKey(route),
+          !BudgetPages.builders.containsKey(route) &&
+          !ExpenseDetailsPages.builders.containsKey(route),
     );
     for (final route in placeholders) {
       testWidgets('renders ${route.path} inside the shell', (tester) async {
@@ -181,6 +187,25 @@ void main() {
 
       expect(find.byType(AppShell), findsOneWidget);
       expect(find.byType(IncomeSourcesScreen), findsOneWidget);
+    });
+
+    testWidgets('renders the expenses hub inside the shell', (tester) async {
+      registerExpensesHubBloc(const ExpensesHubState());
+
+      await tester.pumpApp(location: AppRoute.expenses.path);
+
+      expect(find.byType(AppShell), findsOneWidget);
+      expect(find.byType(ExpensesHubScreen), findsOneWidget);
+    });
+
+    testWidgets('renders the credit cards screen inside the shell',
+        (tester) async {
+      registerCreditCardBloc(const CrudLoaded([]));
+
+      await tester.pumpApp(location: AppRoute.expensesCreditCards.path);
+
+      expect(find.byType(AppShell), findsOneWidget);
+      expect(find.byType(CreditCardsScreen), findsOneWidget);
     });
 
     testWidgets('renders the login route without the shell', (tester) async {

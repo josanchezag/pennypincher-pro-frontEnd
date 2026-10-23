@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/di/injection.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
@@ -22,13 +23,15 @@ abstract final class NetWorthPages {
           child: const NetWorthScreen(),
         ),
     AppRoute.netWorthAssets: (_) => BlocProvider<AssetBloc>(
-          create: (_) =>
-              getIt<AssetBloc>()..add(const CrudLoadRequested<AssetCategory>()),
+          create: (_) => getIt<AssetBloc>()
+            ..add(const CrudLoadRequested<CategorizedDraft<AssetCategory>>()),
           child: const AssetsScreen(),
         ),
     AppRoute.netWorthLiabilities: (_) => BlocProvider<LiabilityBloc>(
           create: (_) => getIt<LiabilityBloc>()
-            ..add(const CrudLoadRequested<LiabilityCategory>()),
+            ..add(
+              const CrudLoadRequested<CategorizedDraft<LiabilityCategory>>(),
+            ),
           child: const LiabilitiesScreen(),
         ),
   };

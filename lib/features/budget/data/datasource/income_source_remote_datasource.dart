@@ -12,15 +12,18 @@ abstract final class IncomeSourceJsonKeys {
 
 /// JSON shape of an income source: `{id, name, amount, category}`. The
 /// optional `currency` is left to the backend default (COP).
-const ItemJsonCodec<IncomeSource, IncomeCategory> incomeSourceJsonCodec =
-    ItemJsonCodec(
+const CategorizedJsonCodec<IncomeSource, IncomeCategory> incomeSourceJsonCodec =
+    CategorizedJsonCodec(
   amountKey: IncomeSourceJsonKeys.amount,
   categories: IncomeCategory.values,
   fallbackCategory: IncomeCategory.other,
   build: _incomeSource,
 );
 
-IncomeSource _incomeSource(String id, ItemDraft<IncomeCategory> fields) =>
+IncomeSource _incomeSource(
+  String id,
+  CategorizedDraft<IncomeCategory> fields,
+) =>
     IncomeSource(
       id: id,
       name: fields.name,
@@ -30,8 +33,8 @@ IncomeSource _incomeSource(String id, ItemDraft<IncomeCategory> fields) =>
 
 /// `/income-sources` endpoints, called with the authenticated client.
 @lazySingleton
-class IncomeSourceRemoteDataSource
-    extends CrudRemoteDataSource<IncomeSource, IncomeCategory> {
+class IncomeSourceRemoteDataSource extends CrudRemoteDataSource<IncomeSource,
+    CategorizedDraft<IncomeCategory>> {
   IncomeSourceRemoteDataSource(super.dio)
       : super(path: ApiPaths.incomeSources, codec: incomeSourceJsonCodec);
 }

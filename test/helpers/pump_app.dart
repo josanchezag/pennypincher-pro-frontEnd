@@ -13,6 +13,13 @@ abstract final class TestViewports {
   static const Size mobile = Size(375, 812);
   static const Size tablet = Size(768, 1024);
   static const Size desktop = Size(1280, 800);
+
+  /// Widths the expenses screens are checked at, from a phone to a desktop.
+  static const List<Size> expenseWidths = [
+    Size(390, 844),
+    Size(800, 1000),
+    desktop,
+  ];
 }
 
 extension PumpApp on WidgetTester {

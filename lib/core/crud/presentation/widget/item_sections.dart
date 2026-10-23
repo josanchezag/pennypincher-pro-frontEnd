@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
 import 'package:pennypincher_pro/core/crud/domain/item_group.dart';
+import 'package:pennypincher_pro/core/crud/presentation/layout/item_layout.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_tile.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 
-/// Builds the tile of one item.
-typedef ItemTileBuilder<T> = Widget Function(BuildContext context, T item);
-
-/// Slivers of the items grouped by category: a subheader with the category
-/// subtotal, then a list (one column) or a grid of [columns] tiles.
+/// Slivers of list items: a list (one column) or a grid of tiles, and the
+/// same grouped by category under subheaders with their subtotals.
 abstract final class ItemSections {
-  static List<Widget> build<T extends CategorizedItem<C>, C extends Enum>({
+  static List<Widget> grouped<T extends CategorizedItem<C>, C extends Enum>({
     required List<ItemGroup<T, C>> groups,
     required String Function(C category) labelOf,
     required int columns,
+    required double tileHeight,
     required ItemTileBuilder<T> tileBuilder,
   }) =>
       [
@@ -26,13 +25,14 @@ abstract final class ItemSections {
               subtotal: CurrencyFormatter.format(group.subtotal),
             ),
           ),
-          _tiles(group.items, columns, tileBuilder),
+          tiles(group.items, columns, tileHeight, tileBuilder),
         ],
       ];
 
-  static Widget _tiles<T>(
+  static Widget tiles<T>(
     List<T> items,
     int columns,
+    double tileHeight,
     ItemTileBuilder<T> tileBuilder,
   ) {
     if (columns == 1) {
@@ -42,17 +42,35 @@ abstract final class ItemSections {
         separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.xs),
       );
     }
-    return SliverGrid.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: columns,
-        mainAxisExtent: ItemTile.height,
-        crossAxisSpacing: AppSpacing.sm,
-        mainAxisSpacing: AppSpacing.xs,
-      ),
-      itemCount: items.length,
-      itemBuilder: (context, index) => tileBuilder(context, items[index]),
-    );
+    return _grid(items, columns, tileHeight, tileBuilder);
   }
+
+  /// Tiles in [columns]; every row gets the height a tile of that width
+  /// needs.
+  static Widget _grid<T>(
+    List<T> items,
+    int columns,
+    double tileHeight,
+    ItemTileBuilder<T> tileBuilder,
+  ) =>
+      SliverLayoutBuilder(
+        builder: (context, constraints) {
+          const spacing = AppSpacing.sm;
+          final tileWidth =
+              (constraints.crossAxisExtent - spacing * (columns - 1)) / columns;
+          return SliverGrid.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: columns,
+              mainAxisExtent:
+                  ItemTile.gridExtent(context, tileHeight, tileWidth),
+              crossAxisSpacing: spacing,
+              mainAxisSpacing: AppSpacing.xs,
+            ),
+            itemCount: items.length,
+            itemBuilder: (context, index) => tileBuilder(context, items[index]),
+          );
+        },
+      );
 }
 
 class _GroupHeader extends StatelessWidget {

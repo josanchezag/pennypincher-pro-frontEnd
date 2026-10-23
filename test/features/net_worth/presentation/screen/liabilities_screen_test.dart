@@ -19,7 +19,8 @@ import '../../../../helpers/net_worth_fixtures.dart';
 import '../../../../helpers/net_worth_mocks.dart';
 import '../../../../helpers/pump_app.dart';
 
-const CrudScreenConfig<LiabilityCategory> _config = LiabilitiesScreen.config;
+const CrudScreenConfig<Liability, CategorizedDraft<LiabilityCategory>> _config =
+    LiabilitiesScreen.config;
 
 Finder _field(String label) => find.widgetWithText(TextField, label);
 
@@ -43,8 +44,11 @@ void main() {
     final bloc = await pumpLiabilities(tester, const CrudLoading());
 
     expect(find.byType(LoadingSkeleton), findsOneWidget);
-    verify(() => bloc.add(const CrudLoadRequested<LiabilityCategory>()))
-        .called(1);
+    verify(
+      () => bloc.add(
+        const CrudLoadRequested<CategorizedDraft<LiabilityCategory>>(),
+      ),
+    ).called(1);
   });
 
   testWidgets('shows the total debt in red and groups by category',
@@ -96,7 +100,7 @@ void main() {
     verify(
       () => bloc.add(
         const CrudSaveRequested(
-          ItemDraft(
+          CategorizedDraft(
             name: 'Préstamo tío',
             amount: Money.fromPesos(5000000),
             category: LiabilityCategory.familyDebt,

@@ -12,6 +12,10 @@ import 'package:pennypincher_pro/features/budget/domain/repository/income_source
 import 'package:pennypincher_pro/features/budget/domain/repository/monthly_budget_repository.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/income_source_bloc.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart';
+import 'package:pennypincher_pro/features/expense_details/domain/repository/credit_card_repository.dart';
+import 'package:pennypincher_pro/features/expense_details/domain/repository/expense_summary_repository.dart';
+import 'package:pennypincher_pro/features/expense_details/presentation/bloc/credit_card_bloc.dart';
+import 'package:pennypincher_pro/features/expense_details/presentation/bloc/expenses_hub_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/repository/asset_repository.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/repository/liability_repository.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/asset_bloc.dart';
@@ -58,6 +62,26 @@ void main() {
       getIt<IncomeSourceRepository>(),
       same(getIt<IncomeSourceRepository>()),
     );
+  });
+
+  test('creates fresh expense blocs over shared repositories', () {
+    final blocs = [
+      getIt<ExpensesHubBloc>(),
+      getIt<ExpensesHubBloc>(),
+      getIt<CreditCardBloc>(),
+      getIt<CreditCardBloc>(),
+    ];
+    for (final bloc in blocs) {
+      addTearDown(bloc.close);
+    }
+
+    expect(blocs[0], isNot(same(blocs[1])));
+    expect(blocs[2], isNot(same(blocs[3])));
+    expect(
+      getIt<ExpenseSummaryRepository>(),
+      same(getIt<ExpenseSummaryRepository>()),
+    );
+    expect(getIt<CreditCardRepository>(), same(getIt<CreditCardRepository>()));
   });
 
   test('points the HTTP client at the configured API base URL', () {

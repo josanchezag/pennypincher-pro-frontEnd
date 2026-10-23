@@ -1,22 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
-import 'package:pennypincher_pro/core/crud/domain/item_group.dart';
+import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
 import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
-import 'package:pennypincher_pro/core/crud/presentation/widget/item_sections.dart';
+import 'package:pennypincher_pro/core/crud/presentation/layout/item_layout.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_tile.dart';
 import 'package:pennypincher_pro/core/theme/app_breakpoints.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
-import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:pennypincher_pro/core/widgets/status_message.dart';
 
-/// Loaded content of a list screen: header, total card and the items
-/// grouped by category, or an empty state. One column on mobile, two from
-/// tablet up.
-class CrudListView<T extends CategorizedItem<C>, C extends Enum>
-    extends StatelessWidget {
+/// Loaded content of a list screen: header, summary and the items as the
+/// config's layout arranges them, or an empty state. One column on
+/// mobile, two from tablet up.
+class CrudListView<T extends CrudItem, D> extends StatelessWidget {
   const CrudListView({
     required this.config,
     required this.items,
@@ -31,11 +27,13 @@ class CrudListView<T extends CategorizedItem<C>, C extends Enum>
   /// Room under the last tile so the add button never covers it.
   static const double bottomInset = AppSpacing.xxxl + AppSpacing.xl;
 
-  final CrudScreenConfig<C> config;
+  final CrudScreenConfig<T, D> config;
   final List<T> items;
   final bool busy;
   final ValueChanged<T> onEdit;
   final ValueChanged<T> onDelete;
+
+  ItemLayout<T, D> get _layout => config.layout;
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +51,13 @@ class CrudListView<T extends CategorizedItem<C>, C extends Enum>
               slivers: [
                 SliverToBoxAdapter(child: _header()),
                 ..._content(_columnsFor(constraints.maxWidth)),
+                if (_layout.summaryAtBottom)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: AppSpacing.lg),
+                      child: _layout.summary(items),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -67,14 +72,15 @@ class CrudListView<T extends CategorizedItem<C>, C extends Enum>
   Widget _header() => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _TitleRow(config: config),
-          const SizedBox(height: AppSpacing.md),
-          StatCard(
-            label: config.totalLabel,
-            value: CurrencyFormatter.format(totalOf(items)),
-            icon: config.totalIcon,
-            valueColor: config.totalColor,
+          _TitleRow(
+            title: config.title,
+            backTooltip: config.backTooltip,
+            parent: config.parent.name,
           ),
+          if (!_layout.summaryAtBottom) ...[
+            const SizedBox(height: AppSpacing.md),
+            _layout.summary(items),
+          ],
           SizedBox(
             height: AppSpacing.xxs,
             child: busy ? const LinearProgressIndicator() : null,
@@ -94,19 +100,14 @@ class CrudListView<T extends CategorizedItem<C>, C extends Enum>
         ),
       ];
     }
-    return ItemSections.build<T, C>(
-      groups: ItemGroup.byCategory<T, C>(items, config.categories),
-      labelOf: config.labelOf,
-      columns: columns,
-      tileBuilder: _tile,
-    );
+    return _layout.itemSlivers(items: items, columns: columns, tile: _tile);
   }
 
   Widget _tile(BuildContext context, T item) => ItemTile(
+        dismissKey: ValueKey(item.id),
         name: item.name,
-        categoryLabel: config.labelOf(item.category),
-        amount: CurrencyFormatter.format(item.amount),
-        amountColor: config.totalColor,
+        content: _layout.tileContent(item),
+        height: _layout.tileHeight,
         deleteTooltip: config.deleteTooltip(item.name),
         onTap: busy ? null : () => onEdit(item),
         onDelete: busy ? null : () => onDelete(item),
@@ -114,24 +115,32 @@ class CrudListView<T extends CategorizedItem<C>, C extends Enum>
 }
 
 class _TitleRow extends StatelessWidget {
-  const _TitleRow({required this.config});
+  const _TitleRow({
+    required this.title,
+    required this.backTooltip,
+    required this.parent,
+  });
 
-  final CrudScreenConfig<Enum> config;
+  final String title;
+  final String backTooltip;
+
+  /// Name of the route the back button opens.
+  final String parent;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         IconButton(
-          tooltip: config.backTooltip,
+          tooltip: backTooltip,
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.goNamed(config.parent.name),
+          onPressed: () => context.goNamed(parent),
         ),
         const SizedBox(width: AppSpacing.xs),
         Expanded(
           child: Semantics(
             header: true,
-            child: Text(config.title, style: AppTypography.heading1),
+            child: Text(title, style: AppTypography.heading1),
           ),
         ),
       ],

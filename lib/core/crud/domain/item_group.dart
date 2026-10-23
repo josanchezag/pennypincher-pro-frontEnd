@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
+import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 
 /// The items of one category, sorted by name, with their subtotal.
@@ -10,7 +11,7 @@ final class ItemGroup<T extends CategorizedItem<C>, C extends Enum>
   final C category;
   final List<T> items;
 
-  Money get subtotal => sumMoney(items, (item) => item.amount);
+  Money get subtotal => totalOf(items);
 
   @override
   List<Object?> get props => [category, items];
@@ -26,19 +27,11 @@ final class ItemGroup<T extends CategorizedItem<C>, C extends Enum>
               if (items.any((item) => item.category == category))
                 ItemGroup<T, C>(
                   category: category,
-                  items: _sortedByName(
+                  items: sortedByName(
                     items.where((item) => item.category == category),
                   ),
                 ),
           ];
-
-  static List<T> _sortedByName<T extends CategorizedItem<Enum>>(
-    Iterable<T> items,
-  ) =>
-      items.toList()
-        ..sort(
-          (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
-        );
 }
 
 /// Sum of the amounts of every item.

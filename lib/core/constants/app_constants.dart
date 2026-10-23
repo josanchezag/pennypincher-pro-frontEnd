@@ -47,6 +47,12 @@ abstract final class ApiPaths {
   static const String incomeSources = '/income-sources';
   static const String monthlyBudgets = '/monthly-budgets';
   static const String recalculateSuffix = '/recalculate';
+  static const String creditCards = '/credit-cards';
+  static const String loans = '/loans';
+  static const String fixedExpenses = '/fixed-expenses';
+  static const String variableExpenses = '/variable-expenses';
+  static const String savingsAccounts = '/savings-accounts';
+  static const String summarySuffix = '/summary';
 }
 
 /// Keys of the backend response envelope (`{data, meta}` / `{error, meta}`).

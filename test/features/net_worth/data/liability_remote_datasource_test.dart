@@ -7,7 +7,7 @@ import 'package:pennypincher_pro/features/net_worth/domain/entity/liability_enti
 import '../../../helpers/fake_http_adapter.dart';
 import '../../../helpers/net_worth_fixtures.dart';
 
-const ItemDraft<LiabilityCategory> _draft = ItemDraft(
+const CategorizedDraft<LiabilityCategory> _draft = CategorizedDraft(
   name: 'Tarjeta Nu Bank',
   amount: Money.fromPesos(3200000),
   category: LiabilityCategory.creditCard,

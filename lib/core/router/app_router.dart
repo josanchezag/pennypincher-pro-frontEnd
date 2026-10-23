@@ -11,6 +11,7 @@ import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart'
 import 'package:pennypincher_pro/features/auth/presentation/screen/login_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/splash_screen.dart';
 import 'package:pennypincher_pro/features/budget/presentation/budget_pages.dart';
+import 'package:pennypincher_pro/features/expense_details/presentation/expense_details_pages.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_pages.dart';
 
 /// go_router configuration with a named route for every screen, protected
@@ -64,6 +65,7 @@ class AppRouter {
   static final Map<AppRoute, WidgetBuilder> _screens = {
     ...NetWorthPages.builders,
     ...BudgetPages.builders,
+    ...ExpenseDetailsPages.builders,
   };
 
   /// Section roots that open one of their screens.

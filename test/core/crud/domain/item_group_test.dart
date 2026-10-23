@@ -27,6 +27,13 @@ void main() {
     expect(groups.first.items, [apartment, house]);
     expect(groups.first.subtotal, const Money.fromPesos(450000000));
     expect(groups.last.subtotal, const Money.fromCents(15000050));
+    expect(
+      groups.first,
+      const ItemGroup<Asset, AssetCategory>(
+        category: AssetCategory.realEstate,
+        items: [apartment, house],
+      ),
+    );
   });
 
   test('returns no groups for an empty list', () {

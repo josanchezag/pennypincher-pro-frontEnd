@@ -11,14 +11,15 @@ abstract final class AssetJsonKeys {
 }
 
 /// JSON shape of an asset: `{id, name, value, category}`.
-const ItemJsonCodec<Asset, AssetCategory> assetJsonCodec = ItemJsonCodec(
+const CategorizedJsonCodec<Asset, AssetCategory> assetJsonCodec =
+    CategorizedJsonCodec(
   amountKey: AssetJsonKeys.value,
   categories: AssetCategory.values,
   fallbackCategory: AssetCategory.other,
   build: _asset,
 );
 
-Asset _asset(String id, ItemDraft<AssetCategory> fields) => Asset(
+Asset _asset(String id, CategorizedDraft<AssetCategory> fields) => Asset(
       id: id,
       name: fields.name,
       value: fields.amount,
@@ -27,7 +28,8 @@ Asset _asset(String id, ItemDraft<AssetCategory> fields) => Asset(
 
 /// `/assets` endpoints, called with the authenticated client.
 @lazySingleton
-class AssetRemoteDataSource extends CrudRemoteDataSource<Asset, AssetCategory> {
+class AssetRemoteDataSource
+    extends CrudRemoteDataSource<Asset, CategorizedDraft<AssetCategory>> {
   AssetRemoteDataSource(super.dio)
       : super(path: ApiPaths.assets, codec: assetJsonCodec);
 }

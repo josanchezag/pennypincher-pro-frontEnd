@@ -1,32 +1,32 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
+import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
 import 'package:pennypincher_pro/core/crud/domain/usecase/crud_use_cases.dart';
 import 'package:pennypincher_pro/core/error/failure.dart';
 
 part 'crud_event.dart';
 part 'crud_state.dart';
 
-/// Generic state holder of a user-managed list (assets, liabilities and
-/// every later list with the same shape). Feature blocs only bind it to
-/// their use cases. Changes run one at a time: requests that arrive while
-/// another change is running are ignored.
-class CrudBloc<T extends CategorizedItem<C>, C extends Enum>
-    extends Bloc<CrudEvent<C>, CrudState<T>> {
+/// Generic state holder of a user-managed list of [T] edited through
+/// drafts of type [D] (assets, income sources, credit cards and every
+/// other list). Feature blocs only bind it to their use cases. Changes
+/// run one at a time: requests that arrive while another change is
+/// running are ignored.
+class CrudBloc<T extends CrudItem, D> extends Bloc<CrudEvent<D>, CrudState<T>> {
   CrudBloc(this._getItems, this._saveItem, this._deleteItem)
       : super(CrudLoading<T>()) {
-    on<CrudLoadRequested<C>>(_onLoadRequested);
-    on<CrudSaveRequested<C>>(_onSaveRequested);
-    on<CrudDeleteRequested<C>>(_onDeleteRequested);
+    on<CrudLoadRequested<D>>(_onLoadRequested);
+    on<CrudSaveRequested<D>>(_onSaveRequested);
+    on<CrudDeleteRequested<D>>(_onDeleteRequested);
   }
 
-  final GetItems<T, C> _getItems;
-  final SaveItem<T, C> _saveItem;
-  final DeleteItem<T, C> _deleteItem;
+  final GetItems<T, D> _getItems;
+  final SaveItem<T, D> _saveItem;
+  final DeleteItem<T, D> _deleteItem;
 
   Future<void> _onLoadRequested(
-    CrudLoadRequested<C> event,
+    CrudLoadRequested<D> event,
     Emitter<CrudState<T>> emit,
   ) async {
     emit(CrudLoading<T>());
@@ -40,7 +40,7 @@ class CrudBloc<T extends CategorizedItem<C>, C extends Enum>
   }
 
   Future<void> _onSaveRequested(
-    CrudSaveRequested<C> event,
+    CrudSaveRequested<D> event,
     Emitter<CrudState<T>> emit,
   ) =>
       _change(
@@ -54,7 +54,7 @@ class CrudBloc<T extends CategorizedItem<C>, C extends Enum>
       );
 
   Future<void> _onDeleteRequested(
-    CrudDeleteRequested<C> event,
+    CrudDeleteRequested<D> event,
     Emitter<CrudState<T>> emit,
   ) =>
       _change(
@@ -65,7 +65,7 @@ class CrudBloc<T extends CategorizedItem<C>, C extends Enum>
         whenMissing: (items) => _without(items, event.id),
       );
 
-  static List<T> _without<T extends CategorizedItem<Enum>>(
+  static List<T> _without<T extends CrudItem>(
     List<T> items,
     String id,
   ) =>

@@ -1,50 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
+import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
 import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-/// Controls, validation and fields of the item form, with the same limits
-/// as the backend: a trimmed name of up to [ItemDraft.nameMaxLength]
-/// characters and an amount from zero up to [Money.maxCents].
+/// Controls and fields the item forms are made of, with the same limits as
+/// the backend: a trimmed name of up to [CrudItem.nameMaxLength]
+/// characters and amounts from zero up to [Money.maxCents].
 abstract final class ItemFormFields {
   static const String name = 'name';
-  static const String amount = 'amount';
-  static const String category = 'category';
   static const String amountInvalidError = 'amountInvalid';
 
   /// Digits plus the dot and comma separators.
   static final TextInputFormatter amountCharacters =
       FilteringTextInputFormatter.allow(RegExp('[0-9.,]'));
 
-  static FormGroup group<C extends Enum>(CategorizedItem<C>? initial) =>
-      FormGroup({
-        name: FormControl<String>(
-          value: initial?.name,
-          validators: [
-            Validators.required,
-            Validators.maxLength(ItemDraft.nameMaxLength),
-          ],
-        ),
-        amount: FormControl<String>(
-          value: initial?.amount.toInputString(),
-          validators: [Validators.required, Validators.delegate(_amount)],
-        ),
-        category: FormControl<C>(
-          value: initial?.category,
-          validators: [Validators.required],
-        ),
-      });
+  static FormControl<String> nameControl(String? initial) => FormControl(
+        value: initial,
+        validators: [
+          Validators.required,
+          Validators.maxLength(CrudItem.nameMaxLength),
+        ],
+      );
 
-  static List<Widget> build<C extends Enum>(CrudScreenConfig<C> config) => [
-        const _NameField(),
-        const SizedBox(height: AppSpacing.md),
-        _AmountField(label: config.amountLabel),
-        const SizedBox(height: AppSpacing.md),
-        _CategoryField<C>(config: config),
+  /// Required amount typed in the Colombian format, prefilled with
+  /// [initial].
+  static FormControl<String> amountControl(Money? initial) => FormControl(
+        value: initial?.toInputString(),
+        validators: [Validators.required, Validators.delegate(_amount)],
+      );
+
+  static FormControl<C> categoryControl<C extends Enum>(C? initial) =>
+      FormControl(value: initial, validators: [Validators.required]);
+
+  static Widget nameField() => const _NameField();
+
+  static Widget amountField(String controlName, String label) =>
+      _AmountField(controlName: controlName, label: label);
+
+  /// Drop-down with every category of [labels], in its order.
+  static Widget categoryField<C extends Enum>(
+    String controlName,
+    Map<C, String> labels,
+  ) =>
+      _CategoryField<C>(controlName: controlName, labels: labels);
+
+  /// [fields] with the standard gap between them.
+  static List<Widget> spaced(List<Widget> fields) => [
+        for (final (index, field) in fields.indexed) ...[
+          if (index > 0) const SizedBox(height: AppSpacing.md),
+          field,
+        ],
       ];
+
+  /// Trimmed name of a valid [form].
+  static String nameOf(FormGroup form) =>
+      (form.control(name).value as String).trim();
+
+  /// Amount of the control [controlName] of a valid [form].
+  static Money amountOf(FormGroup form, String controlName) =>
+      Money.tryParseInput(form.control(controlName).value as String)!;
 
   static Map<String, dynamic>? _amount(AbstractControl<dynamic> control) {
     final text = control.value;
@@ -65,7 +82,7 @@ class _NameField extends StatelessWidget {
     return ReactiveTextField<String>(
       formControlName: ItemFormFields.name,
       textCapitalization: TextCapitalization.sentences,
-      maxLength: ItemDraft.nameMaxLength,
+      maxLength: CrudItem.nameMaxLength,
       decoration: const InputDecoration(labelText: CrudTexts.nameLabel),
       validationMessages: {
         ValidationMessage.required: (_) => CrudTexts.nameRequired,
@@ -76,14 +93,15 @@ class _NameField extends StatelessWidget {
 }
 
 class _AmountField extends StatelessWidget {
-  const _AmountField({required this.label});
+  const _AmountField({required this.controlName, required this.label});
 
+  final String controlName;
   final String label;
 
   @override
   Widget build(BuildContext context) {
     return ReactiveTextField<String>(
-      formControlName: ItemFormFields.amount,
+      formControlName: controlName,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [ItemFormFields.amountCharacters],
       decoration: InputDecoration(
@@ -100,21 +118,19 @@ class _AmountField extends StatelessWidget {
 }
 
 class _CategoryField<C extends Enum> extends StatelessWidget {
-  const _CategoryField({required this.config});
+  const _CategoryField({required this.controlName, required this.labels});
 
-  final CrudScreenConfig<C> config;
+  final String controlName;
+  final Map<C, String> labels;
 
   @override
   Widget build(BuildContext context) {
     return ReactiveDropdownField<C>(
-      formControlName: ItemFormFields.category,
+      formControlName: controlName,
       decoration: const InputDecoration(labelText: CrudTexts.categoryLabel),
       items: [
-        for (final category in config.categories)
-          DropdownMenuItem(
-            value: category,
-            child: Text(config.labelOf(category)),
-          ),
+        for (final MapEntry(key: category, value: label) in labels.entries)
+          DropdownMenuItem(value: category, child: Text(label)),
       ],
       validationMessages: {
         ValidationMessage.required: (_) => CrudTexts.categoryRequired,

@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
+import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
+import 'package:pennypincher_pro/core/crud/presentation/layout/item_layout.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 
-/// Everything that changes between two list screens of categorized items:
-/// texts, colors, categories and the parent screen.
-class CrudScreenConfig<C extends Enum> {
+/// Everything that changes between two list screens: texts, the parent
+/// screen and the [layout] of the items of type [T], edited through drafts
+/// of type [D].
+class CrudScreenConfig<T extends CrudItem, D> {
   const CrudScreenConfig({
     required this.route,
     required this.parent,
     required this.itemNoun,
-    required this.amountLabel,
-    required this.totalLabel,
-    required this.totalIcon,
-    required this.totalColor,
     required this.emptyIcon,
     required this.emptyMessage,
-    required this.categoryLabels,
+    required this.layout,
   });
 
   /// Screen being configured; its title heads the screen.
@@ -27,21 +25,11 @@ class CrudScreenConfig<C extends Enum> {
   /// Lower-case singular name of an item, such as `asset`.
   final String itemNoun;
 
-  /// Label of the amount field, such as `Value` or `Current balance`.
-  final String amountLabel;
-
-  final String totalLabel;
-  final IconData totalIcon;
-  final Color totalColor;
   final IconData emptyIcon;
   final String emptyMessage;
 
-  /// Display name of every category, in display order.
-  final Map<C, String> categoryLabels;
-
-  List<C> get categories => categoryLabels.keys.toList();
-
-  String labelOf(C category) => categoryLabels[category] ?? category.name;
+  /// Form fields, summary and list of the items.
+  final ItemLayout<T, D> layout;
 
   String get title => route.title;
 
@@ -61,7 +49,7 @@ class CrudScreenConfig<C extends Enum> {
       '"$name" ${CrudTexts.deleteMessageSuffix}';
 }
 
-/// Fixed texts of the list screens of categorized items.
+/// Fixed texts of the list screens.
 abstract final class CrudTexts {
   static const String add = 'Add';
   static const String edit = 'Edit';
@@ -78,7 +66,7 @@ abstract final class CrudTexts {
   static const String categoryLabel = 'Category';
   static const String nameRequired = 'Enter a name.';
   static const String nameTooLong =
-      'Use at most ${ItemDraft.nameMaxLength} characters.';
+      'Use at most ${CrudItem.nameMaxLength} characters.';
   static const String amountRequired = 'Enter an amount.';
   static const String amountInvalid =
       'Enter an amount like 1.500.000 or 1.500.000,50, up to 13 digits.';

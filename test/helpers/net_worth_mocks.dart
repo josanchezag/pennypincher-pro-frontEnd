@@ -1,6 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/di/injection.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/asset_entity.dart';
@@ -9,12 +10,12 @@ import 'package:pennypincher_pro/features/net_worth/presentation/bloc/asset_bloc
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/liability_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart';
 
-class MockAssetBloc extends MockBloc<CrudEvent<AssetCategory>, CrudState<Asset>>
-    implements AssetBloc {}
+class MockAssetBloc extends MockBloc<CrudEvent<CategorizedDraft<AssetCategory>>,
+    CrudState<Asset>> implements AssetBloc {}
 
-class MockLiabilityBloc
-    extends MockBloc<CrudEvent<LiabilityCategory>, CrudState<Liability>>
-    implements LiabilityBloc {}
+class MockLiabilityBloc extends MockBloc<
+    CrudEvent<CategorizedDraft<LiabilityCategory>>,
+    CrudState<Liability>> implements LiabilityBloc {}
 
 class MockNetWorthBloc extends MockBloc<NetWorthEvent, NetWorthState>
     implements NetWorthBloc {}
