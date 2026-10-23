@@ -5,11 +5,13 @@ import 'package:pennypincher_pro/core/crud/domain/usecase/crud_use_cases.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/credit_card_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/fixed_expense_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/loan_entity.dart';
+import 'package:pennypincher_pro/features/expense_details/domain/entity/savings_account_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/variable_expense_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/repository/credit_card_repository.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/repository/expense_summary_repository.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/repository/fixed_expense_repository.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/repository/loan_repository.dart';
+import 'package:pennypincher_pro/features/expense_details/domain/repository/savings_account_repository.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/repository/variable_expense_repository.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/usecase/get_expense_summary.dart';
 
@@ -80,4 +82,22 @@ abstract class ExpenseDetailsModule {
   DeleteItem<VariableExpense, CategorizedDraft<VariableExpenseCategory>>
       deleteVariableExpense(VariableExpenseRepository repository) =>
           DeleteItem(repository);
+
+  @injectable
+  GetItems<SavingsAccount, BalanceDraft> getSavingsAccounts(
+    SavingsAccountRepository repository,
+  ) =>
+      GetItems(repository);
+
+  @injectable
+  SaveItem<SavingsAccount, BalanceDraft> saveSavingsAccount(
+    SavingsAccountRepository repository,
+  ) =>
+      SaveItem(repository);
+
+  @injectable
+  DeleteItem<SavingsAccount, BalanceDraft> deleteSavingsAccount(
+    SavingsAccountRepository repository,
+  ) =>
+      DeleteItem(repository);
 }

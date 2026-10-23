@@ -3,6 +3,7 @@ import 'package:pennypincher_pro/features/expense_details/domain/entity/credit_c
 import 'package:pennypincher_pro/features/expense_details/domain/entity/expense_summary_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/fixed_expense_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/loan_entity.dart';
+import 'package:pennypincher_pro/features/expense_details/domain/entity/savings_account_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/variable_expense_entity.dart';
 
 const CreditCard nuCard = CreditCard(
@@ -145,4 +146,32 @@ const Map<String, Object?> nannyJson = {
   'name': 'Empleada',
   'monthlyAmount': 1800000,
   'category': 'HOUSEHOLD_STAFF',
+};
+
+const SavingsAccount emergencyFund = SavingsAccount(
+  id: 's1',
+  name: 'Fondo de emergencia',
+  monthlyContribution: Money.fromPesos(500000),
+  currentBalance: Money.fromCents(850000050),
+);
+
+const SavingsAccount cdt = SavingsAccount(
+  id: 's2',
+  name: 'CDT Bancolombia',
+  monthlyContribution: Money.zero,
+  currentBalance: Money.fromPesos(20000000),
+);
+
+const SavingsAccount vacations = SavingsAccount(
+  id: 's3',
+  name: 'Vacaciones',
+  monthlyContribution: Money.fromPesos(300000),
+  currentBalance: Money.fromPesos(1200000),
+);
+
+const Map<String, Object?> emergencyFundJson = {
+  'id': 's1',
+  'name': 'Fondo de emergencia',
+  'monthlyContribution': 500000,
+  'currentBalance': 8500000.5,
 };

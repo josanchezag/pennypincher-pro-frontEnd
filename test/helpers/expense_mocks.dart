@@ -5,11 +5,13 @@ import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/credit_card_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/fixed_expense_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/loan_entity.dart';
+import 'package:pennypincher_pro/features/expense_details/domain/entity/savings_account_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/variable_expense_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/credit_card_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/expenses_hub_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/fixed_expense_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/loan_bloc.dart';
+import 'package:pennypincher_pro/features/expense_details/presentation/bloc/savings_account_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/variable_expense_bloc.dart';
 
 import 'net_worth_mocks.dart';
@@ -81,3 +83,17 @@ MockVariableExpenseBloc registerVariableExpenseBloc(
       state,
       stream: stream,
     ) as MockVariableExpenseBloc;
+
+class MockSavingsAccountBloc
+    extends MockBloc<CrudEvent<BalanceDraft>, CrudState<SavingsAccount>>
+    implements SavingsAccountBloc {}
+
+MockSavingsAccountBloc registerSavingsAccountBloc(
+  CrudState<SavingsAccount> state, {
+  Stream<CrudState<SavingsAccount>> stream = const Stream.empty(),
+}) =>
+    registerBloc<SavingsAccountBloc, CrudState<SavingsAccount>>(
+      MockSavingsAccountBloc(),
+      state,
+      stream: stream,
+    ) as MockSavingsAccountBloc;

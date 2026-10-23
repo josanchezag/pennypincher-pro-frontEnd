@@ -21,6 +21,7 @@ import 'package:pennypincher_pro/features/expense_details/presentation/screen/cr
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/expenses_hub_screen.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/fixed_expenses_screen.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/loans_screen.dart';
+import 'package:pennypincher_pro/features/expense_details/presentation/screen/savings_screen.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/variable_expenses_screen.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_pages.dart';
@@ -230,6 +231,15 @@ void main() {
       await tester.pumpApp(location: AppRoute.expensesVariable.path);
       expect(find.byType(VariableExpensesScreen), findsOneWidget);
       expect(find.byType(AppShell), findsOneWidget);
+    });
+
+    testWidgets('renders the savings screen inside the shell', (tester) async {
+      registerSavingsAccountBloc(const CrudLoaded([]));
+
+      await tester.pumpApp(location: AppRoute.expensesSavings.path);
+
+      expect(find.byType(AppShell), findsOneWidget);
+      expect(find.byType(SavingsScreen), findsOneWidget);
     });
 
     testWidgets('renders the login route without the shell', (tester) async {

@@ -12,6 +12,8 @@ abstract final class ExpenseTexts {
   static const String totalMonthlyAmount = 'Total monthly amount';
   static const String totalMonthlyContributions = 'Total monthly contributions';
   static const String totalSavingsBalance = 'Total savings balance';
+  static const String monthlyContribution = 'Monthly contribution';
+  static const String currentBalance = 'Current balance';
 
   static const String hubLoadError = 'Could not load this total.';
   static const String budgetHint = 'Budget months keep the totals of their '

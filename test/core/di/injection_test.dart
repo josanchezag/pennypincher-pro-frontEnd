@@ -15,10 +15,12 @@ import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budge
 import 'package:pennypincher_pro/features/expense_details/domain/repository/credit_card_repository.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/repository/expense_summary_repository.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/repository/loan_repository.dart';
+import 'package:pennypincher_pro/features/expense_details/domain/repository/savings_account_repository.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/credit_card_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/expenses_hub_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/fixed_expense_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/loan_bloc.dart';
+import 'package:pennypincher_pro/features/expense_details/presentation/bloc/savings_account_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/variable_expense_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/repository/asset_repository.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/repository/liability_repository.dart';
@@ -80,6 +82,8 @@ void main() {
       getIt<FixedExpenseBloc>(),
       getIt<VariableExpenseBloc>(),
       getIt<VariableExpenseBloc>(),
+      getIt<SavingsAccountBloc>(),
+      getIt<SavingsAccountBloc>(),
     ];
     for (final bloc in blocs) {
       addTearDown(bloc.close);
@@ -94,6 +98,10 @@ void main() {
       same(getIt<ExpenseSummaryRepository>()),
     );
     expect(getIt<CreditCardRepository>(), same(getIt<CreditCardRepository>()));
+    expect(
+      getIt<SavingsAccountRepository>(),
+      same(getIt<SavingsAccountRepository>()),
+    );
   });
 
   test('points the HTTP client at the configured API base URL', () {

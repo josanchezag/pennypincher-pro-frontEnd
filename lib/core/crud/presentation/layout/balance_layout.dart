@@ -51,6 +51,7 @@ class BalanceLayout<T extends BalanceItem> extends ItemLayout<T, BalanceDraft> {
     required this.monthly,
     required this.balance,
     this.original,
+    this.balanceFirst = false,
     this.summaryAtBottom = false,
   });
 
@@ -64,6 +65,10 @@ class BalanceLayout<T extends BalanceItem> extends ItemLayout<T, BalanceDraft> {
 
   /// Optional amount the balance started from; null when not tracked.
   final OriginalAmountStyle<T>? original;
+
+  /// Whether the balance comes before the monthly amount in the form and
+  /// the summary, for lists where it matters most, such as savings.
+  final bool balanceFirst;
 
   @override
   final bool summaryAtBottom;
@@ -82,8 +87,10 @@ class BalanceLayout<T extends BalanceItem> extends ItemLayout<T, BalanceDraft> {
   @override
   List<Widget> formFields() => [
         ItemFormFields.nameField(),
-        ItemFormFields.amountField(monthlyAmount, monthly.label),
-        ItemFormFields.amountField(balanceAmount, balance.label),
+        ..._ordered(
+          ItemFormFields.amountField(monthlyAmount, monthly.label),
+          ItemFormFields.amountField(balanceAmount, balance.label),
+        ),
         if (original case final original?)
           ItemFormFields.amountField(
             originalAmount,
@@ -104,10 +111,10 @@ class BalanceLayout<T extends BalanceItem> extends ItemLayout<T, BalanceDraft> {
 
   @override
   Widget summary(List<T> items) => ResponsiveCardRow(
-        children: [
+        children: _ordered(
           _totalCard(monthly, sumMoney(items, (item) => item.monthlyAmount)),
           _totalCard(balance, sumMoney(items, (item) => item.balance)),
-        ],
+        ),
       );
 
   @override
@@ -150,6 +157,11 @@ class BalanceLayout<T extends BalanceItem> extends ItemLayout<T, BalanceDraft> {
         const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
         ItemSections.tiles(sortedByName(items), columns, tileHeight, tile),
       ];
+
+  List<Widget> _ordered(Widget monthlyWidget, Widget balanceWidget) =>
+      balanceFirst
+          ? [balanceWidget, monthlyWidget]
+          : [monthlyWidget, balanceWidget];
 
   static Widget _totalCard(BalanceAmountStyle style, Money total) => StatCard(
         label: style.totalLabel,

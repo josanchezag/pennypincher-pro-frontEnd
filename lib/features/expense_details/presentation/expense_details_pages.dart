@@ -11,11 +11,13 @@ import 'package:pennypincher_pro/features/expense_details/presentation/bloc/cred
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/expenses_hub_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/fixed_expense_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/loan_bloc.dart';
+import 'package:pennypincher_pro/features/expense_details/presentation/bloc/savings_account_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/variable_expense_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/credit_cards_screen.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/expenses_hub_screen.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/fixed_expenses_screen.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/loans_screen.dart';
+import 'package:pennypincher_pro/features/expense_details/presentation/screen/savings_screen.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/variable_expenses_screen.dart';
 
 /// Screens of the expenses section, each with a fresh bloc that starts
@@ -51,6 +53,11 @@ abstract final class ExpenseDetailsPages {
                   CategorizedDraft<VariableExpenseCategory>>(),
             ),
           child: const VariableExpensesScreen(),
+        ),
+    AppRoute.expensesSavings: (_) => BlocProvider<SavingsAccountBloc>(
+          create: (_) => getIt<SavingsAccountBloc>()
+            ..add(const CrudLoadRequested<BalanceDraft>()),
+          child: const SavingsScreen(),
         ),
   };
 }

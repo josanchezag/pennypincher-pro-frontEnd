@@ -81,6 +81,8 @@ import 'package:pennypincher_pro/features/expense_details/data/datasource/fixed_
     as _i1040;
 import 'package:pennypincher_pro/features/expense_details/data/datasource/loan_remote_datasource.dart'
     as _i627;
+import 'package:pennypincher_pro/features/expense_details/data/datasource/savings_account_remote_datasource.dart'
+    as _i873;
 import 'package:pennypincher_pro/features/expense_details/data/datasource/variable_expense_remote_datasource.dart'
     as _i528;
 import 'package:pennypincher_pro/features/expense_details/data/repository/credit_card_repository_impl.dart'
@@ -91,6 +93,8 @@ import 'package:pennypincher_pro/features/expense_details/data/repository/fixed_
     as _i206;
 import 'package:pennypincher_pro/features/expense_details/data/repository/loan_repository_impl.dart'
     as _i1050;
+import 'package:pennypincher_pro/features/expense_details/data/repository/savings_account_repository_impl.dart'
+    as _i210;
 import 'package:pennypincher_pro/features/expense_details/data/repository/variable_expense_repository_impl.dart'
     as _i75;
 import 'package:pennypincher_pro/features/expense_details/di/expense_details_module.dart'
@@ -101,6 +105,8 @@ import 'package:pennypincher_pro/features/expense_details/domain/entity/fixed_ex
     as _i793;
 import 'package:pennypincher_pro/features/expense_details/domain/entity/loan_entity.dart'
     as _i891;
+import 'package:pennypincher_pro/features/expense_details/domain/entity/savings_account_entity.dart'
+    as _i1038;
 import 'package:pennypincher_pro/features/expense_details/domain/entity/variable_expense_entity.dart'
     as _i107;
 import 'package:pennypincher_pro/features/expense_details/domain/repository/credit_card_repository.dart'
@@ -111,6 +117,8 @@ import 'package:pennypincher_pro/features/expense_details/domain/repository/fixe
     as _i544;
 import 'package:pennypincher_pro/features/expense_details/domain/repository/loan_repository.dart'
     as _i322;
+import 'package:pennypincher_pro/features/expense_details/domain/repository/savings_account_repository.dart'
+    as _i523;
 import 'package:pennypincher_pro/features/expense_details/domain/repository/variable_expense_repository.dart'
     as _i563;
 import 'package:pennypincher_pro/features/expense_details/domain/usecase/get_expense_summary.dart'
@@ -123,6 +131,8 @@ import 'package:pennypincher_pro/features/expense_details/presentation/bloc/fixe
     as _i978;
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/loan_bloc.dart'
     as _i613;
+import 'package:pennypincher_pro/features/expense_details/presentation/bloc/savings_account_bloc.dart'
+    as _i689;
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/variable_expense_bloc.dart'
     as _i876;
 import 'package:pennypincher_pro/features/net_worth/data/datasource/asset_remote_datasource.dart'
@@ -249,6 +259,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i528.VariableExpenseRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i1040.FixedExpenseRemoteDataSource>(
         () => _i1040.FixedExpenseRemoteDataSource(gh<_i361.Dio>()));
+    gh.lazySingleton<_i873.SavingsAccountRemoteDataSource>(
+        () => _i873.SavingsAccountRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i464.NetWorthRemoteDataSource>(
         () => _i464.NetWorthRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i542.MonthlyBudgetRemoteDataSource>(
@@ -276,6 +288,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i544.FixedExpenseRepository>(() =>
         _i206.FixedExpenseRepositoryImpl(
             gh<_i1040.FixedExpenseRemoteDataSource>()));
+    gh.lazySingleton<_i523.SavingsAccountRepository>(() =>
+        _i210.SavingsAccountRepositoryImpl(
+            gh<_i873.SavingsAccountRemoteDataSource>()));
     gh.factory<
         _i678.GetItems<_i161.IncomeSource,
             _i953.CategorizedDraft<_i161.IncomeCategory>>>(() =>
@@ -349,6 +364,15 @@ extension GetItInjectableX on _i174.GetIt {
               _i678.DeleteItem<_i161.IncomeSource,
                   _i953.CategorizedDraft<_i161.IncomeCategory>>>(),
         ));
+    gh.factory<_i678.GetItems<_i1038.SavingsAccount, _i642.BalanceDraft>>(() =>
+        expenseDetailsModule
+            .getSavingsAccounts(gh<_i523.SavingsAccountRepository>()));
+    gh.factory<_i678.SaveItem<_i1038.SavingsAccount, _i642.BalanceDraft>>(() =>
+        expenseDetailsModule
+            .saveSavingsAccount(gh<_i523.SavingsAccountRepository>()));
+    gh.factory<_i678.DeleteItem<_i1038.SavingsAccount, _i642.BalanceDraft>>(
+        () => expenseDetailsModule
+            .deleteSavingsAccount(gh<_i523.SavingsAccountRepository>()));
     gh.factory<
         _i678.GetItems<_i793.FixedExpense,
             _i953.CategorizedDraft<_i793.FixedExpenseCategory>>>(() =>
@@ -439,6 +463,11 @@ extension GetItInjectableX on _i174.GetIt {
           gh<
               _i678.DeleteItem<_i107.VariableExpense,
                   _i953.CategorizedDraft<_i107.VariableExpenseCategory>>>(),
+        ));
+    gh.factory<_i689.SavingsAccountBloc>(() => _i689.SavingsAccountBloc(
+          gh<_i678.GetItems<_i1038.SavingsAccount, _i642.BalanceDraft>>(),
+          gh<_i678.SaveItem<_i1038.SavingsAccount, _i642.BalanceDraft>>(),
+          gh<_i678.DeleteItem<_i1038.SavingsAccount, _i642.BalanceDraft>>(),
         ));
     gh.factory<_i697.NetWorthBloc>(() => _i697.NetWorthBloc(
           gh<_i424.GetCurrentNetWorth>(),
