@@ -24,6 +24,16 @@ NetWorthSummaryModel _$NetWorthSummaryModelFromJson(
       netWorth: _money(json['netWorth']),
     );
 
+NetWorthTrendPointModel _$NetWorthTrendPointModelFromJson(
+        Map<String, dynamic> json) =>
+    NetWorthTrendPointModel(
+      periodStart: ApiDate.parse(json['periodStart'] as String),
+      totalAssets: _money(json['totalAssets']),
+      totalLiabilities: _money(json['totalLiabilities']),
+      netWorth: _money(json['netWorth']),
+      monthOverMonthDelta: Money.fromOptionalJson(json['monthOverMonthDelta']),
+    );
+
 Map<String, dynamic> _$SnapshotRequestModelToJson(
         SnapshotRequestModel instance) =>
     <String, dynamic>{

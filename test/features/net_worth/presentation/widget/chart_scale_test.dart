@@ -41,4 +41,17 @@ void main() {
     expect(scale.minY, 0);
     expect(scale.maxY, 1);
   });
+
+  test('covers every series of a span, assets above the net worth', () {
+    final scale = ChartScale.span(
+      firstMonth: DateTime(2026, 8),
+      lastMonth: DateTime(2026, 10),
+      values: const [150000000, 50000000, 200000000, -10000000],
+    );
+
+    expect(scale.maxX, 2);
+    expect(scale.minY, lessThanOrEqualTo(-10000000));
+    expect(scale.maxY, greaterThanOrEqualTo(200000000));
+    expect(scale.monthAt(scale.minX), DateTime(2026, 5));
+  });
 }

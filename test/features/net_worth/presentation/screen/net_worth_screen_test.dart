@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
@@ -13,6 +14,7 @@ import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_snapshot_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_summary_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart';
+import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_report_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_texts.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/assets_screen.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/net_worth_screen.dart';
@@ -287,5 +289,71 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AssetsScreen), findsOneWidget);
+  });
+
+  for (final size in [const Size(800, 1000), const Size(1280, 1000)]) {
+    testWidgets(
+        'keeps every link subtitle inside its card at '
+        '${size.width.toInt()} px', (tester) async {
+      await pumpOverview(tester, _loaded(), size: size);
+
+      for (final subtitle in [
+        NetWorthTexts.assetsSubtitle,
+        NetWorthTexts.liabilitiesSubtitle,
+        NetWorthTexts.reportSubtitle,
+      ]) {
+        final text = find.text(subtitle);
+        await tester.ensureVisible(text);
+        await tester.pumpAndSettle();
+        final card = find.ancestor(of: text, matching: find.byType(Card));
+        final cardRect = tester.getRect(card.first);
+        final textRect = tester.getRect(text);
+        expect(cardRect.contains(textRect.topLeft), isTrue);
+        expect(cardRect.contains(textRect.bottomRight), isTrue);
+      }
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('lays the three links side by side only on desktop',
+      (tester) async {
+    Future<double> reportTop(Size size) async {
+      tester.view.physicalSize = size;
+      await tester.pumpAndSettle();
+      final report = find.text(NetWorthTexts.reportSubtitle);
+      await tester.ensureVisible(report);
+      await tester.pumpAndSettle();
+      return tester.getTopLeft(report).dy -
+          tester.getTopLeft(find.text(NetWorthTexts.assetsSubtitle)).dy;
+    }
+
+    await pumpOverview(tester, _loaded(), size: const Size(1280, 1000));
+    expect(await reportTop(const Size(1280, 1000)), 0);
+    expect(await reportTop(const Size(800, 1000)), greaterThan(0));
+  });
+
+  testWidgets('opens the report from its link', (tester) async {
+    await pumpOverview(tester, _loaded());
+    registerNetWorthReportBloc(const NetWorthReportState());
+
+    final link = find.text(NetWorthTexts.reportSubtitle);
+    await tester.scrollUntilVisible(
+      link,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(link);
+    await tester.pumpAndSettle();
+    await tester.tap(link);
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(
+      GoRouter.of(tester.element(find.byType(Scaffold).first))
+          .routeInformationProvider
+          .value
+          .uri
+          .path,
+      AppRoute.netWorthReport.path,
+    );
   });
 }

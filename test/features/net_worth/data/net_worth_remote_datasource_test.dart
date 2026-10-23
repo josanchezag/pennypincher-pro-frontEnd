@@ -73,4 +73,82 @@ void main() {
       ),
     );
   });
+
+  group('trend report', () {
+    test('asks for monthly points since the first day of a month', () async {
+      adapter.handler = (_) async => FakeResponse(
+            200,
+            envelope([
+              trendPointJson(9, assets: 200000000.50, liabilities: 0),
+            ]),
+          );
+
+      final points = await dataSource.getTrend(from: DateTime(2025, 11));
+
+      final request = adapter.requests.single;
+      expect(request.method, 'GET');
+      expect(request.path, '/reports/net-worth-trend');
+      expect(request.queryParameters, {
+        'from': '2025-11-01',
+        'groupBy': 'month',
+      });
+      expect(
+        points.single.toEntity().totalAssets,
+        const Money.fromCents(20000000050),
+      );
+    });
+
+    test('asks for the whole history without a start', () async {
+      adapter.handler = (_) async => FakeResponse(200, envelope([]));
+
+      final points = await dataSource.getTrend();
+
+      expect(adapter.requests.single.queryParameters, {'groupBy': 'month'});
+      expect(points, isEmpty);
+    });
+
+    test('reads a null delta for the first point and a negative one', () async {
+      adapter.handler = (_) async => FakeResponse(
+            200,
+            envelope([
+              trendPointJson(8, assets: 150000000, liabilities: 50000000),
+              trendPointJson(
+                9,
+                assets: 100000000,
+                liabilities: 50000000,
+                delta: -50000000,
+              ),
+            ]),
+          );
+
+      final points = [
+        for (final model in await dataSource.getTrend()) model.toEntity(),
+      ];
+
+      expect(points.first.delta, isNull);
+      expect(points.first.month, DateTime(2026, 8));
+      expect(points.last.delta, const Money.fromPesos(-50000000));
+      expect(points.last.netWorth, const Money.fromPesos(50000000));
+    });
+
+    test('rejects a point without its net worth', () {
+      adapter.handler = (_) async => FakeResponse(
+            200,
+            envelope([
+              {
+                ...trendPointJson(8, assets: 1, liabilities: 0),
+                'netWorth': null,
+              },
+            ]),
+          );
+
+      expect(
+        dataSource.getTrend,
+        throwsA(
+          isA<AppException>()
+              .having((e) => e.code, 'code', ErrorCodes.invalidResponse),
+        ),
+      );
+    });
+  });
 }

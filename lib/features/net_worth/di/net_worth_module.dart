@@ -59,4 +59,8 @@ abstract class NetWorthModule {
   @injectable
   CreateSnapshot createSnapshot(NetWorthRepository repository) =>
       CreateSnapshot(repository);
+
+  @injectable
+  GetNetWorthTrend getNetWorthTrend(NetWorthRepository repository) =>
+      GetNetWorthTrend(repository);
 }

@@ -3,6 +3,7 @@ import 'package:pennypincher_pro/features/net_worth/domain/entity/asset_entity.d
 import 'package:pennypincher_pro/features/net_worth/domain/entity/liability_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_snapshot_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_summary_entity.dart';
+import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_trend_entity.dart';
 
 const Asset apartment = Asset(
   id: 'a1',
@@ -83,3 +84,49 @@ const Map<String, Object?> septemberJson = {
   'createdAt': '2026-09-01T12:00:00Z',
   'updatedAt': '2026-09-01T12:00:00Z',
 };
+
+/// Point of the trend report of [month] of 2026.
+Map<String, Object?> trendPointJson(
+  int month, {
+  required num assets,
+  required num liabilities,
+  num? delta,
+}) =>
+    {
+      'periodStart': '2026-${month.toString().padLeft(2, '0')}-01',
+      'totalAssets': assets,
+      'totalLiabilities': liabilities,
+      'netWorth': assets - liabilities,
+      'monthOverMonthDelta': delta,
+    };
+
+NetWorthTrendPoint trendPointOf(
+  int month, {
+  required int assets,
+  required int liabilities,
+  int? delta,
+}) =>
+    NetWorthTrendPoint(
+      month: DateTime(2026, month),
+      totalAssets: Money.fromPesos(assets),
+      totalLiabilities: Money.fromPesos(liabilities),
+      netWorth: Money.fromPesos(assets - liabilities),
+      delta: delta == null ? null : Money.fromPesos(delta),
+    );
+
+/// August to October 2026: net worth 100, 160 (the best) and 130 million.
+final NetWorthTrend threeMonthTrend = NetWorthTrend([
+  trendPointOf(8, assets: 150000000, liabilities: 50000000),
+  trendPointOf(
+    9,
+    assets: 200000000,
+    liabilities: 40000000,
+    delta: 60000000,
+  ),
+  trendPointOf(
+    10,
+    assets: 160000000,
+    liabilities: 30000000,
+    delta: -30000000,
+  ),
+]);

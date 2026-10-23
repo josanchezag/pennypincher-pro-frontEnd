@@ -59,6 +59,7 @@ abstract final class ApiPaths {
       '/financial-goals/all-projections';
   static const String projectionSuffix = '/projection';
   static const String dashboardSummary = '/dashboard/summary';
+  static const String netWorthTrend = '/reports/net-worth-trend';
 }
 
 /// Query parameters of the backend endpoints.
@@ -66,6 +67,13 @@ abstract final class ApiQueryParams {
   /// Reference month of the endpoints that depend on the current month, as
   /// `YYYY-MM` in the device's local time.
   static const String month = 'month';
+
+  /// First day of a report range, as `YYYY-MM-DD`.
+  static const String from = 'from';
+  static const String groupBy = 'groupBy';
+
+  /// [groupBy] value of one point per monthly snapshot.
+  static const String groupByMonth = 'month';
 }
 
 /// Keys of the backend response envelope (`{data, meta}` / `{error, meta}`).

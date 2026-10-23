@@ -195,6 +195,8 @@ import 'package:pennypincher_pro/features/net_worth/presentation/bloc/liability_
     as _i944;
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart'
     as _i697;
+import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_report_bloc.dart'
+    as _i352;
 
 extension GetItInjectableX on _i174.GetIt {
 // initializes the registration of main-scope dependencies inside of GetIt
@@ -491,6 +493,8 @@ extension GetItInjectableX on _i174.GetIt {
         netWorthModule.getCurrentNetWorth(gh<_i606.NetWorthRepository>()));
     gh.factory<_i424.CreateSnapshot>(
         () => netWorthModule.createSnapshot(gh<_i606.NetWorthRepository>()));
+    gh.factory<_i424.GetNetWorthTrend>(
+        () => netWorthModule.getNetWorthTrend(gh<_i606.NetWorthRepository>()));
     gh.factory<_i869.GoalsBloc>(() => _i869.GoalsBloc(
           gh<_i678.GetItems<_i308.FinancialGoal, _i308.GoalDraft>>(),
           gh<_i678.SaveItem<_i308.FinancialGoal, _i308.GoalDraft>>(),
@@ -533,6 +537,10 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i678.GetItems<_i1038.SavingsAccount, _i642.BalanceDraft>>(),
           gh<_i678.SaveItem<_i1038.SavingsAccount, _i642.BalanceDraft>>(),
           gh<_i678.DeleteItem<_i1038.SavingsAccount, _i642.BalanceDraft>>(),
+        ));
+    gh.factory<_i352.NetWorthReportBloc>(() => _i352.NetWorthReportBloc(
+          gh<_i424.GetNetWorthTrend>(),
+          gh<_i656.Clock>(),
         ));
     gh.factory<_i697.NetWorthBloc>(() => _i697.NetWorthBloc(
           gh<_i424.GetCurrentNetWorth>(),

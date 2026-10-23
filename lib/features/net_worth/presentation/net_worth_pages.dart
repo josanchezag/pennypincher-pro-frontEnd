@@ -9,8 +9,10 @@ import 'package:pennypincher_pro/features/net_worth/domain/entity/liability_enti
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/asset_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/liability_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart';
+import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_report_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/assets_screen.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/liabilities_screen.dart';
+import 'package:pennypincher_pro/features/net_worth/presentation/screen/net_worth_report_screen.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/net_worth_screen.dart';
 
 /// Screens of the net worth section, each with a fresh bloc that starts
@@ -33,6 +35,11 @@ abstract final class NetWorthPages {
               const CrudLoadRequested<CategorizedDraft<LiabilityCategory>>(),
             ),
           child: const LiabilitiesScreen(),
+        ),
+    AppRoute.netWorthReport: (_) => BlocProvider<NetWorthReportBloc>(
+          create: (_) => getIt<NetWorthReportBloc>()
+            ..add(const NetWorthReportLoadRequested()),
+          child: const NetWorthReportScreen(),
         ),
   };
 }

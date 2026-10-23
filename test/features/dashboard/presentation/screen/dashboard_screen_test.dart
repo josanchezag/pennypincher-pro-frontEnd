@@ -29,6 +29,7 @@ import 'package:pennypincher_pro/features/dashboard/presentation/widget/mini_spa
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/net_worth_summary_card.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/quick_actions_row.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/expenses_hub_bloc.dart';
+import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_report_bloc.dart';
 
 import '../../../../helpers/budget_mocks.dart';
 import '../../../../helpers/dashboard_fixtures.dart';
@@ -506,6 +507,7 @@ void main() {
     for (final MapEntry(key: label, value: route) in links.entries) {
       testWidgets('"$label" opens ${route.path}', (tester) async {
         registerExpensesHubBloc(const ExpensesHubState());
+        registerNetWorthReportBloc(const NetWorthReportState());
         await pumpDashboard(tester, loadedDashboard(dashboardSummary));
 
         await tapAndSettle(tester, find.text(label));

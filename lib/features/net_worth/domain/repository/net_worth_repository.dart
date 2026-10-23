@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:pennypincher_pro/core/error/failure.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_snapshot_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_summary_entity.dart';
+import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_trend_entity.dart';
 
 /// Monthly net worth history and live totals.
 abstract interface class NetWorthRepository {
@@ -13,4 +14,8 @@ abstract interface class NetWorthRepository {
 
   /// Creates, or recalculates, the snapshot of the month of [month].
   Future<Either<Failure, NetWorthSnapshot>> createSnapshot(DateTime month);
+
+  /// Monthly net worth since the month of [from] (or the whole history
+  /// without it), from the oldest month.
+  Future<Either<Failure, NetWorthTrend>> getTrend({DateTime? from});
 }

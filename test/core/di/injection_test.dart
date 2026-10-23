@@ -32,6 +32,7 @@ import 'package:pennypincher_pro/features/net_worth/domain/repository/liability_
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/asset_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/liability_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart';
+import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_report_bloc.dart';
 
 void main() {
   setUp(configureDependencies);
@@ -136,6 +137,16 @@ void main() {
 
     expect(blocs.first, isNot(same(blocs.last)));
     expect(getIt<DashboardRepository>(), same(getIt<DashboardRepository>()));
+  });
+
+  test('creates a fresh net worth report bloc per screen', () {
+    final blocs = [getIt<NetWorthReportBloc>(), getIt<NetWorthReportBloc>()];
+    for (final bloc in blocs) {
+      addTearDown(bloc.close);
+    }
+
+    expect(blocs.first, isNot(same(blocs.last)));
+    expect(blocs.first.state, const NetWorthReportState());
   });
 
   test('points the HTTP client at the configured API base URL', () {

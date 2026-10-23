@@ -7,6 +7,7 @@ import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
+import 'package:pennypincher_pro/core/widgets/chart_style.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_snapshot_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/widget/chart_scale.dart';
 
@@ -92,21 +93,13 @@ class NetWorthChart extends StatelessWidget {
               showTitles: true,
               reservedSize: axisLabelWidth,
               interval: scale.interval,
-              getTitlesWidget: _yLabel,
+              getTitlesWidget: ChartStyle.millionsLabel,
             ),
           ),
         ),
       );
 
   static const AxisTitles _hidden = AxisTitles();
-
-  static Widget _yLabel(double value, TitleMeta meta) => SideTitleWidget(
-        axisSide: meta.axisSide,
-        child: Text(
-          CurrencyFormatter.formatCompact(value),
-          style: AppTypography.monoSmall,
-        ),
-      );
 }
 
 class _ScrollingChart extends StatelessWidget {
@@ -163,12 +156,7 @@ class _ChartData {
         minY: scale.minY,
         maxY: scale.maxY,
         lineBarsData: [_line()],
-        gridData: FlGridData(
-          drawVerticalLine: false,
-          horizontalInterval: scale.interval,
-          getDrawingHorizontalLine: (_) =>
-              const FlLine(color: AppColors.borderMuted, strokeWidth: 1),
-        ),
+        gridData: ChartStyle.horizontalGrid(scale.interval),
         borderData: FlBorderData(show: false),
         lineTouchData: LineTouchData(touchTooltipData: _tooltip()),
         titlesData: FlTitlesData(
@@ -210,7 +198,7 @@ class _ChartData {
       );
 
   LineTouchTooltipData _tooltip() => LineTouchTooltipData(
-        getTooltipColor: (_) => AppColors.backgroundModal,
+        getTooltipColor: ChartStyle.tooltipColor,
         fitInsideHorizontally: true,
         fitInsideVertically: true,
         getTooltipItems: (spots) => [

@@ -3,6 +3,7 @@ import 'package:pennypincher_pro/core/time/api_date.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_snapshot_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_summary_entity.dart';
+import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_trend_entity.dart';
 
 part 'net_worth_models.g.dart';
 
@@ -64,6 +65,40 @@ class NetWorthSummaryModel {
         totalAssets: totalAssets,
         totalLiabilities: totalLiabilities,
         netWorth: netWorth,
+      );
+}
+
+/// JSON shape of one point of the net worth trend report.
+@JsonSerializable(createToJson: false)
+class NetWorthTrendPointModel {
+  const NetWorthTrendPointModel({
+    required this.periodStart,
+    required this.totalAssets,
+    required this.totalLiabilities,
+    required this.netWorth,
+    this.monthOverMonthDelta,
+  });
+
+  factory NetWorthTrendPointModel.fromJson(Map<String, dynamic> json) =>
+      _$NetWorthTrendPointModelFromJson(json);
+
+  @JsonKey(fromJson: ApiDate.parse)
+  final DateTime periodStart;
+  @JsonKey(fromJson: _money)
+  final Money totalAssets;
+  @JsonKey(fromJson: _money)
+  final Money totalLiabilities;
+  @JsonKey(fromJson: _money)
+  final Money netWorth;
+  @JsonKey(fromJson: Money.fromOptionalJson)
+  final Money? monthOverMonthDelta;
+
+  NetWorthTrendPoint toEntity() => NetWorthTrendPoint(
+        month: periodStart,
+        totalAssets: totalAssets,
+        totalLiabilities: totalLiabilities,
+        netWorth: netWorth,
+        delta: monthOverMonthDelta,
       );
 }
 

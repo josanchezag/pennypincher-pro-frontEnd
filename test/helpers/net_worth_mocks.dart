@@ -9,6 +9,7 @@ import 'package:pennypincher_pro/features/net_worth/domain/entity/liability_enti
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/asset_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/liability_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart';
+import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_report_bloc.dart';
 
 class MockAssetBloc extends MockBloc<CrudEvent<CategorizedDraft<AssetCategory>>,
     CrudState<Asset>> implements AssetBloc {}
@@ -19,6 +20,10 @@ class MockLiabilityBloc extends MockBloc<
 
 class MockNetWorthBloc extends MockBloc<NetWorthEvent, NetWorthState>
     implements NetWorthBloc {}
+
+class MockNetWorthReportBloc
+    extends MockBloc<NetWorthReportEvent, NetWorthReportState>
+    implements NetWorthReportBloc {}
 
 /// Registers [bloc] in the service locator, where the route builders read
 /// it from, staying in [state] and then emitting [stream]. The locator is
@@ -63,3 +68,13 @@ MockNetWorthBloc registerNetWorthBloc(
       state,
       stream: stream,
     ) as MockNetWorthBloc;
+
+MockNetWorthReportBloc registerNetWorthReportBloc(
+  NetWorthReportState state, {
+  Stream<NetWorthReportState> stream = const Stream.empty(),
+}) =>
+    registerBloc<NetWorthReportBloc, NetWorthReportState>(
+      MockNetWorthReportBloc(),
+      state,
+      stream: stream,
+    ) as MockNetWorthReportBloc;

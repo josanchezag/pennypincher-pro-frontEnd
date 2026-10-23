@@ -72,4 +72,40 @@ void main() {
       isA<NetworkFailure>(),
     );
   });
+
+  group('trend report', () {
+    test('returns the points sorted from the oldest month', () async {
+      when(() => remote.getTrend(from: DateTime(2026, 8))).thenAnswer(
+        (_) async => [
+          NetWorthTrendPointModel.fromJson(
+            trendPointJson(9, assets: 200000000, liabilities: 40000000),
+          ),
+          NetWorthTrendPointModel.fromJson(
+            trendPointJson(8, assets: 150000000, liabilities: 50000000),
+          ),
+        ],
+      );
+
+      final result = await repository.getTrend(from: DateTime(2026, 8));
+
+      final trend = result.getOrElse(() => throw StateError('no trend'));
+      expect(trend.points.map((point) => point.month), [
+        DateTime(2026, 8),
+        DateTime(2026, 9),
+      ]);
+    });
+
+    test('turns a request error into a failure', () async {
+      when(() => remote.getTrend()).thenThrow(
+        const AppException(code: ErrorCodes.networkError, message: 'Offline'),
+      );
+
+      final result = await repository.getTrend();
+
+      expect(
+        result.fold((failure) => failure, (_) => null),
+        isA<NetworkFailure>().having((f) => f.message, 'message', 'Offline'),
+      );
+    });
+  });
 }

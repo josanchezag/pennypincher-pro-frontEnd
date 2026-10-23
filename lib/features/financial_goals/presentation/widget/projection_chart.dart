@@ -7,6 +7,7 @@ import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
+import 'package:pennypincher_pro/core/widgets/chart_style.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_projection_entity.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_figures.dart';
@@ -117,12 +118,7 @@ class _ProjectionChartData {
           horizontalLines: [_targetLine()],
           verticalLines: [if (_crossingX case final x?) _crossingLine(x)],
         ),
-        gridData: FlGridData(
-          drawVerticalLine: false,
-          horizontalInterval: scale.yInterval,
-          getDrawingHorizontalLine: (_) =>
-              const FlLine(color: AppColors.borderMuted, strokeWidth: 1),
-        ),
+        gridData: ChartStyle.horizontalGrid(scale.yInterval),
         borderData: FlBorderData(show: false),
         lineTouchData: LineTouchData(touchTooltipData: _tooltip()),
         titlesData: _titles(),
@@ -185,7 +181,7 @@ class _ProjectionChartData {
       );
 
   LineTouchTooltipData _tooltip() => LineTouchTooltipData(
-        getTooltipColor: (_) => AppColors.backgroundModal,
+        getTooltipColor: ChartStyle.tooltipColor,
         fitInsideHorizontally: true,
         fitInsideVertically: true,
         maxContentWidth: ProjectionChart.tooltipWidth,
@@ -216,7 +212,7 @@ class _ProjectionChartData {
             showTitles: true,
             reservedSize: leftAxisWidth,
             interval: scale.yInterval,
-            getTitlesWidget: _yLabel,
+            getTitlesWidget: ChartStyle.millionsLabel,
           ),
         ),
         bottomTitles: AxisTitles(
@@ -231,14 +227,6 @@ class _ProjectionChartData {
             interval: scale.xInterval,
             getTitlesWidget: _xLabel,
           ),
-        ),
-      );
-
-  static Widget _yLabel(double value, TitleMeta meta) => SideTitleWidget(
-        axisSide: meta.axisSide,
-        child: Text(
-          CurrencyFormatter.formatCompact(value),
-          style: AppTypography.monoSmall,
         ),
       );
 

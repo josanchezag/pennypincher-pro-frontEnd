@@ -18,10 +18,20 @@ class ChartScale {
 
   /// Scale of [history] (sorted, not empty) showing at least
   /// [minVisibleMonths], ending at the latest snapshot.
-  factory ChartScale.of(List<NetWorthSnapshot> history) {
-    final firstMonth = history.first.snapshotDate;
-    final maxX = monthsBetween(firstMonth, history.last.snapshotDate);
-    final values = history.map((snapshot) => snapshot.netWorth.pesos);
+  factory ChartScale.of(List<NetWorthSnapshot> history) => ChartScale.span(
+        firstMonth: history.first.snapshotDate,
+        lastMonth: history.last.snapshotDate,
+        values: [for (final snapshot in history) snapshot.netWorth.pesos],
+      );
+
+  /// Scale from [firstMonth] to [lastMonth] whose y range covers every one
+  /// of [values] (not empty), showing at least [minVisibleMonths].
+  factory ChartScale.span({
+    required DateTime firstMonth,
+    required DateTime lastMonth,
+    required Iterable<double> values,
+  }) {
+    final maxX = monthsBetween(firstMonth, lastMonth);
     final low = math.min(0, values.reduce(math.min)).toDouble();
     final high = math.max(0, values.reduce(math.max)).toDouble();
     final interval = ChartAxis.niceInterval(high - low);

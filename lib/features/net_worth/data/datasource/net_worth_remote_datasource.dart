@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pennypincher_pro/core/constants/app_constants.dart';
 import 'package:pennypincher_pro/core/network/api_envelope.dart';
+import 'package:pennypincher_pro/core/time/api_date.dart';
 import 'package:pennypincher_pro/features/net_worth/data/model/net_worth_models.dart';
 
 /// `/net-worth` endpoints, called with the authenticated client. Every
@@ -42,6 +43,24 @@ class NetWorthRemoteDataSource {
     return ApiEnvelope.parseData(
       response.data,
       NetWorthSnapshotModel.fromJson,
+    );
+  }
+
+  /// `GET /reports/net-worth-trend?from=…&groupBy=month`: one point per
+  /// monthly snapshot since [from] (all of them without it), oldest first.
+  Future<List<NetWorthTrendPointModel>> getTrend({DateTime? from}) async {
+    final response = await ApiEnvelope.send(
+      () => _dio.get<Object?>(
+        ApiPaths.netWorthTrend,
+        queryParameters: {
+          if (from != null) ApiQueryParams.from: ApiDate.format(from),
+          ApiQueryParams.groupBy: ApiQueryParams.groupByMonth,
+        },
+      ),
+    );
+    return ApiEnvelope.parseList(
+      response.data,
+      NetWorthTrendPointModel.fromJson,
     );
   }
 }

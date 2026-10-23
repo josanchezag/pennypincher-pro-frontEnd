@@ -36,5 +36,16 @@ void main() {
 
       verify(() => repository.createSnapshot(DateTime(2026, 10))).called(1);
     });
+
+    test('load the trend since the first day of the month of a date', () async {
+      when(() => repository.getTrend(from: any(named: 'from')))
+          .thenAnswer((_) async => Right(threeMonthTrend));
+
+      await GetNetWorthTrend(repository)(from: DateTime(2025, 11, 23, 8));
+      await GetNetWorthTrend(repository)();
+
+      verify(() => repository.getTrend(from: DateTime(2025, 11))).called(1);
+      verify(() => repository.getTrend()).called(1);
+    });
   });
 }
