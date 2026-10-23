@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
-import 'package:reactive_forms/reactive_forms.dart';
+import 'package:pennypincher_pro/core/crud/presentation/layout/item_form.dart';
 
 /// Builds the tile of one item.
 typedef ItemTileBuilder<T> = Widget Function(BuildContext context, T item);
@@ -29,17 +29,8 @@ class ItemTileContent {
 /// through drafts of type [D]: the form, the summary cards and how the
 /// items are laid out. The generic screen, list, tile and form sheet of
 /// `core/crud` take everything else from it.
-abstract class ItemLayout<T extends CrudItem, D> {
+abstract class ItemLayout<T extends CrudItem, D> extends ItemForm<T, D> {
   const ItemLayout();
-
-  /// Controls of the form, filled with [initial] when it is being edited.
-  FormGroup formGroup(T? initial);
-
-  /// Fields of the form, top to bottom.
-  List<Widget> formFields();
-
-  /// Draft read from a valid [form].
-  D draftOf(FormGroup form);
 
   /// Cards with the totals of [items].
   Widget summary(List<T> items);

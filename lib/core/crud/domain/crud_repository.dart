@@ -15,3 +15,10 @@ abstract interface class CrudRepository<T extends CrudItem, D> {
   /// Removes the item from the list (the backend keeps it as inactive).
   Future<Either<Failure, Unit>> delete(String id);
 }
+
+/// A list whose backend offers a set of standard items to start from.
+abstract interface class DefaultItemsRepository<T extends CrudItem> {
+  /// Adds the standard items the list is still missing and returns the
+  /// whole list.
+  Future<Either<Failure, List<T>>> createDefaults();
+}

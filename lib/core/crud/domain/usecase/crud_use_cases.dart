@@ -30,3 +30,13 @@ class DeleteItem<T extends CrudItem, D> {
 
   Future<Either<Failure, Unit>> call(String id) => _repository.delete(id);
 }
+
+/// Adds the standard items a list is still missing.
+class CreateDefaultItems<T extends CrudItem> {
+  const CreateDefaultItems(this._repository);
+
+  final DefaultItemsRepository<T> _repository;
+
+  /// The whole list once the standard items are added.
+  Future<Either<Failure, List<T>>> call() => _repository.createDefaults();
+}

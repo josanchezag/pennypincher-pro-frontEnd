@@ -12,18 +12,31 @@ part 'crud_state.dart';
 /// drafts of type [D] (assets, income sources, credit cards and every
 /// other list). Feature blocs only bind it to their use cases. Changes
 /// run one at a time: requests that arrive while another change is
-/// running are ignored.
+/// running are ignored. With [reloadAfterChange], every successful change
+/// is followed by a reload of the whole list, for lists whose items carry
+/// values the backend derives from the others; the local result is kept
+/// when that reload fails. With [createDefaults], the list can be filled
+/// with the standard items of its backend.
 class CrudBloc<T extends CrudItem, D> extends Bloc<CrudEvent<D>, CrudState<T>> {
-  CrudBloc(this._getItems, this._saveItem, this._deleteItem)
-      : super(CrudLoading<T>()) {
+  CrudBloc(
+    this._getItems,
+    this._saveItem,
+    this._deleteItem, {
+    CreateDefaultItems<T>? createDefaults,
+    this.reloadAfterChange = false,
+  })  : _createDefaults = createDefaults,
+        super(CrudLoading<T>()) {
     on<CrudLoadRequested<D>>(_onLoadRequested);
     on<CrudSaveRequested<D>>(_onSaveRequested);
     on<CrudDeleteRequested<D>>(_onDeleteRequested);
+    on<CrudDefaultsRequested<D>>(_onDefaultsRequested);
   }
 
   final GetItems<T, D> _getItems;
   final SaveItem<T, D> _saveItem;
   final DeleteItem<T, D> _deleteItem;
+  final CreateDefaultItems<T>? _createDefaults;
+  final bool reloadAfterChange;
 
   Future<void> _onLoadRequested(
     CrudLoadRequested<D> event,
@@ -65,6 +78,22 @@ class CrudBloc<T extends CrudItem, D> extends Bloc<CrudEvent<D>, CrudState<T>> {
         whenMissing: (items) => _without(items, event.id),
       );
 
+  Future<void> _onDefaultsRequested(
+    CrudDefaultsRequested<D> event,
+    Emitter<CrudState<T>> emit,
+  ) async {
+    final createDefaults = _createDefaults;
+    if (createDefaults == null) {
+      return;
+    }
+    await _change(
+      emit,
+      CrudAction.createDefaults,
+      createDefaults.call,
+      (_, items) => items,
+    );
+  }
+
   static List<T> _without<T extends CrudItem>(
     List<T> items,
     String id,
@@ -88,16 +117,28 @@ class CrudBloc<T extends CrudItem, D> extends Bloc<CrudEvent<D>, CrudState<T>> {
     emit(CrudLoaded<T>(current.items, busy: true));
     final result = await request();
     emit(
-      result.fold(
-        (failure) => CrudLoaded<T>(
+      await result.fold(
+        (failure) async => CrudLoaded<T>(
           failure is NotFoundFailure && whenMissing != null
               ? whenMissing(current.items)
               : current.items,
           errorMessage: failure.message,
           failedAction: action,
         ),
-        (value) => CrudLoaded<T>(apply(current.items, value)),
+        (value) async =>
+            CrudLoaded<T>(await _refreshed(apply(current.items, value))),
       ),
     );
+  }
+
+  /// The list reloaded after a change when [reloadAfterChange], otherwise
+  /// (or when the reload fails) [changed], the list with the change
+  /// applied locally.
+  Future<List<T>> _refreshed(List<T> changed) async {
+    if (!reloadAfterChange) {
+      return changed;
+    }
+    final reloaded = await _getItems();
+    return reloaded.getOrElse(() => changed);
   }
 }

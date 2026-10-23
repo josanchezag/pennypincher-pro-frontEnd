@@ -12,6 +12,9 @@ class CrudRemoteDataSource<T extends CrudItem, D> {
   final String path;
   final ItemJsonCodec<T, D> codec;
 
+  /// The client, for the extra endpoints a resource adds to these.
+  Dio get client => _dio;
+
   /// `GET <path>`.
   Future<List<T>> getAll() async {
     final response = await ApiEnvelope.send(() => _dio.get<Object?>(path));

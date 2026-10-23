@@ -10,6 +10,7 @@ class StatusMessage extends StatelessWidget {
     required this.title,
     required this.message,
     this.action,
+    this.illustration,
     super.key,
   });
 
@@ -22,6 +23,9 @@ class StatusMessage extends StatelessWidget {
   /// Optional button under the message, such as "Retry".
   final Widget? action;
 
+  /// Optional artwork shown instead of [icon].
+  final Widget? illustration;
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
@@ -31,7 +35,7 @@ class StatusMessage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: iconSize, color: colors.primary),
+            illustration ?? Icon(icon, size: iconSize, color: colors.primary),
             const SizedBox(height: AppSpacing.md),
             Text(
               title,

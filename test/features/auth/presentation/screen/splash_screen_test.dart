@@ -123,13 +123,13 @@ void main() {
     await pumpSplash(
       tester,
       state: const AuthInitial(),
-      location: AppRoute.goals.path,
+      location: AppRoute.settingsProfile.path,
     );
     expect(find.byType(SplashScreen), findsOneWidget);
 
     states.add(AuthAuthenticated(testUser));
     await settleAfter(tester, AppConstants.splashMinDuration);
 
-    expect(_screenTitled(AppRoute.goals), findsOneWidget);
+    expect(_screenTitled(AppRoute.settingsProfile), findsOneWidget);
   });
 }

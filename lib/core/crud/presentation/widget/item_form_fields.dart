@@ -12,6 +12,7 @@ import 'package:reactive_forms/reactive_forms.dart';
 abstract final class ItemFormFields {
   static const String name = 'name';
   static const String amountInvalidError = 'amountInvalid';
+  static const String amountNotPositiveError = 'amountNotPositive';
 
   /// Digits plus the dot and comma separators.
   static final TextInputFormatter amountCharacters =
@@ -30,6 +31,17 @@ abstract final class ItemFormFields {
   static FormControl<String> amountControl(Money? initial) => FormControl(
         value: initial?.toInputString(),
         validators: [Validators.required, Validators.delegate(_amount)],
+      );
+
+  /// Required amount above zero, prefilled with [initial].
+  static FormControl<String> positiveAmountControl(Money? initial) =>
+      FormControl(
+        value: initial?.toInputString(),
+        validators: [
+          Validators.required,
+          Validators.delegate(_amount),
+          Validators.delegate(_positive),
+        ],
       );
 
   /// Amount that may be left empty, prefilled with [initial].
@@ -57,12 +69,20 @@ abstract final class ItemFormFields {
         helper: optional ? CrudTexts.optionalAmountHelper : null,
       );
 
-  /// Drop-down with every category of [labels], in its order.
+  /// Drop-down with every category of [labels], in its order, labelled
+  /// [label] and asking for a choice with [requiredMessage].
   static Widget categoryField<C extends Enum>(
     String controlName,
-    Map<C, String> labels,
-  ) =>
-      _CategoryField<C>(controlName: controlName, labels: labels);
+    Map<C, String> labels, {
+    String label = CrudTexts.categoryLabel,
+    String requiredMessage = CrudTexts.categoryRequired,
+  }) =>
+      _CategoryField<C>(
+        controlName: controlName,
+        labels: labels,
+        label: label,
+        requiredMessage: requiredMessage,
+      );
 
   /// [fields] with the standard gap between them.
   static List<Widget> spaced(List<Widget> fields) => [
@@ -87,6 +107,14 @@ abstract final class ItemFormFields {
     return text == null || text.trim().isEmpty
         ? null
         : Money.tryParseInput(text);
+  }
+
+  static Map<String, dynamic>? _positive(AbstractControl<dynamic> control) {
+    final text = control.value;
+    final amount = text is String ? Money.tryParseInput(text) : null;
+    return amount != null && amount.isZero
+        ? {amountNotPositiveError: true}
+        : null;
   }
 
   static Map<String, dynamic>? _amount(AbstractControl<dynamic> control) {
@@ -143,28 +171,37 @@ class _AmountField extends StatelessWidget {
       validationMessages: {
         ValidationMessage.required: (_) => CrudTexts.amountRequired,
         ItemFormFields.amountInvalidError: (_) => CrudTexts.amountInvalid,
+        ItemFormFields.amountNotPositiveError: (_) =>
+            CrudTexts.amountNotPositive,
       },
     );
   }
 }
 
 class _CategoryField<C extends Enum> extends StatelessWidget {
-  const _CategoryField({required this.controlName, required this.labels});
+  const _CategoryField({
+    required this.controlName,
+    required this.labels,
+    required this.label,
+    required this.requiredMessage,
+  });
 
   final String controlName;
   final Map<C, String> labels;
+  final String label;
+  final String requiredMessage;
 
   @override
   Widget build(BuildContext context) {
     return ReactiveDropdownField<C>(
       formControlName: controlName,
-      decoration: const InputDecoration(labelText: CrudTexts.categoryLabel),
+      decoration: InputDecoration(labelText: label),
       items: [
-        for (final MapEntry(key: category, value: label) in labels.entries)
-          DropdownMenuItem(value: category, child: Text(label)),
+        for (final MapEntry(key: category, value: text) in labels.entries)
+          DropdownMenuItem(value: category, child: Text(text)),
       ],
       validationMessages: {
-        ValidationMessage.required: (_) => CrudTexts.categoryRequired,
+        ValidationMessage.required: (_) => requiredMessage,
       },
     );
   }

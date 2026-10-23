@@ -15,6 +15,8 @@ abstract final class AppColors {
   // Accent
   static const Color accentGold = Color(0xFFF59E0B);
   static const Color accentGoldMuted = Color(0xFF92400E);
+  static const Color accentTeal = Color(0xFF0D9488);
+  static const Color accentPurple = Color(0xFF7C3AED);
 
   // Semantic
   static const Color success = Color(0xFF10B981);

@@ -24,7 +24,7 @@ final class CrudLoadFailure<T> extends CrudState<T> {
 }
 
 /// Changes a user can make to a list.
-enum CrudAction { save, delete }
+enum CrudAction { save, delete, createDefaults }
 
 /// The list is available. While [busy], a create, update or delete is
 /// running. [errorMessage] reports the [failedAction] that just failed;

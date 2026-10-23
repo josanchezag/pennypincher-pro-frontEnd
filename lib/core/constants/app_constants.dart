@@ -53,6 +53,10 @@ abstract final class ApiPaths {
   static const String variableExpenses = '/variable-expenses';
   static const String savingsAccounts = '/savings-accounts';
   static const String summarySuffix = '/summary';
+  static const String financialGoals = '/financial-goals';
+  static const String financialGoalDefaults = '/financial-goals/defaults';
+  static const String financialGoalProjections =
+      '/financial-goals/all-projections';
 }
 
 /// Keys of the backend response envelope (`{data, meta}` / `{error, meta}`).

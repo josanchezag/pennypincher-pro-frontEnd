@@ -87,7 +87,8 @@ class CrudScreen<T extends CrudItem, D, B extends CrudBloc<T, D>>
 
   Future<void> _edit(BuildContext context, T? item) => ItemFormSheet.show<T, D>(
         context,
-        config: config,
+        form: config.layout,
+        title: item == null ? config.addLabel : config.editTitle,
         bloc: context.read<B>(),
         initial: item,
       );

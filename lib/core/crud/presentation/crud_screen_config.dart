@@ -70,6 +70,7 @@ abstract final class CrudTexts {
   static const String amountRequired = 'Enter an amount.';
   static const String amountInvalid =
       'Enter an amount like 1.500.000 or 1.500.000,50, up to 13 digits.';
+  static const String amountNotPositive = 'Enter an amount greater than 0.';
   static const String amountHelper = 'Example: 1.500.000 or 1.500.000,50';
   static const String optionalAmountHelper =
       'Optional. Example: 1.500.000 or 1.500.000,50';

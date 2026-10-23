@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
+import 'package:pennypincher_pro/core/crud/presentation/layout/item_form.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_fields.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
@@ -12,32 +13,53 @@ import 'package:reactive_forms/reactive_forms.dart';
 
 /// Bottom sheet that creates an item, or edits [initial] when given. It
 /// stays open while the bloc saves, shows a failed save inside the sheet
-/// so the typed values are kept, and closes once the item is saved.
+/// so the typed values are kept, and closes once the item is saved. With a
+/// [deleteLabel], editing also offers a delete button that closes the
+/// sheet asking its opener to delete the item.
 class ItemFormSheet<T extends CrudItem, D> extends StatefulWidget {
-  const ItemFormSheet({required this.config, this.initial, super.key});
+  const ItemFormSheet({
+    required this.form,
+    required this.title,
+    this.initial,
+    this.deleteLabel,
+    super.key,
+  });
 
   static const Key saveKey = Key('item-form-save');
+  static const Key deleteKey = Key('item-form-delete');
   static const Key errorKey = Key('item-form-error');
 
-  final CrudScreenConfig<T, D> config;
+  final ItemForm<T, D> form;
+  final String title;
   final T? initial;
+  final String? deleteLabel;
 
-  /// Opens the sheet, saving through [bloc].
-  static Future<void> show<T extends CrudItem, D>(
+  /// Opens the sheet, saving through [bloc]. Resolves to true when the
+  /// user asked to delete [initial] instead.
+  static Future<bool> show<T extends CrudItem, D>(
     BuildContext context, {
-    required CrudScreenConfig<T, D> config,
+    required ItemForm<T, D> form,
+    required String title,
     required CrudBloc<T, D> bloc,
     T? initial,
-  }) =>
-      showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        useSafeArea: true,
-        builder: (_) => BlocProvider<CrudBloc<T, D>>.value(
-          value: bloc,
-          child: ItemFormSheet<T, D>(config: config, initial: initial),
+    String? deleteLabel,
+  }) async {
+    final deleteRequested = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => BlocProvider<CrudBloc<T, D>>.value(
+        value: bloc,
+        child: ItemFormSheet<T, D>(
+          form: form,
+          title: title,
+          initial: initial,
+          deleteLabel: deleteLabel,
         ),
-      );
+      ),
+    );
+    return deleteRequested ?? false;
+  }
 
   @override
   State<ItemFormSheet<T, D>> createState() => _ItemFormSheetState<T, D>();
@@ -45,7 +67,7 @@ class ItemFormSheet<T extends CrudItem, D> extends StatefulWidget {
 
 class _ItemFormSheetState<T extends CrudItem, D>
     extends State<ItemFormSheet<T, D>> {
-  late final FormGroup _form = widget.config.layout.formGroup(widget.initial);
+  late final FormGroup _form = widget.form.formGroup(widget.initial);
   bool _saving = false;
   String? _error;
 
@@ -81,18 +103,24 @@ class _ItemFormSheetState<T extends CrudItem, D>
           Semantics(
             header: true,
             namesRoute: true,
-            child: Text(_title, style: AppTypography.heading3),
+            child: Text(widget.title, style: AppTypography.heading3),
           ),
           const SizedBox(height: AppSpacing.lg),
-          ...ItemFormFields.spaced(widget.config.layout.formFields()),
+          ...ItemFormFields.spaced(widget.form.formFields()),
           if (_error != null) _ErrorText(message: _error!),
           const SizedBox(height: AppSpacing.lg),
           _SaveButton(saving: _saving, onPressed: _submit),
+          if (_deleteLabel case final label?)
+            _DeleteButton(
+              label: label,
+              onPressed: _saving ? null : () => Navigator.of(context).pop(true),
+            ),
         ],
       );
 
-  String get _title =>
-      widget.initial == null ? widget.config.addLabel : widget.config.editTitle;
+  /// Label of the delete button, shown only while editing an item.
+  String? get _deleteLabel =>
+      widget.initial == null ? null : widget.deleteLabel;
 
   /// Keeps the form above the on-screen keyboard.
   static EdgeInsets _padding(BuildContext context) => EdgeInsets.fromLTRB(
@@ -118,7 +146,7 @@ class _ItemFormSheetState<T extends CrudItem, D>
     });
     bloc.add(
       CrudSaveRequested<D>(
-        widget.config.layout.draftOf(_form),
+        widget.form.draftOf(_form),
         id: widget.initial?.id,
       ),
     );
@@ -171,6 +199,27 @@ class _SaveButton extends StatelessWidget {
       child: saving
           ? const ButtonProgressIcon(semanticsLabel: CrudTexts.saving)
           : const Text(CrudTexts.save),
+    );
+  }
+}
+
+class _DeleteButton extends StatelessWidget {
+  const _DeleteButton({required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.xs),
+      child: TextButton.icon(
+        key: ItemFormSheet.deleteKey,
+        style: TextButton.styleFrom(foregroundColor: AppColors.error),
+        onPressed: onPressed,
+        icon: const Icon(Icons.delete_outline),
+        label: Text(label),
+      ),
     );
   }
 }

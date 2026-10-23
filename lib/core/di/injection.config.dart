@@ -135,6 +135,18 @@ import 'package:pennypincher_pro/features/expense_details/presentation/bloc/savi
     as _i689;
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/variable_expense_bloc.dart'
     as _i876;
+import 'package:pennypincher_pro/features/financial_goals/data/datasource/financial_goal_remote_datasource.dart'
+    as _i2;
+import 'package:pennypincher_pro/features/financial_goals/data/repository/financial_goal_repository_impl.dart'
+    as _i444;
+import 'package:pennypincher_pro/features/financial_goals/di/financial_goals_module.dart'
+    as _i72;
+import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart'
+    as _i308;
+import 'package:pennypincher_pro/features/financial_goals/domain/repository/financial_goal_repository.dart'
+    as _i989;
+import 'package:pennypincher_pro/features/financial_goals/presentation/bloc/goals_bloc.dart'
+    as _i869;
 import 'package:pennypincher_pro/features/net_worth/data/datasource/asset_remote_datasource.dart'
     as _i392;
 import 'package:pennypincher_pro/features/net_worth/data/datasource/liability_remote_datasource.dart'
@@ -184,6 +196,7 @@ extension GetItInjectableX on _i174.GetIt {
     final authModule = _$AuthModule();
     final budgetModule = _$BudgetModule();
     final expenseDetailsModule = _$ExpenseDetailsModule();
+    final financialGoalsModule = _$FinancialGoalsModule();
     final netWorthModule = _$NetWorthModule();
     gh.singleton<_i504.AppConfig>(() => configModule.config);
     gh.lazySingleton<_i449.PkceGenerator>(() => _i449.PkceGenerator());
@@ -245,34 +258,39 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i361.HttpClientAdapter>(),
           gh<_i93.AuthInterceptor>(),
         ));
+    gh.lazySingleton<_i528.VariableExpenseRemoteDataSource>(
+        () => _i528.VariableExpenseRemoteDataSource(gh<_i361.Dio>()));
+    gh.lazySingleton<_i627.LoanRemoteDataSource>(
+        () => _i627.LoanRemoteDataSource(gh<_i361.Dio>()));
+    gh.lazySingleton<_i1040.FixedExpenseRemoteDataSource>(
+        () => _i1040.FixedExpenseRemoteDataSource(gh<_i361.Dio>()));
+    gh.lazySingleton<_i873.SavingsAccountRemoteDataSource>(
+        () => _i873.SavingsAccountRemoteDataSource(gh<_i361.Dio>()));
+    gh.lazySingleton<_i129.CreditCardRemoteDataSource>(
+        () => _i129.CreditCardRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i392.AssetRemoteDataSource>(
         () => _i392.AssetRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i277.LiabilityRemoteDataSource>(
         () => _i277.LiabilityRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i578.IncomeSourceRemoteDataSource>(
         () => _i578.IncomeSourceRemoteDataSource(gh<_i361.Dio>()));
-    gh.lazySingleton<_i129.CreditCardRemoteDataSource>(
-        () => _i129.CreditCardRemoteDataSource(gh<_i361.Dio>()));
-    gh.lazySingleton<_i627.LoanRemoteDataSource>(
-        () => _i627.LoanRemoteDataSource(gh<_i361.Dio>()));
-    gh.lazySingleton<_i528.VariableExpenseRemoteDataSource>(
-        () => _i528.VariableExpenseRemoteDataSource(gh<_i361.Dio>()));
-    gh.lazySingleton<_i1040.FixedExpenseRemoteDataSource>(
-        () => _i1040.FixedExpenseRemoteDataSource(gh<_i361.Dio>()));
-    gh.lazySingleton<_i873.SavingsAccountRemoteDataSource>(
-        () => _i873.SavingsAccountRemoteDataSource(gh<_i361.Dio>()));
+    gh.lazySingleton<_i2.FinancialGoalRemoteDataSource>(
+        () => _i2.FinancialGoalRemoteDataSource(gh<_i361.Dio>()));
+    gh.lazySingleton<_i459.ExpenseSummaryRemoteDataSource>(
+        () => _i459.ExpenseSummaryRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i464.NetWorthRemoteDataSource>(
         () => _i464.NetWorthRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i542.MonthlyBudgetRemoteDataSource>(
         () => _i542.MonthlyBudgetRemoteDataSource(gh<_i361.Dio>()));
-    gh.lazySingleton<_i459.ExpenseSummaryRemoteDataSource>(
-        () => _i459.ExpenseSummaryRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i446.AppRouter>(() => _i446.AppRouter(
           gh<_i504.AppConfig>(),
           gh<_i238.AuthBloc>(),
         ));
     gh.lazySingleton<_i379.CreditCardRepository>(() =>
         _i757.CreditCardRepositoryImpl(gh<_i129.CreditCardRemoteDataSource>()));
+    gh.lazySingleton<_i989.FinancialGoalRepository>(() =>
+        _i444.FinancialGoalRepositoryImpl(
+            gh<_i2.FinancialGoalRemoteDataSource>()));
     gh.lazySingleton<_i867.MonthlyBudgetRepository>(() =>
         _i833.MonthlyBudgetRepositoryImpl(
             gh<_i542.MonthlyBudgetRemoteDataSource>()));
@@ -310,6 +328,18 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i678.DeleteItem<_i793.CreditCard, _i642.BalanceDraft>>(() =>
         expenseDetailsModule
             .deleteCreditCard(gh<_i379.CreditCardRepository>()));
+    gh.factory<_i678.GetItems<_i308.FinancialGoal, _i308.GoalDraft>>(() =>
+        financialGoalsModule
+            .getFinancialGoals(gh<_i989.FinancialGoalRepository>()));
+    gh.factory<_i678.SaveItem<_i308.FinancialGoal, _i308.GoalDraft>>(() =>
+        financialGoalsModule
+            .saveFinancialGoal(gh<_i989.FinancialGoalRepository>()));
+    gh.factory<_i678.DeleteItem<_i308.FinancialGoal, _i308.GoalDraft>>(() =>
+        financialGoalsModule
+            .deleteFinancialGoal(gh<_i989.FinancialGoalRepository>()));
+    gh.factory<_i678.CreateDefaultItems<_i308.FinancialGoal>>(() =>
+        financialGoalsModule
+            .createDefaultFinancialGoals(gh<_i989.FinancialGoalRepository>()));
     gh.lazySingleton<_i90.LiabilityRepository>(() =>
         _i418.LiabilityRepositoryImpl(gh<_i277.LiabilityRemoteDataSource>()));
     gh.lazySingleton<_i563.VariableExpenseRepository>(() =>
@@ -438,6 +468,12 @@ extension GetItInjectableX on _i174.GetIt {
         netWorthModule.getCurrentNetWorth(gh<_i606.NetWorthRepository>()));
     gh.factory<_i424.CreateSnapshot>(
         () => netWorthModule.createSnapshot(gh<_i606.NetWorthRepository>()));
+    gh.factory<_i869.GoalsBloc>(() => _i869.GoalsBloc(
+          gh<_i678.GetItems<_i308.FinancialGoal, _i308.GoalDraft>>(),
+          gh<_i678.SaveItem<_i308.FinancialGoal, _i308.GoalDraft>>(),
+          gh<_i678.DeleteItem<_i308.FinancialGoal, _i308.GoalDraft>>(),
+          gh<_i678.CreateDefaultItems<_i308.FinancialGoal>>(),
+        ));
     gh.factory<_i963.CreditCardBloc>(() => _i963.CreditCardBloc(
           gh<_i678.GetItems<_i793.CreditCard, _i642.BalanceDraft>>(),
           gh<_i678.SaveItem<_i793.CreditCard, _i642.BalanceDraft>>(),
@@ -504,5 +540,7 @@ class _$AuthModule extends _i381.AuthModule {}
 class _$BudgetModule extends _i445.BudgetModule {}
 
 class _$ExpenseDetailsModule extends _i539.ExpenseDetailsModule {}
+
+class _$FinancialGoalsModule extends _i72.FinancialGoalsModule {}
 
 class _$NetWorthModule extends _i125.NetWorthModule {}

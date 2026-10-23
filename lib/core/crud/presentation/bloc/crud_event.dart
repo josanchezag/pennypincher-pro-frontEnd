@@ -33,3 +33,9 @@ final class CrudDeleteRequested<D> extends CrudEvent<D> {
   @override
   List<Object?> get props => [id];
 }
+
+/// Add the standard items the list is still missing; only handled by blocs
+/// built with a `CreateDefaultItems` use case.
+final class CrudDefaultsRequested<D> extends CrudEvent<D> {
+  const CrudDefaultsRequested();
+}

@@ -23,6 +23,8 @@ import 'package:pennypincher_pro/features/expense_details/presentation/screen/fi
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/loans_screen.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/savings_screen.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/variable_expenses_screen.dart';
+import 'package:pennypincher_pro/features/financial_goals/presentation/financial_goals_pages.dart';
+import 'package:pennypincher_pro/features/financial_goals/presentation/screen/goals_screen.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_pages.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/assets_screen.dart';
@@ -31,6 +33,7 @@ import 'package:pennypincher_pro/features/net_worth/presentation/screen/net_wort
 
 import '../../helpers/budget_mocks.dart';
 import '../../helpers/expense_mocks.dart';
+import '../../helpers/goal_mocks.dart';
 import '../../helpers/mocks.dart';
 import '../../helpers/net_worth_mocks.dart';
 import '../../helpers/pump_app.dart';
@@ -121,7 +124,8 @@ void main() {
           route != AppRoute.budget &&
           !NetWorthPages.builders.containsKey(route) &&
           !BudgetPages.builders.containsKey(route) &&
-          !ExpenseDetailsPages.builders.containsKey(route),
+          !ExpenseDetailsPages.builders.containsKey(route) &&
+          !FinancialGoalsPages.builders.containsKey(route),
     );
     for (final route in placeholders) {
       testWidgets('renders ${route.path} inside the shell', (tester) async {
@@ -242,6 +246,15 @@ void main() {
       expect(find.byType(SavingsScreen), findsOneWidget);
     });
 
+    testWidgets('renders the goals screen inside the shell', (tester) async {
+      registerGoalsBloc(const CrudLoaded([]));
+
+      await tester.pumpApp(location: AppRoute.goals.path);
+
+      expect(find.byType(AppShell), findsOneWidget);
+      expect(find.byType(GoalsScreen), findsOneWidget);
+    });
+
     testWidgets('renders the login route without the shell', (tester) async {
       await tester.pumpApp(
         location: AppRoute.login.path,
@@ -261,13 +274,13 @@ void main() {
     testWidgets('navigates between sections from the rail', (tester) async {
       await tester.pumpApp();
 
-      await tester.tap(find.byIcon(AppDestination.goals.icon));
+      await tester.tap(find.byIcon(AppDestination.settings.icon));
       await tester.pumpAndSettle();
 
       expect(
         find.descendant(
           of: find.byType(PlaceholderScreen),
-          matching: find.text(AppRoute.goals.title),
+          matching: find.text(AppRoute.settings.title),
         ),
         findsOneWidget,
       );
@@ -292,7 +305,7 @@ void main() {
         AuthAuthenticated(testUser),
         stream: states.stream,
       );
-      await tester.pumpApp(location: AppRoute.goals.path, authBloc: bloc);
+      await tester.pumpApp(location: AppRoute.settings.path, authBloc: bloc);
       final router = GoRouter.of(tester.element(find.byType(AppShell)));
 
       await tester.tap(find.byTooltip(AppShell.signOutTooltip));
@@ -327,7 +340,7 @@ void main() {
       final states = StreamController<AuthState>.broadcast();
       addTearDown(states.close);
       await tester.pumpApp(
-        location: AppRoute.goals.path,
+        location: AppRoute.settingsProfile.path,
         authBloc: mockAuthBloc(
           const AuthUnauthenticated(),
           stream: states.stream,
@@ -341,7 +354,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(PlaceholderScreen),
-          matching: find.text(AppRoute.goals.title),
+          matching: find.text(AppRoute.settingsProfile.title),
         ),
         findsOneWidget,
       );
