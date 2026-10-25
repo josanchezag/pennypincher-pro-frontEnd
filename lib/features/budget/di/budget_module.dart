@@ -47,4 +47,10 @@ abstract class BudgetModule {
   @injectable
   RecalculateBudget recalculateBudget(MonthlyBudgetRepository repository) =>
       RecalculateBudget(repository);
+
+  @injectable
+  GetMonthlyComparison getMonthlyComparison(
+    MonthlyBudgetRepository repository,
+  ) =>
+      GetMonthlyComparison(repository);
 }

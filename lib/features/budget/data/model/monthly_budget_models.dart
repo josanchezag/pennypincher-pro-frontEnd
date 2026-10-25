@@ -2,6 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:pennypincher_pro/core/utils/api_enum.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_budget_entity.dart';
+import 'package:pennypincher_pro/features/budget/domain/entity/monthly_comparison_entity.dart';
 
 part 'monthly_budget_models.g.dart';
 
@@ -120,4 +121,57 @@ class UpdateBudgetRequestModel {
   final int? workDays;
 
   Map<String, dynamic> toJson() => _$UpdateBudgetRequestModelToJson(this);
+}
+
+double? _optionalPercent(num? json) => json?.toDouble();
+
+/// JSON shape of one month of the monthly comparison report. A month
+/// without a budget has `exists: false` and null figures.
+@JsonSerializable(createToJson: false)
+class MonthComparisonModel {
+  const MonthComparisonModel({
+    required this.year,
+    required this.month,
+    required this.exists,
+    this.totalIncome,
+    this.totalExpenses,
+    this.monthlyCashFlow,
+    this.cashFlowPercentage,
+  });
+
+  factory MonthComparisonModel.fromJson(Map<String, dynamic> json) =>
+      _$MonthComparisonModelFromJson(json);
+
+  final int year;
+  final int month;
+  final bool exists;
+  @JsonKey(fromJson: Money.fromOptionalJson)
+  final Money? totalIncome;
+  @JsonKey(fromJson: Money.fromOptionalJson)
+  final Money? totalExpenses;
+  @JsonKey(fromJson: Money.fromOptionalJson)
+  final Money? monthlyCashFlow;
+  @JsonKey(fromJson: _optionalPercent)
+  final double? cashFlowPercentage;
+
+  /// A month whose budget lacks one of its amounts is shown as having
+  /// none.
+  MonthComparison toEntity() {
+    final income = totalIncome;
+    final expenses = totalExpenses;
+    final cashFlow = monthlyCashFlow;
+    final complete =
+        exists && income != null && expenses != null && cashFlow != null;
+    return MonthComparison(
+      month: DateTime(year, month),
+      figures: complete
+          ? ComparisonFigures(
+              totalIncome: income,
+              totalExpenses: expenses,
+              cashFlow: cashFlow,
+              cashFlowPercentage: cashFlowPercentage,
+            )
+          : null,
+    );
+  }
 }

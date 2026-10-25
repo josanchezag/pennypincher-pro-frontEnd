@@ -10,6 +10,7 @@ import 'package:pennypincher_pro/core/time/clock.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pennypincher_pro/features/budget/domain/repository/income_source_repository.dart';
 import 'package:pennypincher_pro/features/budget/domain/repository/monthly_budget_repository.dart';
+import 'package:pennypincher_pro/features/budget/presentation/bloc/budget_comparison_bloc.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/income_source_bloc.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/repository/dashboard_repository.dart';
@@ -147,6 +148,19 @@ void main() {
 
     expect(blocs.first, isNot(same(blocs.last)));
     expect(blocs.first.state, const NetWorthReportState());
+  });
+
+  test('creates a fresh budget comparison bloc per screen', () {
+    final blocs = [
+      getIt<BudgetComparisonBloc>(),
+      getIt<BudgetComparisonBloc>(),
+    ];
+    for (final bloc in blocs) {
+      addTearDown(bloc.close);
+    }
+
+    expect(blocs.first, isNot(same(blocs.last)));
+    expect(blocs.first.state, const BudgetComparisonState());
   });
 
   test('points the HTTP client at the configured API base URL', () {

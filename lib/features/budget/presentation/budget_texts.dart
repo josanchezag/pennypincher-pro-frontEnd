@@ -65,6 +65,30 @@ abstract final class BudgetTexts {
   static const String updated = 'Budget updated';
   static const String recalculated = 'Budget recalculated';
 
+  static const String comparisonLink = 'Compare months';
+  static const String comparisonLoadingLabel = 'Loading budget comparison';
+  static const String comparisonLoadErrorTitle =
+      'Could not load the comparison';
+  static const String comparisonEmptyTitle = 'No budgets to compare yet';
+  static const String comparisonEmptyMessage =
+      'Create the budget of a month to compare its income and expenses '
+      'with the months around it.';
+  static const String openBudget = 'Open budget';
+  static const String backToBudget = 'Back to Budget Overview';
+  static const String comparisonSubtitlePrefix = 'Last';
+  static const String comparisonSubtitleSuffix = 'months up to';
+  static const String comparisonChartTitle = 'Income vs expenses';
+  static const String comparisonChartLabel = 'Budget comparison chart';
+  static const String comparisonTableTitle = 'Month by month';
+  static const String noBudget = 'No budget';
+  static const String detailSeparator = ' · ';
+  static const String noValue = '—';
+  static const String month = 'Month';
+  static const String income = 'Income';
+  static const String expenses = 'Expenses';
+  static const String cashFlowPercentShort = 'CF %';
+  static const String monthsWithBudget = 'with a budget';
+
   static const Map<BudgetComponentType, String> componentLabels = {
     BudgetComponentType.creditCards: 'Credit cards',
     BudgetComponentType.loans: 'Loans',

@@ -69,6 +69,8 @@ import 'package:pennypincher_pro/features/budget/domain/repository/monthly_budge
     as _i867;
 import 'package:pennypincher_pro/features/budget/domain/usecase/monthly_budget_use_cases.dart'
     as _i51;
+import 'package:pennypincher_pro/features/budget/presentation/bloc/budget_comparison_bloc.dart'
+    as _i307;
 import 'package:pennypincher_pro/features/budget/presentation/bloc/income_source_bloc.dart'
     as _i11;
 import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart'
@@ -376,6 +378,8 @@ extension GetItInjectableX on _i174.GetIt {
         budgetModule.updateMonthlyBudget(gh<_i867.MonthlyBudgetRepository>()));
     gh.factory<_i51.RecalculateBudget>(() =>
         budgetModule.recalculateBudget(gh<_i867.MonthlyBudgetRepository>()));
+    gh.factory<_i51.GetMonthlyComparison>(() =>
+        budgetModule.getMonthlyComparison(gh<_i867.MonthlyBudgetRepository>()));
     gh.factory<
         _i678.GetItems<_i107.VariableExpense,
             _i953.CategorizedDraft<_i107.VariableExpenseCategory>>>(() =>
@@ -443,6 +447,10 @@ extension GetItInjectableX on _i174.GetIt {
             _i953.CategorizedDraft<_i793.FixedExpenseCategory>>>(() =>
         expenseDetailsModule
             .deleteFixedExpense(gh<_i544.FixedExpenseRepository>()));
+    gh.factory<_i307.BudgetComparisonBloc>(() => _i307.BudgetComparisonBloc(
+          gh<_i51.GetMonthlyComparison>(),
+          gh<_i656.Clock>(),
+        ));
     gh.factory<_i1044.GetExpenseSummary>(() => expenseDetailsModule
         .getExpenseSummary(gh<_i436.ExpenseSummaryRepository>()));
     gh.factory<_i978.FixedExpenseBloc>(() => _i978.FixedExpenseBloc(

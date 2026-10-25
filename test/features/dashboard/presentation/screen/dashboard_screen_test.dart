@@ -14,6 +14,7 @@ import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
+import 'package:pennypincher_pro/features/budget/presentation/bloc/budget_comparison_bloc.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/dashboard_summary_entity.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/part_of_day.dart';
@@ -508,6 +509,7 @@ void main() {
       testWidgets('"$label" opens ${route.path}', (tester) async {
         registerExpensesHubBloc(const ExpensesHubState());
         registerNetWorthReportBloc(const NetWorthReportState());
+        registerBudgetComparisonBloc(const BudgetComparisonState());
         await pumpDashboard(tester, loadedDashboard(dashboardSummary));
 
         await tapAndSettle(tester, find.text(label));

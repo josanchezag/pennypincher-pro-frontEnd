@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:pennypincher_pro/core/error/failure.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_budget_entity.dart';
+import 'package:pennypincher_pro/features/budget/domain/entity/monthly_comparison_entity.dart';
 
 /// The user's monthly budgets.
 abstract interface class MonthlyBudgetRepository {
@@ -20,4 +21,11 @@ abstract interface class MonthlyBudgetRepository {
   /// Recalculates the budget with [id] from the current income and
   /// expenses.
   Future<Either<Failure, MonthlyBudget>> recalculate(String id);
+
+  /// The [months] months ending at the month of [month], oldest first,
+  /// including those without a budget.
+  Future<Either<Failure, List<MonthComparison>>> getComparison(
+    DateTime month, {
+    required int months,
+  });
 }

@@ -60,6 +60,7 @@ abstract final class ApiPaths {
   static const String projectionSuffix = '/projection';
   static const String dashboardSummary = '/dashboard/summary';
   static const String netWorthTrend = '/reports/net-worth-trend';
+  static const String monthlyComparison = '/reports/monthly-comparison';
 }
 
 /// Query parameters of the backend endpoints.
@@ -74,6 +75,9 @@ abstract final class ApiQueryParams {
 
   /// [groupBy] value of one point per monthly snapshot.
   static const String groupByMonth = 'month';
+
+  /// Number of months of a comparison report, ending at [month].
+  static const String months = 'months';
 }
 
 /// Keys of the backend response envelope (`{data, meta}` / `{error, meta}`).

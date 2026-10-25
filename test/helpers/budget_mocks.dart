@@ -2,6 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/income_source_entity.dart';
+import 'package:pennypincher_pro/features/budget/presentation/bloc/budget_comparison_bloc.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/income_source_bloc.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart';
 
@@ -34,3 +35,17 @@ MockMonthlyBudgetBloc registerMonthlyBudgetBloc(
       state,
       stream: stream,
     ) as MockMonthlyBudgetBloc;
+
+class MockBudgetComparisonBloc
+    extends MockBloc<BudgetComparisonEvent, BudgetComparisonState>
+    implements BudgetComparisonBloc {}
+
+MockBudgetComparisonBloc registerBudgetComparisonBloc(
+  BudgetComparisonState state, {
+  Stream<BudgetComparisonState> stream = const Stream.empty(),
+}) =>
+    registerBloc<BudgetComparisonBloc, BudgetComparisonState>(
+      MockBudgetComparisonBloc(),
+      state,
+      stream: stream,
+    ) as MockBudgetComparisonBloc;

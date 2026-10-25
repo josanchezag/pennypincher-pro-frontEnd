@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
@@ -20,6 +21,7 @@ class BudgetOverviewScreen extends StatelessWidget {
   const BudgetOverviewScreen({super.key});
 
   static const Key createBudgetKey = Key('create-budget-button');
+  static const Key comparisonKey = Key('budget-comparison-link');
 
   /// Placeholder of a stat card.
   static const double statSkeletonHeight = AppSpacing.xxxl + AppSpacing.lg;
@@ -117,6 +119,25 @@ class _Header extends StatelessWidget {
             style: AppTypography.heading1,
           ),
         ),
+        _HeaderActions(state: state),
+      ],
+    );
+  }
+}
+
+/// Month selector and the link to the comparison.
+class _HeaderActions extends StatelessWidget {
+  const _HeaderActions({required this.state});
+
+  final MonthlyBudgetState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: AppSpacing.sm,
+      runSpacing: AppSpacing.sm,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
         MonthSelector(
           month: state.month,
           first: BudgetLimits.firstMonth,
@@ -125,6 +146,12 @@ class _Header extends StatelessWidget {
           onChanged: (month) => context
               .read<MonthlyBudgetBloc>()
               .add(MonthlyBudgetMonthChanged(month)),
+        ),
+        OutlinedButton.icon(
+          key: BudgetOverviewScreen.comparisonKey,
+          onPressed: () => context.goNamed(AppRoute.budgetComparison.name),
+          icon: const Icon(Icons.bar_chart),
+          label: const Text(BudgetTexts.comparisonLink),
         ),
       ],
     );

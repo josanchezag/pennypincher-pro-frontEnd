@@ -1,6 +1,7 @@
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/income_source_entity.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_budget_entity.dart';
+import 'package:pennypincher_pro/features/budget/domain/entity/monthly_comparison_entity.dart';
 
 const IncomeSource avenueCode = IncomeSource(
   id: 'i1',
@@ -133,3 +134,51 @@ const Map<String, Object?> octoberBudgetJson = {
   'createdAt': '2026-10-22T12:00:00Z',
   'updatedAt': '2026-10-22T12:00:00Z',
 };
+
+/// Entry of the monthly comparison report of [month] of 2026, without a
+/// budget when [income] is null.
+Map<String, Object?> comparisonJson(
+  int month, {
+  num? income,
+  num? expenses,
+  double? percentage,
+}) =>
+    {
+      'year': 2026,
+      'month': month,
+      'exists': income != null,
+      'totalIncome': income,
+      'totalExpenses': expenses,
+      'monthlyCashFlow':
+          income == null || expenses == null ? null : income - expenses,
+      'cashFlowPercentage': percentage,
+    };
+
+MonthComparison comparisonOf(
+  int month, {
+  int? income,
+  int? expenses,
+  double? percentage,
+}) =>
+    MonthComparison(
+      month: DateTime(2026, month),
+      figures: income == null || expenses == null
+          ? null
+          : ComparisonFigures(
+              totalIncome: Money.fromPesos(income),
+              totalExpenses: Money.fromPesos(expenses),
+              cashFlow: Money.fromPesos(income - expenses),
+              cashFlowPercentage: percentage,
+            ),
+    );
+
+/// May to October 2026; July has no budget and September a negative cash
+/// flow.
+final List<MonthComparison> sixMonthComparison = [
+  comparisonOf(5, income: 30000000, expenses: 20000000, percentage: 33.33),
+  comparisonOf(6, income: 30000000, expenses: 27000000, percentage: 10),
+  comparisonOf(7),
+  comparisonOf(8, income: 30000000, expenses: 21000000, percentage: 30),
+  comparisonOf(9, income: 30000000, expenses: 33000000, percentage: -10),
+  comparisonOf(10, income: 37152922, expenses: 19135201, percentage: 48.5),
+];

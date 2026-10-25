@@ -43,3 +43,15 @@ Map<String, dynamic> _$UpdateBudgetRequestModelToJson(
       'exchangeRate': _optionalMoneyToJson(instance.exchangeRate),
       'workDays': instance.workDays,
     };
+
+MonthComparisonModel _$MonthComparisonModelFromJson(
+        Map<String, dynamic> json) =>
+    MonthComparisonModel(
+      year: (json['year'] as num).toInt(),
+      month: (json['month'] as num).toInt(),
+      exists: json['exists'] as bool,
+      totalIncome: Money.fromOptionalJson(json['totalIncome']),
+      totalExpenses: Money.fromOptionalJson(json['totalExpenses']),
+      monthlyCashFlow: Money.fromOptionalJson(json['monthlyCashFlow']),
+      cashFlowPercentage: _optionalPercent(json['cashFlowPercentage'] as num?),
+    );

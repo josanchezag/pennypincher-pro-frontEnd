@@ -91,4 +91,46 @@ void main() {
       isA<ServerFailure>().having((f) => f.code, 'code', 'CONFLICT'),
     );
   });
+
+  group('monthly comparison', () {
+    test('asks for the month of a date and sorts from the oldest', () async {
+      when(() => remote.getComparison(DateTime(2026, 10), months: 2))
+          .thenAnswer(
+        (_) async => [
+          MonthComparisonModel.fromJson(comparisonJson(10)),
+          MonthComparisonModel.fromJson(
+            comparisonJson(9, income: 10, expenses: 5),
+          ),
+        ],
+      );
+
+      final result =
+          await repository.getComparison(DateTime(2026, 10, 25, 8), months: 2);
+
+      final months = result.getOrElse(() => []);
+      expect(months.map((month) => month.month), [
+        DateTime(2026, 9),
+        DateTime(2026, 10),
+      ]);
+      expect(months.first.exists, isTrue);
+    });
+
+    test('turns a rejected request into a failure', () async {
+      when(() => remote.getComparison(DateTime(2026, 10), months: 6)).thenThrow(
+        const AppException(
+          code: 'VALIDATION_ERROR',
+          message: 'months must be between 1 and 24',
+          statusCode: 400,
+        ),
+      );
+
+      final result =
+          await repository.getComparison(DateTime(2026, 10), months: 6);
+
+      expect(
+        result.fold((failure) => failure.message, (_) => null),
+        'months must be between 1 and 24',
+      );
+    });
+  });
 }

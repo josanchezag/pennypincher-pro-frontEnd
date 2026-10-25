@@ -12,6 +12,8 @@ class _MockRepository extends Mock implements MonthlyBudgetRepository {}
 void main() {
   late _MockRepository repository;
 
+  setUpAll(() => registerFallbackValue(DateTime(2026)));
+
   setUp(() => repository = _MockRepository());
 
   test('delegate every budget operation to the repository', () async {
@@ -39,5 +41,32 @@ void main() {
   test('limit budgets to the months the backend accepts', () {
     expect(BudgetLimits.firstMonth, DateTime(2000));
     expect(BudgetLimits.lastMonth, DateTime(2100, 12));
+  });
+
+  test('compare six months up to the month of a date by default', () async {
+    when(
+      () => repository.getComparison(any(), months: any(named: 'months')),
+    ).thenAnswer((_) async => Right(sixMonthComparison));
+
+    final result =
+        await GetMonthlyComparison(repository)(DateTime(2026, 10, 25, 23));
+
+    expect(result.getOrElse(() => []), sixMonthComparison);
+    verify(() => repository.getComparison(DateTime(2026, 10), months: 6))
+        .called(1);
+  });
+
+  test('keep the number of months within what the API accepts', () async {
+    when(
+      () => repository.getComparison(any(), months: any(named: 'months')),
+    ).thenAnswer((_) async => const Right([]));
+
+    await GetMonthlyComparison(repository)(DateTime(2026, 10), months: 0);
+    await GetMonthlyComparison(repository)(DateTime(2026, 10), months: 36);
+
+    verify(() => repository.getComparison(DateTime(2026, 10), months: 1))
+        .called(1);
+    verify(() => repository.getComparison(DateTime(2026, 10), months: 24))
+        .called(1);
   });
 }

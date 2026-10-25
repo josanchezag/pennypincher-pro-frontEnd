@@ -10,4 +10,7 @@ abstract final class MonthFormat {
 
   /// `Oct '26`, for chart axes.
   static final DateFormat axis = DateFormat("MMM ''yy");
+
+  /// `Oct\n'26`, for chart axes with little room per month.
+  static final DateFormat axisStacked = DateFormat("MMM\n''yy");
 }

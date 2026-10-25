@@ -123,4 +123,101 @@ void main() {
       ),
     );
   });
+
+  group('monthly comparison', () {
+    test('asks for the months up to a local month', () async {
+      adapter.handler = (_) async => FakeResponse(
+            200,
+            envelope([
+              comparisonJson(9, income: 30000000.50, expenses: 1000000),
+              comparisonJson(10),
+            ]),
+          );
+
+      final models = await dataSource.getComparison(
+        DateTime(2026, 10),
+        months: 6,
+      );
+
+      final request = adapter.requests.single;
+      expect(request.method, 'GET');
+      expect(request.path, '/reports/monthly-comparison');
+      expect(request.queryParameters, {'months': 6, 'month': '2026-10'});
+      final september = models.first.toEntity();
+      expect(september.month, DateTime(2026, 9));
+      expect(
+        september.figures?.totalIncome,
+        const Money.fromCents(3000000050),
+      );
+      expect(september.figures?.cashFlowPercentage, isNull);
+    });
+
+    test('reads a month without a budget with null figures', () async {
+      adapter.handler =
+          (_) async => FakeResponse(200, envelope([comparisonJson(7)]));
+
+      final month = (await dataSource.getComparison(
+        DateTime(2026, 7),
+        months: 1,
+      ))
+          .single
+          .toEntity();
+
+      expect(month.exists, isFalse);
+      expect(month.figures, isNull);
+    });
+
+    test('treats a budget missing an amount as no budget', () async {
+      adapter.handler = (_) async => FakeResponse(
+            200,
+            envelope([
+              {
+                ...comparisonJson(8, income: 1, expenses: 1),
+                'monthlyCashFlow': null,
+              },
+            ]),
+          );
+
+      final models =
+          await dataSource.getComparison(DateTime(2026, 8), months: 1);
+
+      expect(models.single.toEntity().exists, isFalse);
+    });
+
+    test('reads the cash flow share as a double', () async {
+      adapter.handler = (_) async => FakeResponse(
+            200,
+            envelope([
+              comparisonJson(
+                10,
+                income: 37152922,
+                expenses: 19135201,
+                percentage: 48.5,
+              ),
+            ]),
+          );
+
+      final models =
+          await dataSource.getComparison(DateTime(2026, 10), months: 1);
+
+      expect(models.single.toEntity(), sixMonthComparison.last);
+    });
+
+    test('rejects an entry without its year', () {
+      adapter.handler = (_) async => FakeResponse(
+            200,
+            envelope([
+              {...comparisonJson(8), 'year': null},
+            ]),
+          );
+
+      expect(
+        () => dataSource.getComparison(DateTime(2026, 8), months: 1),
+        throwsA(
+          isA<AppException>()
+              .having((e) => e.code, 'code', ErrorCodes.invalidResponse),
+        ),
+      );
+    });
+  });
 }

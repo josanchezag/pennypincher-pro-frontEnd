@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
@@ -13,6 +14,7 @@ import 'package:pennypincher_pro/core/widgets/month_selector.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/income_source_entity.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_budget_entity.dart';
+import 'package:pennypincher_pro/features/budget/presentation/bloc/budget_comparison_bloc.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart';
 import 'package:pennypincher_pro/features/budget/presentation/budget_texts.dart';
 import 'package:pennypincher_pro/features/budget/presentation/screen/budget_overview_screen.dart';
@@ -496,5 +498,22 @@ void main() {
       findsOneWidget,
     );
     expect(find.textContaining('Budget created'), findsNothing);
+  });
+
+  testWidgets('opens the comparison from the header', (tester) async {
+    await pumpOverview(tester, _loaded);
+    registerBudgetComparisonBloc(const BudgetComparisonState());
+
+    await tester.tap(find.byKey(BudgetOverviewScreen.comparisonKey));
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(
+      GoRouter.of(tester.element(find.byType(Scaffold).first))
+          .routeInformationProvider
+          .value
+          .uri
+          .path,
+      AppRoute.budgetComparison.path,
+    );
   });
 }
