@@ -1,0 +1,42 @@
+# Weekly, grouped updates: one pull request per ecosystem and week.
+# Security updates (Dependabot alerts) are not limited by this schedule.
+version: 2
+updates:
+  - package-ecosystem: pub
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      pub:
+        patterns: ["*"]
+        update-types: [minor, patch]
+    labels: [dependencies]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      github-actions:
+        patterns: ["*"]
+    labels: [dependencies]
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      docker:
+        patterns: ["*"]
+    ignore:
+      # Flutter is pinned to 3.24.x (pubspec.yaml, CI, tool/flutter_sdk.sh);
+      # upgrade it deliberately in all of them at once.
+      - dependency-name: "cirruslabs/flutter"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "nginx"
+        update-types: ["version-update:semver-major"]
+    labels: [dependencies]

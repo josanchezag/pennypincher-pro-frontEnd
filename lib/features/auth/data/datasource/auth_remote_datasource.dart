@@ -1,6 +1,10 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:pennypincher_pro/core/config/app_config.dart';
 import 'package:pennypincher_pro/core/constants/app_constants.dart';
+import 'package:pennypincher_pro/core/error/app_exception.dart';
+import 'package:pennypincher_pro/core/error/error_codes.dart';
 import 'package:pennypincher_pro/core/network/api_envelope.dart';
 import 'package:pennypincher_pro/features/auth/data/model/auth_session_model.dart';
 import 'package:pennypincher_pro/features/auth/data/model/google_authorization.dart';
@@ -37,8 +41,18 @@ class DioAuthRemoteDataSource implements AuthRemoteDataSource {
   ) =>
       _postSession(ApiPaths.googleCallback, body: authorization.toJson());
 
+  /// Both conditions are compile-time constants: a release build without
+  /// `DEV_LOGIN=true` contains neither the request nor its path.
   @override
-  Future<AuthSessionModel> devLogin() => _postSession(ApiPaths.devLogin);
+  Future<AuthSessionModel> devLogin() async {
+    if (kReleaseMode && !AppConfig.devLoginCompiled) {
+      throw const AppException(
+        code: ErrorCodes.unknown,
+        message: ErrorMessages.unexpected,
+      );
+    }
+    return _postSession(ApiPaths.devLogin);
+  }
 
   @override
   Future<AuthSessionModel> refresh() => _postSession(ApiPaths.refresh);

@@ -1,0 +1,14 @@
+# Reviewed exceptions for osv-scanner (tool/osv_scan.sh, CI job "security").
+#
+# Add an entry ONLY for a finding proven not to apply to this app (for
+# example, a vulnerability in a code path of the package that the app never
+# uses, or one that only affects a platform other than web). Each entry needs
+# the advisory id, a concrete reason and an expiry date so that it is
+# reviewed again:
+#
+# [[IgnoredVulns]]
+# id = "GHSA-xxxx-xxxx-xxxx"
+# ignoreUntil = 2027-01-31
+# reason = "Only affects <feature>, which this app does not use: <evidence>."
+#
+# Last review: 2026-11-01, no findings in pubspec.lock, so no exceptions.

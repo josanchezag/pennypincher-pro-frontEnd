@@ -86,3 +86,6 @@ Thumbs.db
 *.log
 *.swp
 .history/
+
+# --- Vercel ---
+.vercel/

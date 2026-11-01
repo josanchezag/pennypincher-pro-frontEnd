@@ -9,6 +9,11 @@ class AppConfig {
     required this.devLoginEnabled,
   });
 
+  /// `DEV_LOGIN` as a compile-time constant. Code guarded by it (together
+  /// with `kReleaseMode`) is removed from release builds without
+  /// `DEV_LOGIN=true`.
+  static const bool devLoginCompiled = bool.fromEnvironment(EnvKeys.devLogin);
+
   /// Reads the compile-time environment. A missing client id is empty and
   /// dev login stays disabled unless `DEV_LOGIN=true`. The calls must stay
   /// `const` so the compiler inlines the values.
@@ -22,7 +27,7 @@ class AppConfig {
           EnvKeys.googleRedirectUri,
           defaultValue: EnvDefaults.googleRedirectUri,
         ),
-        devLoginEnabled: bool.fromEnvironment(EnvKeys.devLogin),
+        devLoginEnabled: devLoginCompiled,
       );
 
   final String apiBaseUrl;

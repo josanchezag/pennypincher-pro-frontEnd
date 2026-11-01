@@ -118,13 +118,98 @@ basta `--dart-define=DEV_LOGIN=true` con el backend en el perfil `local`.
 
 ```bash
 flutter build web --release \
-  --dart-define=API_BASE_URL=https://<backend>.onrender.com/api/v1 \
+  --dart-define=API_BASE_URL=https://api.pennypincherpro.online/api/v1 \
   --dart-define=GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com \
-  --dart-define=GOOGLE_REDIRECT_URI=https://<frontend>/auth.html
+  --dart-define=GOOGLE_REDIRECT_URI=https://app.pennypincherpro.online/auth.html
 ```
 
 El resultado queda en `build/web` y se puede servir desde cualquier hosting estático con
 *fallback* a `index.html` (rutas SPA).
+
+## Despliegue en Vercel
+
+Producción: `https://app.pennypincherpro.online` (esta app, en Vercel) y
+`https://api.pennypincherpro.online` (backend, en Render). Todo se hace desde el navegador,
+también desde el teléfono. No se guarda ningún token de Vercel en GitHub: Vercel compila el
+repositorio directamente con su integración de Git.
+
+### Cómo compila Vercel
+
+Vercel no trae Flutter, así que `vercel.json` le indica dos scripts:
+
+- `tool/vercel_install.sh` descarga Flutter **3.24.5** de `storage.googleapis.com`, comprueba
+  su SHA-256 (fijado en `tool/flutter_sdk.sh`, tomado de `releases_linux.json`) antes de
+  descomprimirlo y ejecuta `flutter pub get --enforce-lockfile`.
+- `tool/vercel_build.sh` compila con `flutter build web --release --no-web-resources-cdn` y deja
+  el resultado en `build/web`. **Falla sin publicar nada** si falta alguna variable, si
+  `DEV_LOGIN` o `FLUTTER_DEV_LOGIN` tienen otro valor que `false`, si alguna URL no es `https`
+  o apunta a `localhost`, si la CSP de `vercel.json` no permite el origen de
+  `FLUTTER_API_BASE_URL`, o si el bundle contiene `localhost` o el *dev login*.
+
+`vercel.json` reproduce las cabeceras de `nginx.conf` (CSP, `X-Frame-Options: DENY`,
+`nosniff`, `Referrer-Policy`, `Permissions-Policy`, `Cross-Origin-Opener-Policy`), añade
+`Strict-Transport-Security: max-age=63072000; includeSubDomains` y usa la misma caché
+(`no-cache` en todo salvo `canvaskit/` e `icons/`, 1 día). Las rutas SPA vuelven a
+`index.html`, pero los archivos reales (`auth.html`, `flutter_service_worker.js`, ...) se
+sirven tal cual y lo que falte en `assets/`, `canvaskit/` o `icons/` da 404.
+
+> **Importante:** `vercel.json` no admite variables, así que el origen de la API está escrito
+> en su CSP (`connect-src ... https://api.pennypincherpro.online ...`). Si cambias
+> `FLUTTER_API_BASE_URL`, cambia también la CSP de `vercel.json`: el build de Vercel y CI
+> (`dart tool/check_vercel_config.dart`) fallan mientras no coincidan.
+
+### Paso a paso (una sola vez)
+
+1. **Importar el repositorio.** En [vercel.com](https://vercel.com) → *Add New…* → *Project* →
+   *Continue with GitHub*. Cuando GitHub pregunte qué repositorios puede ver la app de Vercel,
+   elige **Only select repositories** y marca solo `pennypincher-pro-frontend`. Pulsa
+   *Import*.
+2. **Configurar el proyecto** (pantalla de importación): *Framework Preset* **Other**. No
+   cambies *Build Command*, *Install Command* ni *Output Directory*: los toma de `vercel.json`.
+3. **Variables de entorno.** En la misma pantalla (o después en *Settings* → *Environment
+   Variables*), crea estas tres, marcando solo el entorno **Production**:
+
+   | Nombre | Valor |
+   |---|---|
+   | `FLUTTER_API_BASE_URL` | `https://api.pennypincherpro.online/api/v1` |
+   | `FLUTTER_GOOGLE_CLIENT_ID` | `<tu-client-id>.apps.googleusercontent.com` |
+   | `FLUTTER_GOOGLE_REDIRECT_URI` | `https://app.pennypincherpro.online/auth.html` |
+
+   No crees `DEV_LOGIN`. Son valores públicos (acaban dentro del JavaScript), pero no
+   secretos: el *Client secret* de Google solo lo tiene el backend. Si las variables no
+   existen en *Preview*, los despliegues de prueba de otras ramas fallan con un mensaje claro y
+   no publican nada; si quieres verlos, añade las mismas tres también a *Preview*.
+4. Pulsa **Deploy**. El primer build tarda unos minutos (descarga Flutter). Si falla, abre el
+   despliegue → *Build Logs*: las líneas `ERROR:` dicen qué falta.
+5. **Dominio.** *Settings* → *Domains* → *Add Domain* → `app.pennypincherpro.online`. Vercel
+   muestra el registro que necesita: un **CNAME** `app` con un valor propio del proyecto
+   (algo como `xxxxxxxx.vercel-dns-0xx.com`). Cópialo tal cual.
+6. **Cloudflare.** En el panel de Cloudflare → `pennypincherpro.online` → *DNS* → *Records* →
+   *Add record*: tipo `CNAME`, nombre `app`, destino el valor del paso anterior, y el *Proxy
+   status* en **DNS only** (nube gris), como recomienda Vercel. Si Vercel pide además un
+   registro `TXT` en `_vercel`, créalo igual. Espera a que Vercel marque el dominio como
+   *Valid Configuration*; el certificado HTTPS lo emite Vercel.
+7. **Proteger los despliegues de prueba.** *Settings* → *Deployment Protection* → *Vercel
+   Authentication* activado con **Standard Protection** (protege todos los *Preview* y las URL
+   `*.vercel.app`; el dominio de producción sigue público). Guarda.
+8. **Google y backend.** En Google Cloud Console añade `https://app.pennypincherpro.online` a
+   *Authorized JavaScript origins* y `https://app.pennypincherpro.online/auth.html` a
+   *Authorized redirect URIs*. En Render, el backend debe tener
+   `https://app.pennypincherpro.online` en `CORS_ALLOWED_ORIGINS` y la URI de retorno en
+   `GOOGLE_ALLOWED_REDIRECT_URIS`.
+9. **Comprobar.** Abre `https://app.pennypincherpro.online` e inicia sesión. Después analiza
+   el dominio en [securityheaders.com](https://securityheaders.com) (marca *Hide results*):
+   deben aparecer las siete cabeceras de arriba. En la app, `/auth.html` debe cargar sin
+   errores de CSP.
+
+Cada *push* a `master` despliega producción; las demás ramas generan *Preview* protegidos.
+
+Referencias: [límites de build](https://vercel.com/docs/builds) (45 min, 8 GB de RAM y 2 CPU en
+Hobby), [imagen de build](https://vercel.com/docs/builds/build-image) (Amazon Linux 2023),
+[`vercel.json`](https://vercel.com/docs/project-configuration/vercel-json),
+[dominios](https://vercel.com/docs/domains/working-with-domains/add-a-domain),
+[Cloudflare con Vercel](https://vercel.com/kb/guide/cloudflare-with-vercel),
+[Vercel Authentication](https://vercel.com/docs/deployment-protection/methods-to-protect-deployments/vercel-authentication).
 
 ## Docker
 
@@ -158,7 +243,7 @@ docker run --rm -p 3000:80 pennypincher-frontend
 - Cabeceras de seguridad: CSP, `X-Frame-Options: DENY`, `X-Content-Type-Options`,
   `Referrer-Policy`, `Permissions-Policy` y `Cross-Origin-Opener-Policy`
   (`same-origin-allow-popups`, compatible con la ventana emergente del login de Google).
-  HSTS se configura en el proxy o CDN que termina TLS. `connect-src` también permite
+  HSTS se configura en el proxy o CDN que termina TLS (en Vercel, en `vercel.json`). `connect-src` también permite
   `fonts.gstatic.com` (fuentes de respaldo de CanvasKit) y `*.googleusercontent.com` (fotos de
   perfil de Google cargadas con `Image.network`). La página de retorno del login con Google
   (`auth.html`) no necesita cambios en la CSP: su lógica está en el script externo
@@ -222,8 +307,9 @@ flutter build web --release
 
 ## Integración continua
 
-`.github/workflows/ci.yml` corre en cada *push* a `master` y en cada *pull request*, con
-Flutter 3.24.5 fijado:
+`.github/workflows/ci.yml` corre en cada *push* a `master`, en cada *pull request* y a mano
+(*Run workflow*), con Flutter 3.24.5 fijado. Todas las *actions* están fijadas a un commit
+(SHA) y el workflow solo tiene permiso de lectura.
 
 1. `flutter pub get --enforce-lockfile`
 2. `dart format --set-exit-if-changed .`
@@ -231,8 +317,18 @@ Flutter 3.24.5 fijado:
    versionado debe estar al día, sin archivos modificados ni nuevos)
 4. `flutter analyze --fatal-infos`
 5. `flutter test --coverage` (sube `coverage/lcov.info` como artefacto)
-6. `flutter build web --release`
-7. Job `docker`: construye la imagen y hace un *smoke test* contra `/healthz`, `/` y un deep link.
+6. `vercel.json`: JSON válido y mismas cabeceras que `nginx.conf`, con la CSP permitiendo la
+   API de producción (`dart tool/check_vercel_config.dart`); `shellcheck` de `tool/*.sh`.
+7. `tool/vercel_build.sh` rechaza `DEV_LOGIN=true`, variables vacías, `localhost` y una API
+   que no coincide con la CSP, y luego compila el bundle de producción como en Vercel.
+8. Job `docker`: construye la imagen y hace un *smoke test* contra `/healthz`, `/` y un deep link.
+9. Job `security` (también cada lunes): `osv-scanner` sobre `pubspec.lock`
+   (`tool/osv_scan.sh`, falla con hallazgos HIGH/CRITICAL o sin puntuación; las excepciones
+   revisadas van en `osv-scanner.toml` con motivo y fecha de caducidad) y `gitleaks` sobre todo
+   el historial. Ambos se compilan con `go install` (verificado por `sum.golang.org`).
+
+`.github/dependabot.yml` propone cada lunes actualizaciones agrupadas de pub, GitHub Actions y
+Docker.
 
 ## Estado
 
