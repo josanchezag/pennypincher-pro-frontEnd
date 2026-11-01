@@ -4,6 +4,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:pennypincher_pro/core/error/error_codes.dart';
 import 'package:pennypincher_pro/core/error/failure.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/restore_session.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_dev_login.dart';
@@ -11,6 +12,7 @@ import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_googl
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_out.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/watch_session_expiry.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:pennypincher_pro/features/auth/presentation/bloc/sign_in_messages.dart';
 
 import '../../../../helpers/mocks.dart';
 
@@ -87,6 +89,18 @@ void main() {
     );
 
     blocTest<AuthBloc, AuthState>(
+      'signs out without an error when the account is no longer allowed',
+      setUp: () => when(restoreSession.call).thenAnswer(
+        (_) async => const Left(
+          ServerFailure('Not allowed', code: ErrorCodes.accountNotAllowed),
+        ),
+      ),
+      build: buildBloc,
+      act: (bloc) => bloc.add(const AuthCheckRequested()),
+      expect: () => [const AuthLoading(), const AuthUnauthenticated()],
+    );
+
+    blocTest<AuthBloc, AuthState>(
       'keeps an active session without calling the backend',
       build: buildBloc,
       seed: () => AuthAuthenticated(testUser),
@@ -127,6 +141,36 @@ void main() {
       expect: () => [
         const AuthLoading(),
         const AuthError('Sign-in was cancelled.'),
+      ],
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'explains a refused account instead of the backend message',
+      setUp: () => when(signInWithGoogle.call).thenAnswer(
+        (_) async => const Left(
+          ServerFailure('Not allowed', code: ErrorCodes.accountNotAllowed),
+        ),
+      ),
+      build: buildBloc,
+      act: (bloc) => bloc.add(const AuthSignInRequested()),
+      expect: () => [
+        const AuthLoading(),
+        const AuthError(SignInMessages.accountNotAllowed),
+      ],
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'explains that sign-ups are closed',
+      setUp: () => when(signInWithGoogle.call).thenAnswer(
+        (_) async => const Left(
+          ServerFailure('Closed', code: ErrorCodes.registrationDisabled),
+        ),
+      ),
+      build: buildBloc,
+      act: (bloc) => bloc.add(const AuthSignInRequested()),
+      expect: () => [
+        const AuthLoading(),
+        const AuthError(SignInMessages.registrationDisabled),
       ],
     );
 

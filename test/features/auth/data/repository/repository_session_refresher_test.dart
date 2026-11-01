@@ -34,6 +34,16 @@ void main() {
     expect(await refresher.refreshSession(), RefreshOutcome.rejected);
   });
 
+  test('ends the session when the account is no longer allowed', () async {
+    when(repository.refreshSession).thenAnswer(
+      (_) async => const Left(
+        ServerFailure('Not allowed', code: ErrorCodes.accountNotAllowed),
+      ),
+    );
+
+    expect(await refresher.refreshSession(), RefreshOutcome.rejected);
+  });
+
   test('never ends the session for a superseded refresh', () async {
     when(repository.refreshSession).thenAnswer(
       (_) async => const Left(

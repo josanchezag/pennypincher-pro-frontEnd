@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/constants/app_constants.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:pennypincher_pro/features/auth/presentation/bloc/sign_in_messages.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/login_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/widget/google_sign_in_button.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/screen/dashboard_screen.dart';
@@ -89,6 +91,19 @@ void main() {
     expect(find.byType(SnackBar), findsOneWidget);
     expect(find.text('Sign-in was cancelled.'), findsOneWidget);
     expect(_button(tester).onPressed, isNotNull);
+  });
+
+  testWidgets('stays on /login and explains a refused Google account',
+      (tester) async {
+    await pumpLogin(tester);
+    final router = GoRouter.of(tester.element(find.byType(LoginScreen)));
+
+    states.add(const AuthError(SignInMessages.accountNotAllowed));
+    await tester.pumpAndSettle();
+
+    expect(find.text(SignInMessages.accountNotAllowed), findsOneWidget);
+    expect(find.byType(LoginScreen), findsOneWidget);
+    expect(router.routeInformationProvider.value.uri.toString(), '/login');
   });
 
   testWidgets('opens the dashboard once signed in', (tester) async {

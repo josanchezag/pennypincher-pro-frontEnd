@@ -11,6 +11,7 @@ import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_dev_l
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_google.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_out.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/watch_session_expiry.dart';
+import 'package:pennypincher_pro/features/auth/presentation/bloc/sign_in_messages.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -54,7 +55,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await action();
     emit(
       result.fold(
-        (failure) => AuthError(failure.message),
+        (failure) => AuthError(SignInMessages.forFailure(failure)),
         AuthAuthenticated.new,
       ),
     );

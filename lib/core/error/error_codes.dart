@@ -8,6 +8,13 @@ abstract final class ErrorCodes {
   /// Backend: another tab rotated the refresh cookie first. The browser
   /// already holds the newer cookie, so the refresh is simply retried.
   static const String refreshSuperseded = 'REFRESH_SUPERSEDED';
+
+  /// Backend (403): the Google account is not on the sign-in allowlist.
+  /// On a refresh it also means the session is over.
+  static const String accountNotAllowed = 'ACCOUNT_NOT_ALLOWED';
+
+  /// Backend (403): a new account tried to sign in while sign-ups are closed.
+  static const String registrationDisabled = 'REGISTRATION_DISABLED';
 }
 
 /// User-facing messages for errors without a backend message.
