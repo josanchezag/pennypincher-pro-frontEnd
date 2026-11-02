@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 /// The form that creates an item of type [T] or edits it, producing drafts
@@ -11,8 +12,9 @@ abstract class ItemForm<T extends CrudItem, D> {
   /// Controls of the form, filled with [initial] when it is being edited.
   FormGroup formGroup(T? initial);
 
-  /// Fields of the form, top to bottom.
-  List<Widget> formFields();
+  /// Fields of the form, top to bottom, labelled in the language of
+  /// [l10n].
+  List<Widget> formFields(AppLocalizations l10n);
 
   /// Draft read from a valid [form].
   D draftOf(FormGroup form);

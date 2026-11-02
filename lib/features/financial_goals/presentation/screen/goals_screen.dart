@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/widgets/app_snackbar.dart';
@@ -11,7 +12,6 @@ import 'package:pennypincher_pro/core/widgets/status_message.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/halfway_milestone.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/bloc/goals_bloc.dart';
-import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_card.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_form_sheet.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_list.dart';
@@ -62,7 +62,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
           floatingActionButton: state is CrudLoaded<FinancialGoal>
               ? FloatingActionButton(
                   key: GoalsScreen.addButtonKey,
-                  tooltip: GoalsTexts.addGoal,
+                  tooltip: context.l10n.goalsAddGoal,
                   onPressed: state.busy ? null : () => _edit(context, null),
                   child: const Icon(Icons.add),
                 )
@@ -89,18 +89,18 @@ class _GoalsScreenState extends State<GoalsScreen> {
   }
 
   Widget _body(BuildContext context, _State state) => switch (state) {
-        CrudLoading<FinancialGoal>() => const LoadingSkeleton(
+        CrudLoading<FinancialGoal>() => LoadingSkeleton(
             heights: GoalsScreen.skeletonHeights,
-            label: GoalsTexts.loadingLabel,
+            label: context.l10n.goalsLoadingLabel,
           ),
         CrudLoadFailure<FinancialGoal>(:final message) => StatusMessage(
             icon: Icons.cloud_off_outlined,
-            title: GoalsTexts.loadErrorTitle,
+            title: context.l10n.goalsLoadErrorTitle,
             message: message,
             action: FilledButton.icon(
               onPressed: () => _reload(context),
               icon: const Icon(Icons.refresh),
-              label: const Text(GoalsTexts.retry),
+              label: Text(context.l10n.commonRetry),
             ),
           ),
         CrudLoaded<FinancialGoal>(:final items, :final busy) =>
@@ -157,9 +157,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
   ) async {
     final confirmed = await ConfirmationDialog.show(
       context,
-      title: GoalsTexts.deleteTitle,
-      message: '"${goal.name}" ${GoalsTexts.deleteMessageSuffix}',
-      confirmLabel: GoalsTexts.delete,
+      title: context.l10n.goalsDeleteTitle,
+      message: context.l10n.goalsDeleteMessage(goal.name),
+      confirmLabel: context.l10n.commonDelete,
     );
     if (confirmed) {
       bloc.add(CrudDeleteRequested<GoalDraft>(goal.id));

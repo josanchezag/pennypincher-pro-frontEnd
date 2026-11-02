@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/theme/progress_band.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/progress_ring.dart';
-import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
 
 /// Ring that fills with the progress toward a goal, colored by its
 /// [ProgressBand], with the percentage in large type in its center. A null
@@ -23,7 +23,7 @@ class GoalCircularProgress extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = PercentFormatter.formatOptional(ProgressBand.shown(percent));
     return Semantics(
-      label: '${GoalsTexts.progress} $text',
+      label: context.l10n.goalsProgress(text),
       child: ExcludeSemantics(
         child: ProgressRing(
           percent: percent,

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 
 /// Asks the user to confirm a destructive action.
 abstract final class ConfirmationDialog {
-  static const String cancelLabel = 'Cancel';
-
   /// Resolves to true only when the user pressed [confirmLabel].
   static Future<bool> show(
     BuildContext context, {
@@ -20,7 +19,7 @@ abstract final class ConfirmationDialog {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text(cancelLabel),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.error),

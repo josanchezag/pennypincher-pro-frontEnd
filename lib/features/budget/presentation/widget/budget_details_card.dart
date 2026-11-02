@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_budget_entity.dart';
-import 'package:pennypincher_pro/features/budget/presentation/budget_texts.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_section_card.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_value_dialog.dart';
 
@@ -34,17 +34,17 @@ class BudgetDetailsCard extends StatelessWidget {
     final rate = settings.exchangeRate;
     final days = settings.workDays;
     return BudgetSectionCard(
-      title: BudgetTexts.detailsTitle,
+      title: context.l10n.budgetDetailsTitle,
       children: [
         _EditableValue(
           editKey: exchangeRateEditKey,
-          label: BudgetTexts.exchangeRate,
+          label: context.l10n.budgetExchangeRate,
           value: rate == null ? null : CurrencyFormatter.formatWithCents(rate),
           onEdit: enabled ? () => _editExchangeRate(context) : null,
         ),
         _EditableValue(
           editKey: workDaysEditKey,
-          label: BudgetTexts.workDays,
+          label: context.l10n.budgetWorkDays,
           value: days?.toString(),
           onEdit: enabled ? () => _editWorkDays(context) : null,
         ),
@@ -55,10 +55,10 @@ class BudgetDetailsCard extends StatelessWidget {
   Future<void> _editExchangeRate(BuildContext context) async {
     final text = await BudgetValueDialog.show(
       context,
-      label: BudgetTexts.exchangeRate,
+      label: context.l10n.budgetExchangeRate,
       initialText: settings.exchangeRate?.toInputString() ?? '',
       isValid: (text) => _parseRate(text) != null,
-      errorMessage: BudgetTexts.exchangeRateInvalid,
+      errorMessage: context.l10n.budgetExchangeRateInvalid,
       allowedCharacters: _rateCharacters,
     );
     if (text != null) {
@@ -69,10 +69,11 @@ class BudgetDetailsCard extends StatelessWidget {
   Future<void> _editWorkDays(BuildContext context) async {
     final text = await BudgetValueDialog.show(
       context,
-      label: BudgetTexts.workDays,
+      label: context.l10n.budgetWorkDays,
       initialText: settings.workDays?.toString() ?? '',
       isValid: (text) => _parseDays(text) != null,
-      errorMessage: BudgetTexts.workDaysInvalid,
+      errorMessage:
+          context.l10n.budgetWorkDaysInvalid(BudgetLimits.maxWorkDays),
       allowedCharacters: FilteringTextInputFormatter.digitsOnly,
     );
     if (text != null) {
@@ -108,7 +109,7 @@ class _EditableValue extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final shown = value ?? BudgetTexts.notSet;
+    final shown = value ?? context.l10n.budgetNotSet;
     return Row(
       children: [
         Expanded(child: Text(label, style: AppTypography.bodyMedium)),
@@ -120,7 +121,7 @@ class _EditableValue extends StatelessWidget {
         ),
         IconButton(
           key: editKey,
-          tooltip: '${BudgetTexts.editPrefix} $label',
+          tooltip: context.l10n.budgetEditValue(label),
           icon: const Icon(Icons.edit_outlined),
           onPressed: onEdit,
         ),

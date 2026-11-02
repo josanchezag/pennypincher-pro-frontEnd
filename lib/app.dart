@@ -2,20 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pennypincher_pro/core/constants/app_constants.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
+import 'package:pennypincher_pro/core/l10n/locale_cubit.dart';
 import 'package:pennypincher_pro/core/theme/app_theme.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 
-/// Root widget: wires the theme, the router and the session state, and
-/// starts the session check as soon as the app starts.
+/// Root widget: wires the theme, the language, the router and the session
+/// state, and starts the session check as soon as the app starts.
 class PennyPincherApp extends StatefulWidget {
   const PennyPincherApp({
     required this.router,
     required this.authBloc,
+    required this.localeCubit,
     super.key,
   });
 
   final GoRouter router;
   final AuthBloc authBloc;
+  final LocaleCubit localeCubit;
 
   @override
   State<PennyPincherApp> createState() => _PennyPincherAppState();
@@ -30,15 +34,24 @@ class _PennyPincherAppState extends State<PennyPincherApp> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<AuthBloc>.value(
-      value: widget.authBloc,
-      child: MaterialApp.router(
-        title: AppConstants.appName,
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.dark,
-        darkTheme: AppTheme.dark,
-        themeMode: ThemeMode.dark,
-        routerConfig: widget.router,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthBloc>.value(value: widget.authBloc),
+        BlocProvider<LocaleCubit>.value(value: widget.localeCubit),
+      ],
+      child: BlocBuilder<LocaleCubit, Locale>(
+        bloc: widget.localeCubit,
+        builder: (context, locale) => MaterialApp.router(
+          title: AppConstants.appName,
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.dark,
+          darkTheme: AppTheme.dark,
+          themeMode: ThemeMode.dark,
+          locale: locale,
+          supportedLocales: AppLocales.supported,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          routerConfig: widget.router,
+        ),
       ),
     );
   }

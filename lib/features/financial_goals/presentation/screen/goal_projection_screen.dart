@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_breakpoints.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
@@ -12,7 +13,6 @@ import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:pennypincher_pro/core/widgets/status_message.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_projection_entity.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/bloc/goal_projection_bloc.dart';
-import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_figures.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_level_badge.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/projection_chart.dart';
@@ -39,9 +39,9 @@ class GoalProjectionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<GoalProjectionBloc, GoalProjectionState>(
       builder: (context, state) => switch (state) {
-        GoalProjectionLoading() => const LoadingSkeleton(
+        GoalProjectionLoading() => LoadingSkeleton(
             heights: skeletonHeights,
-            label: GoalsTexts.projectionLoading,
+            label: context.l10n.goalsProjectionLoading,
           ),
         final GoalProjectionFailure failure =>
           _FailureMessage(failure: failure, goalId: goalId),
@@ -65,25 +65,27 @@ class _FailureMessage extends StatelessWidget {
     if (failure.notFound) {
       return StatusMessage(
         icon: Icons.search_off_outlined,
-        title: GoalsTexts.goalNotFoundTitle,
-        message: GoalsTexts.goalNotFoundMessage,
+        title: context.l10n.goalsNotFoundTitle,
+        message: context.l10n.goalsNotFoundMessage,
         action: FilledButton.icon(
           onPressed: () => context.goNamed(AppRoute.goals.name),
           icon: const Icon(Icons.arrow_back),
-          label: const Text(GoalsTexts.backToGoals),
+          label: Text(
+            context.l10n.commonBackTo(AppRoute.goals.title(context.l10n)),
+          ),
         ),
       );
     }
     return StatusMessage(
       icon: Icons.cloud_off_outlined,
-      title: GoalsTexts.projectionErrorTitle,
+      title: context.l10n.goalsProjectionErrorTitle,
       message: failure.message,
       action: FilledButton.icon(
         onPressed: () => context
             .read<GoalProjectionBloc>()
             .add(GoalProjectionRequested(goalId)),
         icon: const Icon(Icons.refresh),
-        label: const Text(GoalsTexts.retry),
+        label: Text(context.l10n.commonRetry),
       ),
     );
   }
@@ -101,7 +103,8 @@ class _ProjectionContent extends StatelessWidget {
       children: [
         ScreenTitleRow(
           title: projection.name,
-          backTooltip: GoalsTexts.backToGoals,
+          backTooltip:
+              context.l10n.commonBackTo(AppRoute.goals.title(context.l10n)),
           parent: AppRoute.goals.name,
         ),
         const SizedBox(height: AppSpacing.xs),
@@ -137,12 +140,12 @@ class _Figures extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) =>
           ScreenSize.fromWidth(constraints.maxWidth) == ScreenSize.mobile
-              ? _compact()
-              : _cards(),
+              ? _compact(context.l10n)
+              : _cards(context.l10n),
     );
   }
 
-  Widget _compact() => Card(
+  Widget _compact(AppLocalizations l10n) => Card(
         key: GoalProjectionScreen.compactFiguresKey,
         margin: EdgeInsets.zero,
         child: Padding(
@@ -154,43 +157,43 @@ class _Figures extends StatelessWidget {
                 children: [
                   Expanded(
                     child: LabeledFigure(
-                      label: GoalsTexts.target,
+                      label: l10n.goalsTarget,
                       value: GoalFormat.amount(projection.targetAmount),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: LabeledFigure(
-                      label: GoalsTexts.currentNetWorth,
+                      label: l10n.goalsCurrentNetWorth,
                       value: GoalFormat.amount(projection.currentNetWorth),
                     ),
                   ),
                 ],
               ),
               LabeledFigure(
-                label: GoalsTexts.projectedDate,
-                value: GoalFormat.achievement(projection),
+                label: l10n.goalsProjectedDate,
+                value: GoalFormat.achievement(l10n, projection),
               ),
             ],
           ),
         ),
       );
 
-  Widget _cards() => ResponsiveCardRow(
+  Widget _cards(AppLocalizations l10n) => ResponsiveCardRow(
         children: [
           StatCard(
-            label: GoalsTexts.target,
+            label: l10n.goalsTarget,
             value: GoalFormat.amount(projection.targetAmount),
             icon: Icons.flag_outlined,
           ),
           StatCard(
-            label: GoalsTexts.currentNetWorth,
+            label: l10n.goalsCurrentNetWorth,
             value: GoalFormat.amount(projection.currentNetWorth),
             icon: Icons.account_balance_outlined,
           ),
           StatCard(
-            label: GoalsTexts.projectedDate,
-            value: GoalFormat.achievement(projection),
+            label: l10n.goalsProjectedDate,
+            value: GoalFormat.achievement(l10n, projection),
             icon: Icons.event_outlined,
           ),
         ],

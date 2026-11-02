@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
 import 'package:pennypincher_pro/core/crud/presentation/layout/item_layout.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 
 /// Everything that changes between two list screens: texts, the parent
@@ -23,64 +24,32 @@ class CrudScreenConfig<T extends CrudItem, D> {
   final AppRoute parent;
 
   /// Lower-case singular name of an item, such as `asset`.
-  final String itemNoun;
+  final LocalizedText itemNoun;
 
   final IconData emptyIcon;
-  final String emptyMessage;
+  final LocalizedText emptyMessage;
 
   /// Form fields, summary and list of the items.
   final ItemLayout<T, D> layout;
 
-  String get title => route.title;
+  String title(AppLocalizations l10n) => route.title(l10n);
 
-  String get backTooltip => '${CrudTexts.backPrefix} ${parent.title}';
+  String backTooltip(AppLocalizations l10n) =>
+      l10n.commonBackTo(parent.title(l10n));
 
-  String get addLabel => '${CrudTexts.add} $itemNoun';
+  String addLabel(AppLocalizations l10n) => l10n.crudAdd(itemNoun(l10n));
 
-  String get editTitle => '${CrudTexts.edit} $itemNoun';
+  String editTitle(AppLocalizations l10n) => l10n.crudEdit(itemNoun(l10n));
 
-  String get deleteTitle => '${CrudTexts.delete} $itemNoun?';
+  String deleteTitle(AppLocalizations l10n) =>
+      l10n.crudDeleteTitle(itemNoun(l10n));
 
-  String get emptyTitle => '${CrudTexts.emptyPrefix} ${title.toLowerCase()}';
+  String emptyTitle(AppLocalizations l10n) =>
+      l10n.crudEmptyTitle(title(l10n).toLowerCase());
 
-  String deleteTooltip(String name) => '${CrudTexts.delete} $name';
+  String deleteTooltip(AppLocalizations l10n, String name) =>
+      l10n.crudDeleteTooltip(name);
 
-  String deleteMessage(String name) =>
-      '"$name" ${CrudTexts.deleteMessageSuffix}';
-}
-
-/// Fixed texts of the list screens.
-abstract final class CrudTexts {
-  static const String add = 'Add';
-  static const String edit = 'Edit';
-  static const String delete = 'Delete';
-  static const String save = 'Save';
-  static const String retry = 'Retry';
-  static const String backPrefix = 'Back to';
-  static const String emptyPrefix = 'No';
-  static const String loadErrorTitle = 'Could not load the list';
-  static const String loadingLabel = 'Loading list';
-  static const String deleteMessageSuffix =
-      'will be removed from your list and no longer counted in your totals.';
-  static const String nameLabel = 'Name';
-  static const String categoryLabel = 'Category';
-  static const String nameRequired = 'Enter a name.';
-  static const String nameTooLong =
-      'Use at most ${CrudItem.nameMaxLength} characters.';
-  static const String amountRequired = 'Enter an amount.';
-  static const String amountInvalid =
-      'Enter an amount like 1.500.000 or 1.500.000,50, up to 13 digits.';
-  static const String amountNotPositive = 'Enter an amount greater than 0.';
-  static const String amountHelper = 'Example: 1.500.000 or 1.500.000,50';
-  static const String optionalAmountHelper =
-      'Optional. Example: 1.500.000 or 1.500.000,50';
-  static const String paidSuffix = 'paid';
-  static const String allCategories = 'All';
-  static const String categoryFilterLabel = 'Filter by category';
-  static const String emptyCategoryPrefix = 'Nothing in';
-  static const String emptyCategoryMessage =
-      'Items you add to this category will appear here.';
-  static const String saving = 'Saving';
-  static const String categoryRequired = 'Choose a category.';
-  static const String amountPrefix = r'$ ';
+  String deleteMessage(AppLocalizations l10n, String name) =>
+      l10n.crudDeleteMessage(name);
 }

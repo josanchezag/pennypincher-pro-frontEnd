@@ -4,15 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
-import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_sheet.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
-import 'package:pennypincher_pro/core/widgets/confirmation_dialog.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_level.dart';
-import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/screen/goals_screen.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_card.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goals_empty_state.dart';
@@ -22,6 +19,7 @@ import 'package:pennypincher_pro/features/financial_goals/presentation/widget/pr
 import '../../../../helpers/crud_screen_helpers.dart';
 import '../../../../helpers/goal_fixtures.dart';
 import '../../../../helpers/goal_mocks.dart';
+import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/pump_app.dart';
 
@@ -60,7 +58,7 @@ void main() {
   }
 
   Future<void> chooseLevel(WidgetTester tester, String label) async {
-    await tester.tap(find.text(GoalsTexts.level));
+    await tester.tap(find.text(l10n.goalsLevel));
     await tester.pumpAndSettle();
     await tester.tap(find.text(label).last);
     await tester.pumpAndSettle();
@@ -77,8 +75,8 @@ void main() {
   testWidgets('retries a load that failed', (tester) async {
     final bloc = await pumpGoals(tester, const CrudLoadFailure('Offline'));
 
-    expect(find.text(GoalsTexts.loadErrorTitle), findsOneWidget);
-    await tester.tap(find.text(GoalsTexts.retry));
+    expect(find.text(l10n.goalsLoadErrorTitle), findsOneWidget);
+    await tester.tap(find.text(l10n.commonRetry));
 
     verify(() => bloc.add(const CrudLoadRequested<GoalDraft>())).called(2);
   });
@@ -90,7 +88,7 @@ void main() {
       CrudLoaded([security.copyWith(projection: null), independence]),
     );
 
-    expect(find.text(GoalsTexts.projectionsUnavailable), findsOneWidget);
+    expect(find.text(l10n.goalsProjectionsUnavailable), findsOneWidget);
     await tester.tap(find.byKey(ProjectionsNotice.retryKey));
 
     verify(() => bloc.add(const CrudLoadRequested<GoalDraft>())).called(2);
@@ -106,9 +104,9 @@ void main() {
     testWidgets('offers the first goal and the standard goals', (tester) async {
       final bloc = await pumpGoals(tester, const CrudLoaded([]));
 
-      expect(find.text(GoalsTexts.emptyTitle), findsOneWidget);
-      expect(find.text(GoalsTexts.firstGoal), findsOneWidget);
-      expect(find.text(GoalsTexts.startWithStandard), findsOneWidget);
+      expect(find.text(l10n.goalsEmptyTitle), findsOneWidget);
+      expect(find.text(l10n.firstGoalTitle), findsOneWidget);
+      expect(find.text(l10n.goalsUseStandard), findsOneWidget);
       await tester.tap(find.byKey(GoalsEmptyState.standardGoalsKey));
 
       verify(() => bloc.add(const CrudDefaultsRequested<GoalDraft>()))
@@ -121,7 +119,7 @@ void main() {
       await tester.tap(find.byKey(GoalsEmptyState.addGoalKey));
       await tester.pumpAndSettle();
 
-      expect(find.text(GoalsTexts.addGoal), findsWidgets);
+      expect(find.text(l10n.goalsAddGoal), findsWidgets);
       expect(find.byKey(ItemFormSheet.deleteKey), findsNothing);
     });
 
@@ -198,19 +196,19 @@ void main() {
       await openAddSheet(tester);
 
       await fillAndSave(tester, {
-        GoalsTexts.target: '0',
-        GoalsTexts.monthlyInvestment: '',
-        GoalsTexts.expectedAnnualReturn: '101',
-        GoalsTexts.targetYears: '0',
+        l10n.goalsTarget: '0',
+        l10n.goalsMonthlyInvestment: '',
+        l10n.goalsExpectedAnnualReturn: '101',
+        l10n.goalsTargetYears: '0',
       });
       await tester.pumpAndSettle();
 
-      expect(find.text(CrudTexts.nameRequired), findsOneWidget);
-      expect(find.text(GoalsTexts.levelRequired), findsOneWidget);
-      expect(find.text(CrudTexts.amountNotPositive), findsOneWidget);
-      expect(find.text(CrudTexts.amountRequired), findsOneWidget);
-      expect(find.text(GoalsTexts.returnInvalid), findsOneWidget);
-      expect(find.text(GoalsTexts.targetYearsInvalid), findsOneWidget);
+      expect(find.text(l10n.crudNameRequired), findsOneWidget);
+      expect(find.text(l10n.goalsLevelRequired), findsOneWidget);
+      expect(find.text(l10n.crudAmountNotPositive), findsOneWidget);
+      expect(find.text(l10n.crudAmountRequired), findsOneWidget);
+      expect(find.text(l10n.goalsReturnInvalid), findsOneWidget);
+      expect(find.text(l10n.goalsTargetYearsInvalid), findsOneWidget);
       verifyNever(
         () => bloc.add(any(that: isA<CrudSaveRequested<GoalDraft>>())),
       );
@@ -220,13 +218,13 @@ void main() {
       await pumpGoals(tester, const CrudLoaded([]));
       await openAddSheet(tester);
 
-      await fillAndSave(tester, {GoalsTexts.expectedAnnualReturn: '0'});
+      await fillAndSave(tester, {l10n.goalsExpectedAnnualReturn: '0'});
       await tester.pumpAndSettle();
-      expect(find.text(GoalsTexts.returnInvalid), findsOneWidget);
+      expect(find.text(l10n.goalsReturnInvalid), findsOneWidget);
 
-      await fillAndSave(tester, {GoalsTexts.expectedAnnualReturn: ''});
+      await fillAndSave(tester, {l10n.goalsExpectedAnnualReturn: ''});
       await tester.pumpAndSettle();
-      expect(find.text(GoalsTexts.returnRequired), findsOneWidget);
+      expect(find.text(l10n.goalsReturnRequired), findsOneWidget);
     });
 
     testWidgets('adds a goal with the return as a fraction', (tester) async {
@@ -235,10 +233,10 @@ void main() {
 
       await chooseLevel(tester, 'Absolute freedom');
       await fillAndSave(tester, {
-        CrudTexts.nameLabel: ' Libertad Absoluta ',
-        GoalsTexts.target: '4.366.000.000',
-        GoalsTexts.monthlyInvestment: '15.850.000',
-        GoalsTexts.expectedAnnualReturn: '11,5',
+        l10n.crudNameLabel: ' Libertad Absoluta ',
+        l10n.goalsTarget: '4.366.000.000',
+        l10n.goalsMonthlyInvestment: '15.850.000',
+        l10n.goalsExpectedAnnualReturn: '11,5',
       });
 
       verify(
@@ -264,13 +262,13 @@ void main() {
 
       await tester.tap(find.text('Seguridad Financiera'));
       await tester.pumpAndSettle();
-      expect(find.text(GoalsTexts.editGoal), findsOneWidget);
+      expect(find.text(l10n.goalsEditGoal), findsOneWidget);
       expect(find.text('1470000'), findsOneWidget);
       expect(find.text('11'), findsOneWidget);
       expect(find.text('16'), findsOneWidget);
       await fillAndSave(tester, {
-        GoalsTexts.monthlyInvestment: '2.000.000',
-        GoalsTexts.targetYears: '',
+        l10n.goalsMonthlyInvestment: '2.000.000',
+        l10n.goalsTargetYears: '',
       });
 
       verify(
@@ -319,8 +317,8 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(ItemFormSheet.deleteKey));
       await tester.pumpAndSettle();
-      expect(find.text(GoalsTexts.deleteTitle), findsOneWidget);
-      await tester.tap(find.text(ConfirmationDialog.cancelLabel));
+      expect(find.text(l10n.goalsDeleteTitle), findsOneWidget);
+      await tester.tap(find.text(l10n.commonCancel));
       await tester.pumpAndSettle();
       verifyNever(() => bloc.add(const CrudDeleteRequested<GoalDraft>('g1')));
 
@@ -328,7 +326,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(ItemFormSheet.deleteKey));
       await tester.pumpAndSettle();
-      await tester.tap(find.text(GoalsTexts.delete));
+      await tester.tap(find.text(l10n.commonDelete));
       await tester.pumpAndSettle();
 
       verify(() => bloc.add(const CrudDeleteRequested<GoalDraft>('g1')))

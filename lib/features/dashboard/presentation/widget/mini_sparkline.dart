@@ -1,11 +1,11 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/dashboard_summary_entity.dart';
-import 'package:pennypincher_pro/features/dashboard/presentation/dashboard_texts.dart';
 
 /// Small line of the net worth of [points] (at least two, from the oldest
 /// month), without axes: green when it ends at or above where it started,
@@ -31,21 +31,22 @@ class MiniSparkline extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       container: true,
-      label: _description(),
+      label: _description(context.l10n),
       child: ExcludeSemantics(
         child: SizedBox(height: height, child: LineChart(_data())),
       ),
     );
   }
 
-  String _description() {
+  String _description(AppLocalizations l10n) {
     final first = points.first;
     final last = points.last;
-    return '${DashboardTexts.sparklineLabel}: '
-        '${CurrencyFormatter.format(first.netWorth)} ${DashboardTexts.inMonth} '
-        '${MonthFormat.short.format(first.date)}, '
-        '${CurrencyFormatter.format(last.netWorth)} ${DashboardTexts.inMonth} '
-        '${MonthFormat.short.format(last.date)}';
+    return l10n.dashboardSparklineLabel(
+      CurrencyFormatter.format(first.netWorth),
+      MonthFormat.short.format(first.date),
+      CurrencyFormatter.format(last.netWorth),
+      MonthFormat.short.format(last.date),
+    );
   }
 
   LineChartData _data() {

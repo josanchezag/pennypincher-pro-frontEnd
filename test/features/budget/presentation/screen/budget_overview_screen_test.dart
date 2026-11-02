@@ -8,7 +8,6 @@ import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
-import 'package:pennypincher_pro/core/widgets/confirmation_dialog.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
 import 'package:pennypincher_pro/core/widgets/month_selector.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
@@ -16,7 +15,6 @@ import 'package:pennypincher_pro/features/budget/domain/entity/income_source_ent
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_budget_entity.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/budget_comparison_bloc.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart';
-import 'package:pennypincher_pro/features/budget/presentation/budget_texts.dart';
 import 'package:pennypincher_pro/features/budget/presentation/screen/budget_overview_screen.dart';
 import 'package:pennypincher_pro/features/budget/presentation/screen/income_sources_screen.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_breakdown_card.dart';
@@ -27,6 +25,7 @@ import 'package:pennypincher_pro/features/budget/presentation/widget/expense_per
 
 import '../../../../helpers/budget_fixtures.dart';
 import '../../../../helpers/budget_mocks.dart';
+import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/pump_app.dart';
 
@@ -101,8 +100,8 @@ void main() {
     );
     clearInteractions(bloc);
 
-    expect(find.text(BudgetTexts.loadErrorTitle), findsOneWidget);
-    await tester.tap(find.text(BudgetTexts.retry));
+    expect(find.text(l10n.budgetLoadErrorTitle), findsOneWidget);
+    await tester.tap(find.text(l10n.commonRetry));
 
     verify(() => bloc.add(const MonthlyBudgetReloadRequested())).called(1);
   });
@@ -152,14 +151,14 @@ void main() {
     await pumpOverview(tester, _loaded);
 
     expect(
-      statCard(tester, BudgetTexts.totalIncome).value,
+      statCard(tester, l10n.totalIncome).value,
       contains('37.152.922'),
     );
     expect(
-      statCard(tester, BudgetTexts.totalExpenses).value,
+      statCard(tester, l10n.totalExpenses).value,
       contains('19.135.201'),
     );
-    final cashFlow = statCard(tester, BudgetTexts.cashFlow);
+    final cashFlow = statCard(tester, l10n.cashFlow);
     expect(cashFlow.value, contains('18.017.721'));
     expect(cashFlow.valueColor, AppColors.success);
     expect(tester.takeException(), isNull);
@@ -171,7 +170,7 @@ void main() {
       _loaded.copyWith(budget: () => novemberDeficit),
     );
 
-    final cashFlow = statCard(tester, BudgetTexts.cashFlow);
+    final cashFlow = statCard(tester, l10n.cashFlow);
     expect(cashFlow.value, contains('-'));
     expect(cashFlow.valueColor, AppColors.error);
   });
@@ -246,9 +245,9 @@ void main() {
     final bloc = await pumpOverview(tester, _loaded);
 
     await openEditor(tester, BudgetDetailsCard.exchangeRateEditKey);
-    expect(find.text('Edit ${BudgetTexts.exchangeRate}'), findsOneWidget);
+    expect(find.text('Edit ${l10n.budgetExchangeRate}'), findsOneWidget);
     await saveValue(tester, '0');
-    expect(find.text(BudgetTexts.exchangeRateInvalid), findsOneWidget);
+    expect(find.text(l10n.budgetExchangeRateInvalid), findsOneWidget);
     await saveValue(tester, '3.950,25');
 
     verify(
@@ -266,7 +265,10 @@ void main() {
 
     await openEditor(tester, BudgetDetailsCard.workDaysEditKey);
     await saveValue(tester, '32');
-    expect(find.text(BudgetTexts.workDaysInvalid), findsOneWidget);
+    expect(
+      find.text(l10n.budgetWorkDaysInvalid(BudgetLimits.maxWorkDays)),
+      findsOneWidget,
+    );
     await saveValue(tester, '');
 
     verify(
@@ -283,7 +285,7 @@ void main() {
     clearInteractions(bloc);
 
     await openEditor(tester, BudgetDetailsCard.workDaysEditKey);
-    await tester.tap(find.text(BudgetTexts.cancel));
+    await tester.tap(find.text(l10n.commonCancel));
     await tester.pumpAndSettle();
 
     verifyNever(() => bloc.add(any()));
@@ -304,7 +306,7 @@ void main() {
       size: TestViewports.desktop,
     );
 
-    expect(find.text(BudgetTexts.notSet), findsNWidgets(2));
+    expect(find.text(l10n.budgetNotSet), findsNWidgets(2));
   });
 
   testWidgets('lists the current income sources with their total',
@@ -318,9 +320,9 @@ void main() {
         findsOneWidget,
       );
     }
-    expect(find.text(BudgetTexts.currentTotal), findsOneWidget);
-    expect(find.text(BudgetTexts.incomeNote), findsOneWidget);
-    expect(find.text(BudgetTexts.incomeChanged), findsNothing);
+    expect(find.text(l10n.budgetCurrentTotal), findsOneWidget);
+    expect(find.text(l10n.budgetIncomeNote), findsOneWidget);
+    expect(find.text(l10n.budgetIncomeChanged), findsNothing);
   });
 
   testWidgets('warns when the current income differs from the budget',
@@ -331,7 +333,7 @@ void main() {
       size: TestViewports.desktop,
     );
 
-    expect(find.text(BudgetTexts.incomeChanged), findsOneWidget);
+    expect(find.text(l10n.budgetIncomeChanged), findsOneWidget);
   });
 
   testWidgets('reports income sources that could not be loaded',
@@ -370,9 +372,9 @@ void main() {
     await pumpOverview(tester, _loaded, size: TestViewports.desktop);
 
     for (final title in [
-      BudgetTexts.breakdownTitle,
-      BudgetTexts.detailsTitle,
-      BudgetTexts.incomeTitle,
+      l10n.budgetBreakdownTitle,
+      l10n.budgetDetailsTitle,
+      l10n.budgetIncomeTitle,
     ]) {
       expect(
         tester.getSemantics(find.text(title)),
@@ -406,14 +408,13 @@ void main() {
     await tester.tap(button);
     await tester.pumpAndSettle();
     expect(find.text('Recalculate October 2026?'), findsOneWidget);
-    await tester.tap(find.text(ConfirmationDialog.cancelLabel));
+    await tester.tap(find.text(l10n.commonCancel));
     await tester.pumpAndSettle();
     verifyNever(() => bloc.add(const MonthlyBudgetRecalculateRequested()));
 
     await tester.tap(button);
     await tester.pumpAndSettle();
-    await tester
-        .tap(find.widgetWithText(FilledButton, BudgetTexts.recalculate));
+    await tester.tap(find.widgetWithText(FilledButton, l10n.budgetRecalculate));
     await tester.pumpAndSettle();
     verify(() => bloc.add(const MonthlyBudgetRecalculateRequested())).called(1);
   });
@@ -440,7 +441,7 @@ void main() {
     await pumpOverview(tester, _loaded, size: TestViewports.desktop);
     registerIncomeSourceBloc(const CrudLoaded([]));
 
-    await tester.tap(find.text(BudgetTexts.manageIncome));
+    await tester.tap(find.text(l10n.budgetManageIncome));
     await tester.pumpAndSettle();
 
     expect(find.byType(IncomeSourcesScreen), findsOneWidget);

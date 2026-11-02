@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
 import 'package:pennypincher_pro/core/widgets/app_snackbar.dart';
 import 'package:pennypincher_pro/core/widgets/status_message.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/bloc/dashboard_bloc.dart';
-import 'package:pennypincher_pro/features/dashboard/presentation/dashboard_texts.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/dashboard_content.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/dashboard_skeleton.dart';
 
@@ -23,14 +23,14 @@ class DashboardScreen extends StatelessWidget {
           DashboardStatus.loading => const DashboardSkeleton(),
           DashboardStatus.failure => StatusMessage(
               icon: Icons.cloud_off_outlined,
-              title: DashboardTexts.loadErrorTitle,
+              title: context.l10n.dashboardLoadErrorTitle,
               message: state.loadError ?? '',
               action: FilledButton.icon(
                 onPressed: () => context
                     .read<DashboardBloc>()
                     .add(const DashboardLoadRequested()),
                 icon: const Icon(Icons.refresh),
-                label: const Text(DashboardTexts.retry),
+                label: Text(context.l10n.commonRetry),
               ),
             ),
           DashboardStatus.loaded => DashboardContent(state: state),
@@ -46,15 +46,14 @@ class DashboardScreen extends StatelessWidget {
         final month = state.summary!.referenceMonth;
         AppSnackbar.showSuccess(
           context,
-          '${DashboardTexts.snapshotSavedPrefix} '
-          '${MonthFormat.long.format(month)}',
+          context.l10n.snapshotSaved(MonthFormat.long.format(month)),
         );
       case DashboardNotice.snapshotFailed:
         AppSnackbar.showError(context, message);
       case DashboardNotice.refreshFailed:
         AppSnackbar.showError(
           context,
-          '${DashboardTexts.refreshFailedPrefix} $message',
+          context.l10n.dashboardRefreshFailed(message),
         );
     }
   }

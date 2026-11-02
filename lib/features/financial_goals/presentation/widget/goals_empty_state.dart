@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/widgets/status_message.dart';
-import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
 
 /// Shown while the user has no goals: an illustration, a button that adds
 /// the first goal and another that starts from the four standard goals.
@@ -27,8 +27,8 @@ class GoalsEmptyState extends StatelessWidget {
     return StatusMessage(
       icon: Icons.flag_outlined,
       illustration: const _Illustration(),
-      title: GoalsTexts.emptyTitle,
-      message: GoalsTexts.emptyMessage,
+      title: context.l10n.goalsEmptyTitle,
+      message: context.l10n.goalsEmptyMessage,
       action: Wrap(
         alignment: WrapAlignment.center,
         spacing: AppSpacing.sm,
@@ -38,13 +38,13 @@ class GoalsEmptyState extends StatelessWidget {
             key: addGoalKey,
             onPressed: busy ? null : onAddGoal,
             icon: const Icon(Icons.add),
-            label: const Text(GoalsTexts.firstGoal),
+            label: Text(context.l10n.firstGoalTitle),
           ),
           OutlinedButton.icon(
             key: standardGoalsKey,
             onPressed: busy ? null : onUseStandardGoals,
             icon: const Icon(Icons.auto_awesome_outlined),
-            label: const Text(GoalsTexts.startWithStandard),
+            label: Text(context.l10n.goalsUseStandard),
           ),
         ],
       ),

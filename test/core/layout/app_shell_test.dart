@@ -3,8 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
+import 'package:pennypincher_pro/core/l10n/locale_cubit.dart';
 import 'package:pennypincher_pro/core/layout/account_menu.dart';
-import 'package:pennypincher_pro/core/layout/app_shell.dart';
 import 'package:pennypincher_pro/core/router/app_destination.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
@@ -13,8 +14,14 @@ import 'package:pennypincher_pro/core/widgets/placeholder_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 
 import '../../helpers/expense_mocks.dart';
+import '../../helpers/l10n.dart';
 import '../../helpers/mocks.dart';
 import '../../helpers/pump_app.dart';
+
+Finder _inBottomBar(String label) => find.descendant(
+      of: find.byType(NavigationBar),
+      matching: find.text(label),
+    );
 
 void main() {
   group('AppShell', () {
@@ -32,15 +39,15 @@ void main() {
     testWidgets('opens settings from the app bar on mobile', (tester) async {
       await tester.pumpApp(size: TestViewports.mobile);
 
-      await tester.tap(find.byTooltip(AppShell.settingsTooltip));
+      await tester.tap(find.byTooltip(l10n.shellSettingsTooltip));
       await tester.pumpAndSettle();
 
       expect(find.byType(NavigationBar), findsNothing);
-      expect(find.byTooltip(AppShell.settingsTooltip), findsNothing);
+      expect(find.byTooltip(l10n.shellSettingsTooltip), findsNothing);
       expect(
         find.descendant(
           of: find.byType(PlaceholderScreen),
-          matching: find.text(AppRoute.settings.title),
+          matching: find.text(AppRoute.settings.title(l10n)),
         ),
         findsOneWidget,
       );
@@ -53,7 +60,7 @@ void main() {
         size: TestViewports.mobile,
       );
 
-      await tester.tap(find.byTooltip(AppShell.backTooltip));
+      await tester.tap(find.byTooltip(l10n.shellBackToDashboard));
       await tester.pumpAndSettle();
 
       final bar = tester.widget<NavigationBar>(find.byType(NavigationBar));
@@ -73,7 +80,7 @@ void main() {
 
       final rail = tester.widget<NavigationRail>(find.byType(NavigationRail));
       expect(rail.extended, isTrue);
-      expect(find.text(AppDestination.netWorth.label), findsWidgets);
+      expect(find.text(AppDestination.netWorth.label(l10n)), findsWidgets);
     });
 
     testWidgets('highlights the section of the current location',
@@ -109,7 +116,7 @@ void main() {
           (tester) async {
         await tester.pumpApp(size: size);
 
-        final button = find.byTooltip(AccountMenu.tooltip);
+        final button = find.byTooltip(l10n.accountMenuTooltip);
         expect(button, findsOneWidget);
         expect(
           find.ancestor(of: button, matching: find.byType(AppBar)),
@@ -125,9 +132,9 @@ void main() {
         final bloc = mockAuthBloc(AuthAuthenticated(testUser));
         await tester.pumpApp(size: size, authBloc: bloc);
 
-        await tester.tap(find.byTooltip(AccountMenu.tooltip));
+        await tester.tap(find.byTooltip(l10n.accountMenuTooltip));
         await tester.pumpAndSettle();
-        await tester.tap(find.text(AccountMenu.signOutLabel));
+        await tester.tap(find.text(l10n.accountMenuSignOut));
         await tester.pump();
 
         verify(() => bloc.add(const AuthSignOutRequested())).called(1);
@@ -139,14 +146,14 @@ void main() {
       await tester.pumpApp();
 
       expect(find.byIcon(Icons.logout), findsNothing);
-      expect(find.text(AccountMenu.signOutLabel), findsNothing);
+      expect(find.text(l10n.accountMenuSignOut), findsNothing);
     });
 
     testWidgets('shows the name and email of the user in the menu',
         (tester) async {
       await tester.pumpApp(size: TestViewports.mobile);
 
-      await tester.tap(find.byTooltip(AccountMenu.tooltip));
+      await tester.tap(find.byTooltip(l10n.accountMenuTooltip));
       await tester.pumpAndSettle();
 
       final header = find.byKey(AccountMenu.headerKey);
@@ -167,10 +174,10 @@ void main() {
     testWidgets('paints the sign-out entry in the error color', (tester) async {
       await tester.pumpApp();
 
-      await tester.tap(find.byTooltip(AccountMenu.tooltip));
+      await tester.tap(find.byTooltip(l10n.accountMenuTooltip));
       await tester.pumpAndSettle();
 
-      final label = tester.widget<Text>(find.text(AccountMenu.signOutLabel));
+      final label = tester.widget<Text>(find.text(l10n.accountMenuSignOut));
       expect(label.style?.color, AppColors.error);
     });
 
@@ -203,12 +210,75 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(AccountMenu.signOutKey), findsOneWidget);
 
-      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
-      await tester.pump();
+      // Past both languages to the last entry.
+      for (var i = 0; i < AppLocales.supported.length + 1; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pump();
+      }
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.pumpAndSettle();
 
       verify(() => bloc.add(const AuthSignOutRequested())).called(1);
+    });
+  });
+
+  group('Interface language', () {
+    testWidgets('is Spanish when the user has not picked one', (tester) async {
+      final cubit = LocaleCubit(MemoryLocaleStore());
+      addTearDown(cubit.close);
+      await tester.pumpApp(size: TestViewports.mobile, localeCubit: cubit);
+
+      expect(_inBottomBar(l10nEs.navNetWorth), findsOneWidget);
+      expect(find.byTooltip(l10nEs.accountMenuTooltip), findsOneWidget);
+      expect(_inBottomBar(l10n.navNetWorth), findsNothing);
+    });
+
+    testWidgets('lists both languages with the current one marked',
+        (tester) async {
+      await tester.pumpApp(locale: AppLocales.spanish);
+
+      await tester.tap(find.byTooltip(l10nEs.accountMenuTooltip));
+      await tester.pumpAndSettle();
+
+      expect(find.text(l10nEs.languageSpanish), findsOneWidget);
+      expect(find.text(l10nEs.languageEnglish), findsOneWidget);
+      expect(find.text(l10nEs.accountMenuSignOut), findsOneWidget);
+      Color? checkColor(Locale locale) => tester
+          .widget<Icon>(
+            find.descendant(
+              of: find.byKey(AccountMenu.languageKey(locale)),
+              matching: find.byIcon(Icons.check),
+            ),
+          )
+          .color;
+      expect(checkColor(AppLocales.spanish), AppColors.brandPrimary);
+      expect(checkColor(AppLocales.english), Colors.transparent);
+      expect(
+        tester.getSemantics(find.text(l10nEs.languageSpanish)),
+        containsSemantics(isSelected: true),
+      );
+      expect(
+        tester.getSemantics(find.text(l10nEs.languageEnglish)),
+        containsSemantics(isSelected: false),
+      );
+    });
+
+    testWidgets('switches from the account menu and remembers the choice',
+        (tester) async {
+      final store = MemoryLocaleStore();
+      final cubit = LocaleCubit(store);
+      addTearDown(cubit.close);
+      await tester.pumpApp(size: TestViewports.mobile, localeCubit: cubit);
+
+      await tester.tap(find.byTooltip(l10nEs.accountMenuTooltip));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(AccountMenu.languageKey(AppLocales.english)));
+      await tester.pumpAndSettle();
+
+      expect(store.languageCode, 'en');
+      expect(_inBottomBar(l10n.navNetWorth), findsOneWidget);
+      expect(find.byTooltip(l10n.accountMenuTooltip), findsOneWidget);
+      expect(_inBottomBar(l10nEs.navNetWorth), findsNothing);
     });
   });
 }

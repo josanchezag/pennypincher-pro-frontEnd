@@ -1,26 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
-import 'package:pennypincher_pro/core/theme/app_theme.dart';
 import 'package:pennypincher_pro/core/theme/progress_band.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_level.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/goal_styles.dart';
-import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/circular_progress_indicator_widget.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_card.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_level_badge.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/halfway_celebration.dart';
 
 import '../../../../helpers/goal_fixtures.dart';
+import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 
 Future<void> _pump(WidgetTester tester, Widget child, {double width = 360}) =>
     tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.dark,
+      localizedApp(
         home: Scaffold(
           body: SingleChildScrollView(
             child: SizedBox(width: width, child: child),
@@ -103,7 +101,8 @@ void main() {
       );
       final box = tester.widget<Container>(find.byType(Container).first);
       expect((box.decoration! as BoxDecoration).color, color);
-      final text = tester.widget<Text>(find.text(level.label.toUpperCase()));
+      final text =
+          tester.widget<Text>(find.text(level.label(l10n).toUpperCase()));
       expect(_contrast(text.style!.color!, color), greaterThanOrEqualTo(4.5));
     });
   }
@@ -142,7 +141,7 @@ void main() {
 
     await _pump(tester, GoalCard(goal: reached, onTap: null));
 
-    expect(find.text(GoalsTexts.goalReached), findsOneWidget);
+    expect(find.text(l10n.goalsReached), findsOneWidget);
     expect(find.text(PercentFormatter.format(100)), findsOneWidget);
   });
 
@@ -178,9 +177,9 @@ void main() {
     );
     await tester.pump(HalfwayCelebration.duration ~/ 2);
 
-    expect(find.text(GoalsTexts.halfwayThere), findsOneWidget);
+    expect(find.text(l10n.goalsHalfwayThere), findsOneWidget);
     await tester.pumpAndSettle();
-    expect(find.text(GoalsTexts.halfwayThere), findsNothing);
+    expect(find.text(l10n.goalsHalfwayThere), findsNothing);
     expect(finished, 1);
   });
 

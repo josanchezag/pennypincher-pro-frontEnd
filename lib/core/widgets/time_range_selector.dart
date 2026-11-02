@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/time/time_range.dart';
 
@@ -34,7 +35,10 @@ class TimeRangeSelector extends StatelessWidget {
       showSelectedIcon: false,
       segments: [
         for (final range in TimeRange.values)
-          ButtonSegment(value: range, label: Text(range.label)),
+          ButtonSegment(
+            value: range,
+            label: Text(range.label(context.l10n)),
+          ),
       ],
       selected: {selected},
       onSelectionChanged: (ranges) => onChanged(ranges.single),

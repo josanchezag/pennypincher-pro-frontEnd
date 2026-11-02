@@ -1,14 +1,17 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:pennypincher_pro/app.dart';
 import 'package:pennypincher_pro/core/config/app_config.dart';
 import 'package:pennypincher_pro/core/di/injection.dart';
+import 'package:pennypincher_pro/core/l10n/locale_cubit.dart';
 import 'package:pennypincher_pro/core/router/app_router.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/part_of_day.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 
 import 'dashboard_mocks.dart';
+import 'l10n.dart';
 import 'mocks.dart';
 import 'test_config.dart';
 
@@ -29,13 +32,16 @@ abstract final class TestViewports {
 extension PumpApp on WidgetTester {
   /// Pumps the whole app at [location] with a logical [size]. Signed-in
   /// users land on the dashboard, so unless the test registered its own
-  /// dashboard bloc, one that stays loading is provided.
+  /// dashboard bloc, one that stays loading is provided. The interface is
+  /// in [locale] (English by default) unless [localeCubit] is given.
   Future<void> pumpApp({
     String location = '/dashboard',
     Size size = TestViewports.desktop,
     AuthBloc? authBloc,
     AppConfig config = TestConfigs.googleOnly,
     bool settle = true,
+    Locale locale = testLocale,
+    LocaleCubit? localeCubit,
   }) async {
     view.physicalSize = size;
     view.devicePixelRatio = 1;
@@ -50,7 +56,15 @@ extension PumpApp on WidgetTester {
       initialLocation: location,
     );
     addTearDown(router.dispose);
-    await pumpWidget(PennyPincherApp(router: router, authBloc: bloc));
+    final language =
+        localeCubit ?? LocaleCubit(MemoryLocaleStore(locale.languageCode));
+    if (localeCubit == null) {
+      addTearDown(language.close);
+    }
+    addTearDown(() => Intl.defaultLocale = testLocale.languageCode);
+    await pumpWidget(
+      PennyPincherApp(router: router, authBloc: bloc, localeCubit: language),
+    );
     if (settle) {
       await pumpAndSettle();
     }

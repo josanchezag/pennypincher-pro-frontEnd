@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_breakpoints.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/widgets/responsive_card_row.dart';
-import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_texts.dart';
 
 /// Links to the assets, liabilities and report screens: all three side
 /// by side on desktop screens, assets and liabilities side by side above
@@ -18,17 +18,14 @@ class NetWorthLinks extends StatelessWidget {
   static const Widget assets = _Link(
     route: AppRoute.netWorthAssets,
     icon: Icons.account_balance_wallet_outlined,
-    subtitle: NetWorthTexts.assetsSubtitle,
   );
   static const Widget liabilities = _Link(
     route: AppRoute.netWorthLiabilities,
     icon: Icons.credit_card_outlined,
-    subtitle: NetWorthTexts.liabilitiesSubtitle,
   );
   static const Widget report = _Link(
     route: AppRoute.netWorthReport,
     icon: Icons.insights_outlined,
-    subtitle: NetWorthTexts.reportSubtitle,
   );
 
   @override
@@ -59,15 +56,16 @@ class NetWorthLinks extends StatelessWidget {
 }
 
 class _Link extends StatelessWidget {
-  const _Link({
-    required this.route,
-    required this.icon,
-    required this.subtitle,
-  });
+  const _Link({required this.route, required this.icon});
 
   final AppRoute route;
   final IconData icon;
-  final String subtitle;
+
+  String _subtitle(AppLocalizations l10n) => switch (route) {
+        AppRoute.netWorthAssets => l10n.netWorthAssetsSubtitle,
+        AppRoute.netWorthLiabilities => l10n.netWorthLiabilitiesSubtitle,
+        _ => l10n.netWorthReportSubtitle,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -87,8 +85,14 @@ class _Link extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(route.title, style: AppTypography.bodyLarge),
-                      Text(subtitle, style: AppTypography.bodyMedium),
+                      Text(
+                        route.title(context.l10n),
+                        style: AppTypography.bodyLarge,
+                      ),
+                      Text(
+                        _subtitle(context.l10n),
+                        style: AppTypography.bodyMedium,
+                      ),
                     ],
                   ),
                 ),

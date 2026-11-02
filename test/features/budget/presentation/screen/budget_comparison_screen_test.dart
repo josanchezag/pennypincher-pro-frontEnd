@@ -9,9 +9,9 @@ import 'package:pennypincher_pro/core/time/month_format.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
+import 'package:pennypincher_pro/core/widgets/report_table.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/budget_comparison_bloc.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart';
-import 'package:pennypincher_pro/features/budget/presentation/budget_texts.dart';
 import 'package:pennypincher_pro/features/budget/presentation/screen/budget_comparison_screen.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_comparison_chart.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_comparison_scale.dart';
@@ -19,6 +19,7 @@ import 'package:pennypincher_pro/features/budget/presentation/widget/budget_comp
 
 import '../../../../helpers/budget_fixtures.dart';
 import '../../../../helpers/budget_mocks.dart';
+import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/pump_app.dart';
 
@@ -96,7 +97,7 @@ void main() {
     );
     registerMonthlyBudgetBloc(MonthlyBudgetState(month: DateTime(2026, 10)));
 
-    expect(find.text(BudgetTexts.comparisonEmptyTitle), findsOneWidget);
+    expect(find.text(l10n.budgetComparisonEmptyTitle), findsOneWidget);
     await tester.tap(find.byKey(BudgetComparisonScreen.openBudgetKey));
     await tester.pump(const Duration(seconds: 1));
 
@@ -107,7 +108,8 @@ void main() {
     await pumpComparison(tester, _loaded);
     registerMonthlyBudgetBloc(MonthlyBudgetState(month: DateTime(2026, 10)));
 
-    await tester.tap(find.byTooltip(BudgetTexts.backToBudget));
+    await tester
+        .tap(find.byTooltip(l10n.commonBackTo(l10n.routeBudgetOverview)));
     await tester.pump(const Duration(seconds: 1));
 
     expect(_location(tester), AppRoute.budgetOverview.path);
@@ -143,15 +145,15 @@ void main() {
       expect(july.every((rod) => rod.toY == 0), isTrue);
       expect(july.every((rod) => rod.backDrawRodData.show), isTrue);
       expect(chart.data.barTouchData.allowTouchBarBackDraw, isTrue);
-      expect(find.text("Jul '26\n${BudgetTexts.noBudget}"), findsOneWidget);
+      expect(find.text("Jul '26\n${l10n.noBudget}"), findsOneWidget);
     });
 
     test('tells a missing month apart in its tooltip', () {
-      final missing = ComparisonBars.tooltipOf(comparisonOf(7));
-      final october = ComparisonBars.tooltipOf(sixMonthComparison.last);
+      final missing = ComparisonBars.tooltipOf(l10n, comparisonOf(7));
+      final october = ComparisonBars.tooltipOf(l10n, sixMonthComparison.last);
 
       expect(missing.text, 'July 2026\n');
-      expect(missing.children?.single.text, BudgetTexts.noBudget);
+      expect(missing.children?.single.text, l10n.noBudget);
       final lines = october.children!.map((span) => span.text).join();
       expect(lines, contains(PercentFormatter.format(48.5)));
     });
@@ -192,15 +194,18 @@ void main() {
       for (var index = 1; index < labels.length; index++) {
         expect(labels[index - 1].right, lessThan(labels[index].left));
       }
-      expect(find.textContaining(BudgetTexts.noBudget), findsWidgets);
+      expect(find.textContaining(l10n.noBudget), findsWidgets);
       expect(tester.takeException(), isNull);
     });
 
     test('sizes the bars to the room of each month', () {
       final scale = BudgetComparisonScale.of(sixMonthComparison);
-      double rodWidthAt(double groupWidth) =>
-          ComparisonBars(sixMonthComparison, scale, groupWidth: groupWidth)
-              .rodWidth;
+      double rodWidthAt(double groupWidth) => ComparisonBars(
+            l10n,
+            sixMonthComparison,
+            scale,
+            groupWidth: groupWidth,
+          ).rodWidth;
 
       expect(rodWidthAt(40), lessThan(rodWidthAt(50)));
       expect(rodWidthAt(1), ComparisonBars.minRodWidth);
@@ -251,8 +256,8 @@ void main() {
       expect(
         find.bySemanticsLabel(
           RegExp(
-            '^${BudgetTexts.comparisonChartLabel}, May 2026 – October 2026, '
-            '5 ${BudgetTexts.monthsWithBudget}',
+            '^Budget comparison chart, May 2026 – October 2026, '
+            '5 with a budget',
           ),
         ),
         findsOneWidget,
@@ -283,9 +288,9 @@ void main() {
       expect(cells.first.text, 'Jul 2026');
       expect(
         cells.skip(1).map((cell) => cell.text),
-        everyElement(BudgetTexts.noValue),
+        everyElement(ReportTable.noValue),
       );
-      expect(BudgetComparisonTable.percentCell(null).text, BudgetTexts.noValue);
+      expect(BudgetComparisonTable.percentCell(null).text, ReportTable.noValue);
     });
 
     test('shows a negative cash flow in red', () {

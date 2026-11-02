@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
-import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
 
 /// Says that the progress of the goals could not be loaded, with a button
 /// that loads everything again.
@@ -36,7 +36,7 @@ class ProjectionsNotice extends StatelessWidget {
                 child: Semantics(
                   liveRegion: true,
                   child: Text(
-                    GoalsTexts.projectionsUnavailable,
+                    context.l10n.goalsProjectionsUnavailable,
                     style: AppTypography.bodyMedium.copyWith(
                       color: AppColors.textPrimary,
                     ),
@@ -49,7 +49,7 @@ class ProjectionsNotice extends StatelessWidget {
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.textPrimary,
                 ),
-                child: const Text(GoalsTexts.retry),
+                child: Text(context.l10n.commonRetry),
               ),
             ],
           ),

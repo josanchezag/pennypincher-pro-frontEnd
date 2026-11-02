@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
-import 'package:pennypincher_pro/core/theme/app_theme.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_budget_entity.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/expense_percentage_row.dart';
 
+import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 
 void main() {
@@ -86,8 +86,7 @@ void main() {
     TargetDirection direction = TargetDirection.atMost,
   }) =>
       tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.dark,
+        localizedApp(
           home: Scaffold(
             body: SizedBox(
               width: width,

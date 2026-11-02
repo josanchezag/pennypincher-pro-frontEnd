@@ -10,15 +10,16 @@ import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
+import 'package:pennypincher_pro/core/widgets/report_table.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_trend_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_report_bloc.dart';
-import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_texts.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/net_worth_report_screen.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/widget/full_history_chart.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/widget/net_worth_report_table.dart';
 
+import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/net_worth_fixtures.dart';
 import '../../../../helpers/net_worth_mocks.dart';
@@ -84,7 +85,7 @@ void main() {
   testWidgets('switches to the range picked in the selector', (tester) async {
     final bloc = await pumpReport(tester, _loaded(threeMonthTrend));
 
-    await tester.tap(find.text(TimeRange.sixMonths.label));
+    await tester.tap(find.text(TimeRange.sixMonths.label(l10n)));
     await tester.pump();
 
     verify(
@@ -109,7 +110,7 @@ void main() {
     await pumpReport(tester, _loaded(const NetWorthTrend([])));
     registerNetWorthBloc(const NetWorthLoading());
 
-    expect(find.text(NetWorthTexts.reportEmptyTitle), findsOneWidget);
+    expect(find.text(l10n.netWorthReportEmptyTitle), findsOneWidget);
     await tester.tap(find.byKey(NetWorthReportScreen.recordSnapshotKey));
     await tester.pump(const Duration(seconds: 1));
 
@@ -120,7 +121,7 @@ void main() {
     await pumpReport(tester, _loaded(threeMonthTrend));
     registerNetWorthBloc(const NetWorthLoading());
 
-    await tester.tap(find.byTooltip(NetWorthTexts.backToNetWorth));
+    await tester.tap(find.byTooltip(l10n.commonBackTo(l10n.routeNetWorth)));
     await tester.pump(const Duration(seconds: 1));
 
     expect(_location(tester), AppRoute.netWorth.path);
@@ -130,7 +131,7 @@ void main() {
     testWidgets('shows the latest month and its change', (tester) async {
       await pumpReport(tester, _loaded(threeMonthTrend));
 
-      final latest = _card(tester, NetWorthTexts.latestNetWorth);
+      final latest = _card(tester, l10n.netWorthLatest);
       expect(
         latest.value,
         CurrencyFormatter.format(const Money.fromPesos(130000000)),
@@ -142,7 +143,7 @@ void main() {
     testWidgets('names the best month in gold', (tester) async {
       await pumpReport(tester, _loaded(threeMonthTrend));
 
-      final best = _card(tester, NetWorthTexts.bestMonth);
+      final best = _card(tester, l10n.netWorthBestMonth);
       expect(best.label, endsWith('Sep 2026'));
       expect(
         best.value,
@@ -155,7 +156,7 @@ void main() {
         (tester) async {
       await pumpReport(tester, _loaded(threeMonthTrend));
 
-      final change = _card(tester, NetWorthTexts.changeSinceStart);
+      final change = _card(tester, l10n.netWorthChangeInRange);
       expect(
         change.value,
         CurrencyFormatter.formatSigned(const Money.fromPesos(30000000)),
@@ -163,8 +164,7 @@ void main() {
       expect(change.valueColor, AppColors.success);
       expect(
         change.delta?.text,
-        '+${PercentFormatter.format(30)} '
-        '${NetWorthTexts.sinceStartPrefix} Aug 2026',
+        l10n.netWorthChangeSince('+${PercentFormatter.format(30)}', 'Aug 2026'),
       );
     });
 
@@ -176,9 +176,9 @@ void main() {
       ]);
       await pumpReport(tester, _loaded(trend));
 
-      final change = _card(tester, NetWorthTexts.changeSinceStart);
+      final change = _card(tester, l10n.netWorthChangeInRange);
       expect(change.valueColor, AppColors.error);
-      expect(change.delta?.text, '${NetWorthTexts.sinceStartPrefix} Sep 2026');
+      expect(change.delta?.text, l10n.netWorthSince('Sep 2026'));
     });
 
     testWidgets('has no month-over-month change for a single month',
@@ -188,7 +188,7 @@ void main() {
       ]);
       await pumpReport(tester, _loaded(trend));
 
-      expect(_card(tester, NetWorthTexts.latestNetWorth).delta, isNull);
+      expect(_card(tester, l10n.netWorthLatest).delta, isNull);
     });
   });
 
@@ -221,7 +221,7 @@ void main() {
       expect(
         find.bySemanticsLabel(
           RegExp(
-            '^${NetWorthTexts.reportChartLabel}, 3 months from August 2026 '
+            '^Net worth history chart, 3 months from August 2026 '
             'to October 2026',
           ),
         ),
@@ -256,7 +256,7 @@ void main() {
 
   group('table', () {
     test('colors the change, with a dash for the first month', () {
-      expect(NetWorthReportTable.deltaCell(null).text, NetWorthTexts.noDelta);
+      expect(NetWorthReportTable.deltaCell(null).text, ReportTable.noValue);
       expect(
         NetWorthReportTable.deltaCell(const Money.fromPesos(5)).color,
         AppColors.success,
@@ -278,14 +278,17 @@ void main() {
       await reveal(tester, find.byType(DataTable));
 
       final table = tester.widget<DataTable>(find.byType(DataTable));
-      expect(table.columns, hasLength(NetWorthReportTable.columns.length));
+      expect(
+        table.columns,
+        hasLength(NetWorthReportTable.columns(l10n).length),
+      );
       expect(table.rows, hasLength(3));
       expect(table.rows.map((row) => row.color), [
         null,
         isNotNull,
         null,
       ]);
-      expect(find.text(NetWorthTexts.best.toUpperCase()), findsOneWidget);
+      expect(find.text(l10n.netWorthBest.toUpperCase()), findsOneWidget);
       expect(
         tester.getTopLeft(find.text('Oct 2026')).dy,
         lessThan(tester.getTopLeft(find.text('Aug 2026')).dy),
@@ -297,8 +300,8 @@ void main() {
       await reveal(tester, find.text('Aug 2026'));
 
       expect(find.byType(DataTable), findsNothing);
-      expect(find.text(NetWorthTexts.noDelta), findsOneWidget);
-      expect(find.text(NetWorthTexts.best.toUpperCase()), findsOneWidget);
+      expect(find.text(ReportTable.noValue), findsOneWidget);
+      expect(find.text(l10n.netWorthBest.toUpperCase()), findsOneWidget);
     });
   });
 

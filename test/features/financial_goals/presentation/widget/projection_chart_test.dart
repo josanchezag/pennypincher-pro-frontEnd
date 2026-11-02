@@ -2,7 +2,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
-import 'package:pennypincher_pro/core/theme/app_theme.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
@@ -12,6 +11,7 @@ import 'package:pennypincher_pro/features/financial_goals/presentation/widget/pr
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/projection_summary.dart';
 
 import '../../../../helpers/goal_fixtures.dart';
+import '../../../../helpers/l10n.dart';
 
 final GoalProjection _reachable = computedProjection(
   target: 605000000,
@@ -35,8 +35,7 @@ Future<LineChartData> _pumpChart(
   GoalProjection projection,
 ) async {
   await tester.pumpWidget(
-    MaterialApp(
-      theme: AppTheme.dark,
+    localizedApp(
       home: Scaffold(body: ProjectionChart(projection: projection)),
     ),
   );
@@ -195,7 +194,7 @@ void main() {
   group('summary', () {
     test('says when the goal is reached at this rate', () {
       expect(
-        ProjectionSummary.textOf(_reachable),
+        ProjectionSummary.textOf(l10n, _reachable),
         "At this rate, you'll reach Seguridad Financiera in 2,58 years "
         'on May 2029',
       );
@@ -204,12 +203,12 @@ void main() {
     test('says a single year in the singular', () {
       final inAYear = _reachable.copyWith(projectedYearsToGoal: 1);
 
-      expect(ProjectionSummary.textOf(inAYear), contains('in 1 year on'));
+      expect(ProjectionSummary.textOf(l10n, inAYear), contains('in 1 year on'));
     });
 
     test('says when the goal is already reached', () {
       expect(
-        ProjectionSummary.textOf(_reached),
+        ProjectionSummary.textOf(l10n, _reached),
         "You've already reached Seguridad Financiera: your current net "
         'worth covers its target.',
       );
@@ -217,7 +216,7 @@ void main() {
 
     test('says when the goal is out of reach', () {
       expect(
-        ProjectionSummary.textOf(_unreachable),
+        ProjectionSummary.textOf(l10n, _unreachable),
         startsWith(
           "At this rate, you won't reach Seguridad Financiera within 50 years",
         ),

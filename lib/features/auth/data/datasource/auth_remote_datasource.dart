@@ -46,7 +46,7 @@ class DioAuthRemoteDataSource implements AuthRemoteDataSource {
   @override
   Future<AuthSessionModel> devLogin() async {
     if (kReleaseMode && !AppConfig.devLoginCompiled) {
-      throw const AppException(
+      throw AppException(
         code: ErrorCodes.unknown,
         message: ErrorMessages.unexpected,
       );

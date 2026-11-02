@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
-import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
 import 'package:pennypincher_pro/core/crud/presentation/layout/item_form.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_fields.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
@@ -106,7 +106,7 @@ class _ItemFormSheetState<T extends CrudItem, D>
             child: Text(widget.title, style: AppTypography.heading3),
           ),
           const SizedBox(height: AppSpacing.lg),
-          ...ItemFormFields.spaced(widget.form.formFields()),
+          ...ItemFormFields.spaced(widget.form.formFields(context.l10n)),
           if (_error != null) _ErrorText(message: _error!),
           const SizedBox(height: AppSpacing.lg),
           _SaveButton(saving: _saving, onPressed: _submit),
@@ -197,8 +197,8 @@ class _SaveButton extends StatelessWidget {
       key: ItemFormSheet.saveKey,
       onPressed: saving ? null : onPressed,
       child: saving
-          ? const ButtonProgressIcon(semanticsLabel: CrudTexts.saving)
-          : const Text(CrudTexts.save),
+          ? ButtonProgressIcon(semanticsLabel: context.l10n.commonSaving)
+          : Text(context.l10n.commonSave),
     );
   }
 }

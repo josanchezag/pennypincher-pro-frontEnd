@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/widgets/chart_legend.dart';
 import 'package:pennypincher_pro/core/widgets/report_section_card.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_comparison_entity.dart';
-import 'package:pennypincher_pro/features/budget/presentation/budget_texts.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_comparison_chart.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_comparison_table.dart';
 
@@ -11,35 +11,35 @@ import 'package:pennypincher_pro/features/budget/presentation/widget/budget_comp
 class BudgetComparisonChartCard extends StatelessWidget {
   const BudgetComparisonChartCard({required this.months, super.key});
 
-  static const List<LegendEntry> legend = [
-    LegendEntry(
-      color: BudgetComparisonChart.incomeColor,
-      label: BudgetTexts.income,
-    ),
-    LegendEntry(
-      color: BudgetComparisonChart.expensesColor,
-      label: BudgetTexts.expenses,
-    ),
-    LegendEntry(
-      color: BudgetComparisonChart.cashFlowColor,
-      label: BudgetTexts.cashFlow,
-    ),
-    LegendEntry(
-      color: BudgetComparisonChart.emptyColor,
-      label: BudgetTexts.noBudget,
-    ),
-  ];
+  static List<LegendEntry> legend(AppLocalizations l10n) => [
+        LegendEntry(
+          color: BudgetComparisonChart.incomeColor,
+          label: l10n.income,
+        ),
+        LegendEntry(
+          color: BudgetComparisonChart.expensesColor,
+          label: l10n.expenses,
+        ),
+        LegendEntry(
+          color: BudgetComparisonChart.cashFlowColor,
+          label: l10n.cashFlow,
+        ),
+        LegendEntry(
+          color: BudgetComparisonChart.emptyColor,
+          label: l10n.noBudget,
+        ),
+      ];
 
   final List<MonthComparison> months;
 
   @override
   Widget build(BuildContext context) {
     return ReportSectionCard(
-      title: BudgetTexts.comparisonChartTitle,
+      title: context.l10n.budgetComparisonChartTitle,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ChartLegend(entries: legend),
+          ChartLegend(entries: legend(context.l10n)),
           const SizedBox(height: AppSpacing.md),
           BudgetComparisonChart(months: months),
         ],
@@ -57,7 +57,7 @@ class BudgetComparisonTableCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ReportSectionCard(
-      title: BudgetTexts.comparisonTableTitle,
+      title: context.l10n.monthByMonth,
       child: BudgetComparisonTable(months: months),
     );
   }

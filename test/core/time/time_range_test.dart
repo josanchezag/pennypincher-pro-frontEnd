@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pennypincher_pro/core/time/time_range.dart';
 
+import '../../helpers/l10n.dart';
+
 void main() {
   final now = DateTime(2026, 10, 23, 21, 30);
 
@@ -22,7 +24,7 @@ void main() {
   });
 
   test('labels the ranges for the selector', () {
-    expect(TimeRange.values.map((range) => range.label), [
+    expect(TimeRange.values.map((range) => range.label(l10n)), [
       '6M',
       '1Y',
       '3Y',

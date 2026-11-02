@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pennypincher_pro/features/budget/presentation/budget_texts.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 /// Small dialog that edits one optional value of the budget as text. It
@@ -88,17 +88,17 @@ class _BudgetValueDialogState extends State<BudgetValueDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('${BudgetTexts.editPrefix} ${widget.label}'),
+      title: Text(context.l10n.budgetEditValue(widget.label)),
       content: ReactiveForm(formGroup: _form, child: _field()),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text(BudgetTexts.cancel),
+          child: Text(context.l10n.commonCancel),
         ),
         FilledButton(
           key: BudgetValueDialog.saveKey,
           onPressed: _save,
-          child: const Text(BudgetTexts.save),
+          child: Text(context.l10n.commonSave),
         ),
       ],
     );
@@ -113,7 +113,7 @@ class _BudgetValueDialogState extends State<BudgetValueDialog> {
         onSubmitted: (_) => _save(),
         decoration: InputDecoration(
           labelText: widget.label,
-          helperText: BudgetTexts.clearHint,
+          helperText: context.l10n.budgetClearHint,
           helperMaxLines: BudgetValueDialog.maxMessageLines,
           errorMaxLines: BudgetValueDialog.maxMessageLines,
         ),

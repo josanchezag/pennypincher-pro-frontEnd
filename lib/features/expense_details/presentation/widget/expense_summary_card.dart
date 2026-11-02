@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_tile.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
@@ -10,7 +10,6 @@ import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/expense_summary_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/expenses_hub_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/expense_kinds.dart';
-import 'package:pennypincher_pro/features/expense_details/presentation/expense_texts.dart';
 
 /// Hub card of one expense list: its live totals, a skeleton while they
 /// load, or the error with a retry button. Tapping it opens the list, so
@@ -81,7 +80,7 @@ class _Title extends StatelessWidget {
         const SizedBox(width: AppSpacing.xs),
         Expanded(
           child: Text(
-            view.route.title,
+            view.route.title(context.l10n),
             style: AppTypography.heading3,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -106,7 +105,10 @@ class _Totals extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(view.monthlyLabel.toUpperCase(), style: AppTypography.label),
+        Text(
+          view.monthlyLabel(context.l10n).toUpperCase(),
+          style: AppTypography.label,
+        ),
         const SizedBox(height: AppSpacing.xxs),
         FittedBox(
           fit: BoxFit.scaleDown,
@@ -120,10 +122,13 @@ class _Totals extends StatelessWidget {
         const Spacer(),
         if (balanceLabel != null && balance != null)
           LabeledAmount(
-            label: balanceLabel,
+            label: balanceLabel(context.l10n),
             amount: CurrencyFormatter.format(balance),
           ),
-        Text(view.countLabel(summary.count), style: AppTypography.bodySmall),
+        Text(
+          view.count(context.l10n, summary.count),
+          style: AppTypography.bodySmall,
+        ),
       ],
     );
   }
@@ -138,7 +143,7 @@ class _Skeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: LoadingSkeleton.defaultLabel,
+      label: context.l10n.commonLoading,
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -164,7 +169,10 @@ class _Failure extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(ExpenseTexts.hubLoadError, style: AppTypography.bodyMedium),
+        Text(
+          context.l10n.expenseHubLoadError,
+          style: AppTypography.bodyMedium,
+        ),
         Text(
           message,
           style: AppTypography.bodySmall.copyWith(color: AppColors.error),
@@ -175,7 +183,7 @@ class _Failure extends StatelessWidget {
         TextButton.icon(
           onPressed: onRetry,
           icon: const Icon(Icons.refresh),
-          label: const Text(CrudTexts.retry),
+          label: Text(context.l10n.commonRetry),
         ),
       ],
     );

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
-import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_figures.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_level_badge.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/halfway_celebration.dart';
@@ -58,7 +58,7 @@ class GoalCard extends StatelessWidget {
                     key: seeProjectionKey,
                     onPressed: onSeeProjection,
                     icon: const Icon(Icons.show_chart),
-                    label: const Text(GoalsTexts.seeProjection),
+                    label: Text(context.l10n.goalsSeeProjection),
                   ),
                 ),
               ],

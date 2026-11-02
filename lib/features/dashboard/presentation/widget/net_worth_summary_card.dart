@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
@@ -8,7 +9,6 @@ import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/labeled_figure.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/dashboard_summary_entity.dart';
-import 'package:pennypincher_pro/features/dashboard/presentation/dashboard_texts.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/dashboard_card.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/mini_sparkline.dart';
 
@@ -30,51 +30,53 @@ class NetWorthSummaryCard extends StatelessWidget {
 
   /// `+$ 5.282.773 (+1,3 %) vs Sep 2026`; the percentage is left out when
   /// the previous net worth was zero.
-  static String deltaText(NetWorthChange change) {
+  static String deltaText(AppLocalizations l10n, NetWorthChange change) {
     final percentage = change.percentage;
     final sign = change.delta.isNegative ? '' : CurrencyFormatter.positiveSign;
     final share = percentage == null
         ? ''
         : ' ($sign${PercentFormatter.format(percentage)})';
-    return '${CurrencyFormatter.formatSigned(change.delta)}$share '
-        '${DashboardTexts.versus} ${MonthFormat.short.format(change.previousDate)}';
+    return l10n.changeVersus(
+      '${CurrencyFormatter.formatSigned(change.delta)}$share',
+      MonthFormat.short.format(change.previousDate),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return DashboardCard(
       icon: Icons.account_balance_outlined,
-      title: DashboardTexts.netWorth,
+      title: context.l10n.netWorth,
       children: [
         _Value(amount: netWorth),
         const SizedBox(height: AppSpacing.xxs),
-        _change(),
+        _change(context.l10n),
         const SizedBox(height: AppSpacing.md),
         _Totals(netWorth: netWorth),
         const SizedBox(height: AppSpacing.md),
-        _trend(),
+        _trend(context.l10n),
       ],
     );
   }
 
-  Widget _change() {
+  Widget _change(AppLocalizations l10n) {
     final change = netWorth.change;
     if (change == null) {
-      return const Text(
-        DashboardTexts.noPreviousSnapshot,
+      return Text(
+        l10n.dashboardNoPreviousSnapshot,
         style: AppTypography.bodySmall,
       );
     }
     return StatDeltaLine(
       delta: StatDelta(
-        text: deltaText(change),
+        text: deltaText(l10n, change),
         isPositive: !change.delta.isNegative,
       ),
     );
   }
 
-  Widget _trend() => sparkline.length < minSparklinePoints
-      ? const Text(DashboardTexts.sparklineHint, style: AppTypography.bodySmall)
+  Widget _trend(AppLocalizations l10n) => sparkline.length < minSparklinePoints
+      ? Text(l10n.dashboardSparklineHint, style: AppTypography.bodySmall)
       : MiniSparkline(points: sparkline);
 }
 
@@ -114,7 +116,7 @@ class _Totals extends StatelessWidget {
       children: [
         Expanded(
           child: LabeledFigure(
-            label: DashboardTexts.totalAssets,
+            label: context.l10n.totalAssets,
             value: CurrencyFormatter.format(netWorth.totalAssets),
             valueColor: AppColors.success,
           ),
@@ -122,7 +124,7 @@ class _Totals extends StatelessWidget {
         const SizedBox(width: AppSpacing.md),
         Expanded(
           child: LabeledFigure(
-            label: DashboardTexts.totalLiabilities,
+            label: context.l10n.totalLiabilities,
             value: CurrencyFormatter.format(netWorth.totalLiabilities),
             valueColor: AppColors.error,
           ),

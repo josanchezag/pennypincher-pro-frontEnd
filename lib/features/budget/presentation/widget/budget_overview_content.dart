@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_breakpoints.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
+import 'package:pennypincher_pro/core/time/month_format.dart';
 import 'package:pennypincher_pro/core/widgets/confirmation_dialog.dart';
-import 'package:pennypincher_pro/core/widgets/month_selector.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_budget_entity.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart';
-import 'package:pennypincher_pro/features/budget/presentation/budget_texts.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_breakdown_card.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_details_card.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_income_card.dart';
@@ -89,10 +89,11 @@ class BudgetOverviewContent extends StatelessWidget {
     final bloc = context.read<MonthlyBudgetBloc>();
     final confirmed = await ConfirmationDialog.show(
       context,
-      title: '${BudgetTexts.recalculateTitlePrefix} '
-          '${MonthSelector.label(state.month)}?',
-      message: BudgetTexts.recalculateMessage,
-      confirmLabel: BudgetTexts.recalculate,
+      title: context.l10n.budgetRecalculateTitle(
+        MonthFormat.long.format(state.month),
+      ),
+      message: context.l10n.budgetRecalculateMessage,
+      confirmLabel: context.l10n.budgetRecalculate,
     );
     if (confirmed) {
       bloc.add(const MonthlyBudgetRecalculateRequested());

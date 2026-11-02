@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pennypincher_pro/core/config/app_config.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_breakpoints.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
@@ -14,9 +15,6 @@ import 'package:pennypincher_pro/features/auth/presentation/widget/google_sign_i
 class LoginScreen extends StatelessWidget {
   const LoginScreen({required this.config, super.key});
 
-  static const String devLoginLabel = 'Dev login';
-  static const String notConfiguredMessage =
-      'Google sign-in is not configured for this build.';
   static const double cardMaxWidth = 440;
   static const Key cardKey = Key('login-card');
   static const Key devLoginKey = Key('dev-login-button');
@@ -116,8 +114,8 @@ class _LoginContent extends StatelessWidget {
         ),
         if (!config.isGoogleSignInConfigured) ...[
           const SizedBox(height: AppSpacing.xs),
-          const Text(
-            LoginScreen.notConfiguredMessage,
+          Text(
+            context.l10n.googleSignInNotConfiguredForBuild,
             style: AppTypography.bodySmall,
             textAlign: TextAlign.center,
           ),
@@ -150,7 +148,7 @@ class _DevLoginButton extends StatelessWidget {
             ? null
             : () => _add(context, const AuthDevSignInRequested()),
         icon: const Icon(Icons.developer_mode_outlined),
-        label: const Text(LoginScreen.devLoginLabel),
+        label: Text(context.l10n.devLogin),
       ),
     );
   }

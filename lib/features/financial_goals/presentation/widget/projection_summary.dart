@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_projection_entity.dart';
-import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
 
 /// One sentence under the projection chart: when the goal is reached at
 /// the current pace, that it is already reached, or that it is out of
@@ -16,33 +16,34 @@ class ProjectionSummary extends StatelessWidget {
   final GoalProjection projection;
 
   /// The sentence for [projection].
-  static String textOf(GoalProjection projection) {
+  static String textOf(AppLocalizations l10n, GoalProjection projection) {
     final name = projection.name;
     final years = projection.projectedYearsToGoal;
     final date = projection.projectedAchievementDate;
     if (projection.alreadyReached) {
-      return '${GoalsTexts.alreadyReachedPrefix} $name'
-          '${GoalsTexts.alreadyReachedSuffix}';
+      return l10n.goalsAlreadyReached(name);
     }
     if (!projection.reachable || years == null || date == null) {
-      return '${GoalsTexts.notReachablePrefix} $name'
-          '${GoalsTexts.notReachableSuffix}';
+      return l10n.goalsNotReachableSummary(
+        name,
+        GoalProjection.maxHorizonYears,
+      );
     }
-    return '${GoalsTexts.summaryPrefix} $name ${GoalsTexts.summaryIn} '
-        '${_yearsText(years)} ${GoalsTexts.summaryOn} '
-        '${MonthFormat.long.format(date)}';
-  }
-
-  static String _yearsText(double years) {
-    final unit = years == 1 ? GoalsTexts.year : GoalsTexts.yearsSuffix;
-    return '${_years.format(years)} $unit';
+    return l10n.goalsSummaryReach(
+      name,
+      l10n.goalsYears(years, _years.format(years)),
+      MonthFormat.long.format(date),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
       liveRegion: true,
-      child: Text(textOf(projection), style: AppTypography.bodyLarge),
+      child: Text(
+        textOf(context.l10n, projection),
+        style: AppTypography.bodyLarge,
+      ),
     );
   }
 }

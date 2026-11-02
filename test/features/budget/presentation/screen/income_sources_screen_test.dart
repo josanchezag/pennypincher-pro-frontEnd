@@ -11,7 +11,6 @@ import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_sheet.d
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
-import 'package:pennypincher_pro/core/widgets/confirmation_dialog.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/income_source_entity.dart';
@@ -19,10 +18,11 @@ import 'package:pennypincher_pro/features/budget/presentation/screen/income_sour
 
 import '../../../../helpers/budget_fixtures.dart';
 import '../../../../helpers/budget_mocks.dart';
+import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/pump_app.dart';
 
-const CrudScreenConfig<IncomeSource, CategorizedDraft<IncomeCategory>> _config =
+final CrudScreenConfig<IncomeSource, CategorizedDraft<IncomeCategory>> _config =
     IncomeSourcesScreen.config;
 const CrudLoaded<IncomeSource> _loaded =
     CrudLoaded([arriendoMadera, remoti, avenueCode]);
@@ -118,9 +118,9 @@ void main() {
     await tester.tap(find.byKey(CrudScreen.addButtonKey));
     await tester.pumpAndSettle();
     expect(find.text('Add income source'), findsWidgets);
-    await tester.enterText(_field(CrudTexts.nameLabel), ' Airbnb Barranca ');
+    await tester.enterText(_field(l10n.crudNameLabel), ' Airbnb Barranca ');
     await tester.enterText(_field('Monthly amount'), '2.500.000');
-    await tester.tap(find.text(CrudTexts.categoryLabel));
+    await tester.tap(find.text(l10n.crudCategoryLabel));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Rental').last);
     await tester.pumpAndSettle();
@@ -168,16 +168,18 @@ void main() {
       (tester) async {
     final bloc = await pumpIncome(tester, _loaded);
 
-    await tester.tap(find.byTooltip(_config.deleteTooltip('Arriendo Madera')));
+    await tester
+        .tap(find.byTooltip(_config.deleteTooltip(l10n, 'Arriendo Madera')));
     await tester.pumpAndSettle();
     expect(find.text('Delete income source?'), findsOneWidget);
-    await tester.tap(find.text(ConfirmationDialog.cancelLabel));
+    await tester.tap(find.text(l10n.commonCancel));
     await tester.pumpAndSettle();
     verifyNever(() => bloc.add(const CrudDeleteRequested('i3')));
 
-    await tester.tap(find.byTooltip(_config.deleteTooltip('Arriendo Madera')));
+    await tester
+        .tap(find.byTooltip(_config.deleteTooltip(l10n, 'Arriendo Madera')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(CrudTexts.delete));
+    await tester.tap(find.text(l10n.commonDelete));
     await tester.pumpAndSettle();
 
     verify(() => bloc.add(const CrudDeleteRequested('i3'))).called(1);
@@ -186,7 +188,7 @@ void main() {
   testWidgets('goes back to the budget overview', (tester) async {
     await pumpIncome(tester, _loaded);
 
-    expect(_config.backTooltip, 'Back to Budget Overview');
-    expect(find.byTooltip(_config.backTooltip), findsOneWidget);
+    expect(_config.backTooltip(l10n), 'Back to Budget Overview');
+    expect(find.byTooltip(_config.backTooltip(l10n)), findsOneWidget);
   });
 }

@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
-import 'package:pennypincher_pro/core/theme/app_theme.dart';
 import 'package:pennypincher_pro/core/time/time_range.dart';
 import 'package:pennypincher_pro/core/widgets/time_range_selector.dart';
+
+import '../../helpers/l10n.dart';
 
 void main() {
   testWidgets('shows the selected range in white on brand blue',
       (tester) async {
     TimeRange? picked;
     await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.dark,
+      localizedApp(
         home: Scaffold(
           body: TimeRangeSelector(
             selected: TimeRange.oneYear,
@@ -29,14 +29,14 @@ void main() {
     final text = tester.widget<DefaultTextStyle>(
       find
           .ancestor(
-            of: find.text(TimeRange.oneYear.label),
+            of: find.text(TimeRange.oneYear.label(l10n)),
             matching: find.byType(DefaultTextStyle),
           )
           .first,
     );
     expect(text.style.color, AppColors.textOnBrand);
 
-    await tester.tap(find.text(TimeRange.all.label));
+    await tester.tap(find.text(TimeRange.all.label(l10n)));
     expect(picked, TimeRange.all);
   });
 }

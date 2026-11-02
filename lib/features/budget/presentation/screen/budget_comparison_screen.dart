@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
+import 'package:pennypincher_pro/core/time/month_format.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
-import 'package:pennypincher_pro/core/widgets/month_selector.dart';
 import 'package:pennypincher_pro/core/widgets/screen_title_row.dart';
 import 'package:pennypincher_pro/core/widgets/status_message.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_comparison_entity.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/budget_comparison_bloc.dart';
-import 'package:pennypincher_pro/features/budget/presentation/budget_texts.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_comparison_cards.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_comparison_chart.dart';
 
@@ -44,14 +44,14 @@ class BudgetComparisonScreen extends StatelessWidget {
 
   static Widget _body(BuildContext context, BudgetComparisonState state) =>
       switch (state.status) {
-        ComparisonStatus.loading => const LoadingSkeleton(
+        ComparisonStatus.loading => LoadingSkeleton(
             heights: skeletonHeights,
-            label: BudgetTexts.comparisonLoadingLabel,
+            label: context.l10n.budgetComparisonLoadingLabel,
           ),
         ComparisonStatus.failure => SingleChildScrollView(
             child: StatusMessage(
               icon: Icons.cloud_off_outlined,
-              title: BudgetTexts.comparisonLoadErrorTitle,
+              title: context.l10n.budgetComparisonLoadErrorTitle,
               message: state.error ?? '',
               action: FilledButton.icon(
                 key: retryKey,
@@ -59,7 +59,7 @@ class BudgetComparisonScreen extends StatelessWidget {
                     .read<BudgetComparisonBloc>()
                     .add(const BudgetComparisonLoadRequested()),
                 icon: const Icon(Icons.refresh),
-                label: const Text(BudgetTexts.retry),
+                label: Text(context.l10n.commonRetry),
               ),
             ),
           ),
@@ -87,15 +87,18 @@ class _Header extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ScreenTitleRow(
-            title: AppRoute.budgetComparison.title,
-            backTooltip: BudgetTexts.backToBudget,
+            title: AppRoute.budgetComparison.title(context.l10n),
+            backTooltip: context.l10n.commonBackTo(
+              AppRoute.budgetOverview.title(context.l10n),
+            ),
             parent: AppRoute.budgetOverview.name,
           ),
           if (months.isNotEmpty)
             Text(
-              '${BudgetTexts.comparisonSubtitlePrefix} ${months.length} '
-              '${BudgetTexts.comparisonSubtitleSuffix} '
-              '${MonthSelector.label(months.last.month)}',
+              context.l10n.budgetComparisonSubtitle(
+                months.length,
+                MonthFormat.long.format(months.last.month),
+              ),
               style: AppTypography.bodyMedium,
             ),
         ],
@@ -111,13 +114,13 @@ class _NoBudgets extends StatelessWidget {
   Widget build(BuildContext context) {
     return StatusMessage(
       icon: Icons.bar_chart,
-      title: BudgetTexts.comparisonEmptyTitle,
-      message: BudgetTexts.comparisonEmptyMessage,
+      title: context.l10n.budgetComparisonEmptyTitle,
+      message: context.l10n.budgetComparisonEmptyMessage,
       action: FilledButton.icon(
         key: BudgetComparisonScreen.openBudgetKey,
         onPressed: () => context.goNamed(AppRoute.budgetOverview.name),
         icon: const Icon(Icons.pie_chart_outline),
-        label: const Text(BudgetTexts.openBudget),
+        label: Text(context.l10n.budgetOpenBudget),
       ),
     );
   }

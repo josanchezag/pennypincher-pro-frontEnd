@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_breakpoints.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
@@ -9,7 +10,6 @@ import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/expense_summary_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/expenses_hub_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/expense_kinds.dart';
-import 'package:pennypincher_pro/features/expense_details/presentation/expense_texts.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/widget/expense_summary_card.dart';
 
 /// `/expenses`: one card per expense list with its live totals, and a
@@ -79,7 +79,10 @@ class _Title extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: Semantics(
         header: true,
-        child: Text(AppRoute.expenses.title, style: AppTypography.heading1),
+        child: Text(
+          AppRoute.expenses.title(context.l10n),
+          style: AppTypography.heading1,
+        ),
       ),
     );
   }
@@ -101,14 +104,14 @@ class _BudgetHint extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  ExpenseTexts.budgetHint,
+                Text(
+                  context.l10n.expenseBudgetHint,
                   style: AppTypography.bodyMedium,
                 ),
                 TextButton(
                   onPressed: () =>
                       context.goNamed(AppRoute.budgetOverview.name),
-                  child: const Text(ExpenseTexts.openBudgetOverview),
+                  child: Text(context.l10n.expenseOpenBudgetOverview),
                 ),
               ],
             ),

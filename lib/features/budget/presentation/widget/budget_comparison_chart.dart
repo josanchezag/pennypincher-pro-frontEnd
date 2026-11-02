@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
@@ -10,7 +11,6 @@ import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/chart_style.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_comparison_entity.dart';
-import 'package:pennypincher_pro/features/budget/presentation/budget_texts.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_comparison_scale.dart';
 
 /// Income and expense bars per month with the cash flow line behind them.
@@ -44,7 +44,7 @@ class BudgetComparisonChart extends StatelessWidget {
     final scale = BudgetComparisonScale.of(months);
     return Semantics(
       container: true,
-      label: _description(),
+      label: _description(context.l10n),
       child: ExcludeSemantics(
         child: SizedBox(
           height: height,
@@ -59,6 +59,7 @@ class BudgetComparisonChart extends StatelessWidget {
                 Positioned.fill(
                   child: BarChart(
                     ComparisonBars(
+                      context.l10n,
                       months,
                       scale,
                       groupWidth: groupWidthOf(constraints.maxWidth),
@@ -77,18 +78,22 @@ class BudgetComparisonChart extends StatelessWidget {
   double groupWidthOf(double width) =>
       math.max(width - axisWidth, 0) / months.length;
 
-  String _description() {
-    final withBudget = months.where((month) => month.exists).length;
-    return '${BudgetTexts.comparisonChartLabel}, '
-        '${MonthFormat.long.format(months.first.month)} – '
-        '${MonthFormat.long.format(months.last.month)}, $withBudget '
-        '${BudgetTexts.monthsWithBudget}';
-  }
+  String _description(AppLocalizations l10n) =>
+      l10n.budgetComparisonChartDescription(
+        MonthFormat.long.format(months.first.month),
+        MonthFormat.long.format(months.last.month),
+        months.where((month) => month.exists).length,
+      );
 }
 
 /// Bars of a [BudgetComparisonChart].
 class ComparisonBars {
-  const ComparisonBars(this.months, this.scale, {required this.groupWidth});
+  const ComparisonBars(
+    this.l10n,
+    this.months,
+    this.scale, {
+    required this.groupWidth,
+  });
 
   /// Share of a month's width taken by each of its two bars, and the
   /// limits of a bar's width.
@@ -103,6 +108,10 @@ class ComparisonBars {
   /// `No budget` label.
   static const double wideLabelWidth = 72;
 
+  /// Between the cash flow and its share of the income in a tooltip.
+  static const String detailSeparator = ' · ';
+
+  final AppLocalizations l10n;
   final List<MonthComparison> months;
   final BudgetComparisonScale scale;
 
@@ -162,11 +171,14 @@ class ComparisonBars {
         fitInsideVertically: true,
         maxContentWidth: BudgetComparisonChart.tooltipWidth,
         getTooltipItem: (group, groupIndex, rod, rodIndex) =>
-            tooltipOf(months[groupIndex]),
+            tooltipOf(l10n, months[groupIndex]),
       );
 
   /// Month and figures of [month], or `No budget`.
-  static BarTooltipItem tooltipOf(MonthComparison month) {
+  static BarTooltipItem tooltipOf(
+    AppLocalizations l10n,
+    MonthComparison month,
+  ) {
     final figures = month.figures;
     final percentage = figures?.cashFlowPercentage;
     return BarTooltipItem(
@@ -174,16 +186,24 @@ class ComparisonBars {
       AppTypography.bodySmall,
       textAlign: TextAlign.left,
       children: figures == null
-          ? [_line(BudgetTexts.noBudget)]
+          ? [_line(l10n.noBudget)]
           : [
-              _line('${BudgetTexts.income} '
-                  '${CurrencyFormatter.format(figures.totalIncome)}\n'),
-              _line('${BudgetTexts.expenses} '
-                  '${CurrencyFormatter.format(figures.totalExpenses)}\n'),
-              _line('${BudgetTexts.cashFlow} '
-                  '${CurrencyFormatter.format(figures.cashFlow)}'
-                  '${percentage == null ? '' : '${BudgetTexts.detailSeparator}'
-                      '${PercentFormatter.format(percentage)}'}'),
+              _line(
+                '${l10n.labelValue(l10n.income, CurrencyFormatter.format(figures.totalIncome))}\n',
+              ),
+              _line(
+                '${l10n.labelValue(l10n.expenses, CurrencyFormatter.format(figures.totalExpenses))}\n',
+              ),
+              _line(
+                l10n.labelValue(
+                  l10n.cashFlow,
+                  percentage == null
+                      ? CurrencyFormatter.format(figures.cashFlow)
+                      : '${CurrencyFormatter.format(figures.cashFlow)}'
+                          '$detailSeparator'
+                          '${PercentFormatter.format(percentage)}',
+                ),
+              ),
             ],
     );
   }
@@ -230,7 +250,7 @@ class ComparisonBars {
       return MonthFormat.axisStacked.format(month.month);
     }
     final label = MonthFormat.axis.format(month.month);
-    return month.exists ? label : '$label\n${BudgetTexts.noBudget}';
+    return month.exists ? label : '$label\n${l10n.noBudget}';
   }
 }
 

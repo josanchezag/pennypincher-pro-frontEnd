@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
@@ -9,7 +10,6 @@ import 'package:pennypincher_pro/core/widgets/status_message.dart';
 import 'package:pennypincher_pro/core/widgets/time_range_selector.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_trend_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_report_bloc.dart';
-import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_texts.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/widget/full_history_chart.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/widget/net_worth_report_cards.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/widget/net_worth_report_summary.dart';
@@ -46,14 +46,14 @@ class NetWorthReportScreen extends StatelessWidget {
   static Widget _body(BuildContext context, NetWorthReportState state) {
     final trend = state.trend;
     return switch (state.status) {
-      ReportStatus.loading => const LoadingSkeleton(
+      ReportStatus.loading => LoadingSkeleton(
           heights: skeletonHeights,
-          label: NetWorthTexts.reportLoadingLabel,
+          label: context.l10n.netWorthReportLoadingLabel,
         ),
       ReportStatus.failure => _scrollable(
           StatusMessage(
             icon: Icons.cloud_off_outlined,
-            title: NetWorthTexts.reportLoadErrorTitle,
+            title: context.l10n.netWorthReportLoadErrorTitle,
             message: state.error ?? '',
             action: FilledButton.icon(
               key: retryKey,
@@ -61,7 +61,7 @@ class NetWorthReportScreen extends StatelessWidget {
                   .read<NetWorthReportBloc>()
                   .add(const NetWorthReportLoadRequested()),
               icon: const Icon(Icons.refresh),
-              label: const Text(NetWorthTexts.retry),
+              label: Text(context.l10n.commonRetry),
             ),
           ),
         ),
@@ -93,8 +93,10 @@ class _Header extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ScreenTitleRow(
-            title: AppRoute.netWorthReport.title,
-            backTooltip: NetWorthTexts.backToNetWorth,
+            title: AppRoute.netWorthReport.title(context.l10n),
+            backTooltip: context.l10n.commonBackTo(
+              AppRoute.netWorth.title(context.l10n),
+            ),
             parent: AppRoute.netWorth.name,
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -117,13 +119,13 @@ class _EmptyReport extends StatelessWidget {
   Widget build(BuildContext context) {
     return StatusMessage(
       icon: Icons.show_chart,
-      title: NetWorthTexts.reportEmptyTitle,
-      message: NetWorthTexts.reportEmptyMessage,
+      title: context.l10n.netWorthReportEmptyTitle,
+      message: context.l10n.netWorthReportEmptyMessage,
       action: FilledButton.icon(
         key: NetWorthReportScreen.recordSnapshotKey,
         onPressed: () => context.goNamed(AppRoute.netWorth.name),
         icon: const Icon(Icons.add_chart),
-        label: const Text(NetWorthTexts.recordSnapshot),
+        label: Text(context.l10n.recordSnapshot),
       ),
     );
   }

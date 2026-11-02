@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 
 /// Top-level sections shown in the navigation bar, rail or drawer.
@@ -15,7 +16,12 @@ enum AppDestination {
   final AppRoute route;
   final IconData icon;
 
-  String get label => route.title;
+  /// Name of the section in the navigation bar or rail; shorter than the
+  /// screen title where the title would not fit a narrow bottom bar.
+  String label(AppLocalizations l10n) => switch (this) {
+        netWorth => l10n.navNetWorth,
+        _ => route.title(l10n),
+      };
 
   /// Sections of the mobile bottom bar. Settings is reached from the app
   /// bar instead, so every label fits on one line on narrow phones.

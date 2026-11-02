@@ -6,7 +6,6 @@ import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/bloc/goal_projection_bloc.dart';
-import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/screen/goal_projection_screen.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/screen/goals_screen.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_card.dart';
@@ -16,6 +15,7 @@ import 'package:pennypincher_pro/features/financial_goals/presentation/widget/pr
 
 import '../../../../helpers/goal_fixtures.dart';
 import '../../../../helpers/goal_mocks.dart';
+import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/net_worth_mocks.dart';
 import '../../../../helpers/pump_app.dart';
@@ -85,7 +85,7 @@ void main() {
         scrollable: find.byType(Scrollable).last,
       );
       expect(
-        find.text(ProjectionSummary.textOf(_projection)),
+        find.text(ProjectionSummary.textOf(l10n, _projection)),
         findsOneWidget,
       );
       expect(tester.takeException(), isNull);
@@ -96,8 +96,8 @@ void main() {
     final bloc =
         await pumpProjection(tester, const GoalProjectionFailure('Offline'));
 
-    expect(find.text(GoalsTexts.projectionErrorTitle), findsOneWidget);
-    await tester.tap(find.text(GoalsTexts.retry));
+    expect(find.text(l10n.goalsProjectionErrorTitle), findsOneWidget);
+    await tester.tap(find.text(l10n.commonRetry));
 
     verify(() => bloc.add(const GoalProjectionRequested('g1'))).called(2);
   });
@@ -110,8 +110,8 @@ void main() {
     );
     registerGoalsBloc(CrudLoaded(excelGoals));
 
-    expect(find.text(GoalsTexts.goalNotFoundTitle), findsOneWidget);
-    await tester.tap(find.text(GoalsTexts.backToGoals));
+    expect(find.text(l10n.goalsNotFoundTitle), findsOneWidget);
+    await tester.tap(find.text(l10n.commonBackTo(l10n.routeGoals)));
     await tester.pumpAndSettle();
 
     expect(find.byType(GoalsScreen), findsOneWidget);
@@ -121,7 +121,7 @@ void main() {
     await pumpProjection(tester, GoalProjectionLoaded(_projection));
     registerGoalsBloc(CrudLoaded(excelGoals));
 
-    await tester.tap(find.byTooltip(GoalsTexts.backToGoals));
+    await tester.tap(find.byTooltip(l10n.commonBackTo(l10n.routeGoals)));
     await tester.pumpAndSettle();
 
     expect(find.byType(GoalsScreen), findsOneWidget);

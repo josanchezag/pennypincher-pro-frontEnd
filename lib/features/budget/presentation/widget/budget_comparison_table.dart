@@ -1,24 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/report_table.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_comparison_entity.dart';
-import 'package:pennypincher_pro/features/budget/presentation/budget_texts.dart';
 
 /// Figures of every compared month, newest first, with the cash flow
 /// share colored by [CashFlowBand] and dashes for months without a budget.
 class BudgetComparisonTable extends StatelessWidget {
   const BudgetComparisonTable({required this.months, super.key});
 
-  static const List<String> columns = [
-    BudgetTexts.month,
-    BudgetTexts.income,
-    BudgetTexts.expenses,
-    BudgetTexts.cashFlow,
-    BudgetTexts.cashFlowPercentShort,
-  ];
+  static List<String> columns(AppLocalizations l10n) => [
+        l10n.tableMonth,
+        l10n.income,
+        l10n.expenses,
+        l10n.cashFlow,
+        l10n.budgetCashFlowPercentShort,
+      ];
+
+  /// Number of [columns].
+  static const int columnCount = 5;
 
   /// Oldest first.
   final List<MonthComparison> months;
@@ -26,7 +29,7 @@ class BudgetComparisonTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ReportTable(
-      columns: columns,
+      columns: columns(context.l10n),
       rows: [
         for (final month in months.reversed) ReportRow(cells: cellsOf(month)),
       ],
@@ -39,8 +42,8 @@ class BudgetComparisonTable extends StatelessWidget {
     if (figures == null) {
       return [
         name,
-        for (var column = 1; column < columns.length; column++)
-          const ReportCell(BudgetTexts.noValue),
+        for (var column = 1; column < columnCount; column++)
+          const ReportCell(ReportTable.noValue),
       ];
     }
     return [
@@ -57,7 +60,7 @@ class BudgetComparisonTable extends StatelessWidget {
 
   /// The share colored by its band, or a dash without one.
   static ReportCell percentCell(double? percentage) => percentage == null
-      ? const ReportCell(BudgetTexts.noValue)
+      ? const ReportCell(ReportTable.noValue)
       : ReportCell(
           PercentFormatter.format(percentage),
           color: colorOf(CashFlowBand.of(percentage)),

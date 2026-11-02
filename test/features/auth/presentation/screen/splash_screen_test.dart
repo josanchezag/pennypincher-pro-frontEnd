@@ -12,6 +12,7 @@ import 'package:pennypincher_pro/features/auth/presentation/screen/splash_screen
 import 'package:pennypincher_pro/features/auth/presentation/widget/brand_header.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/screen/dashboard_screen.dart';
 
+import '../../../../helpers/l10n.dart';
 import '../../../../helpers/mocks.dart';
 import '../../../../helpers/pump_app.dart';
 
@@ -20,7 +21,7 @@ const Duration _halfSecond = Duration(milliseconds: 500);
 
 Finder _screenTitled(AppRoute route) => find.descendant(
       of: find.byType(PlaceholderScreen),
-      matching: find.text(route.title),
+      matching: find.text(route.title(l10n)),
     );
 
 void main() {
@@ -51,9 +52,9 @@ void main() {
     expect(find.byType(SplashScreen), findsOneWidget);
     expect(find.byIcon(BrandHeader.logo), findsOneWidget);
     expect(find.text(AppConstants.appName), findsOneWidget);
-    expect(find.text(AppConstants.tagline), findsOneWidget);
+    expect(find.text(l10n.appTagline), findsOneWidget);
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    expect(find.bySemanticsLabel(SplashScreen.progressLabel), findsOneWidget);
+    expect(find.bySemanticsLabel(l10n.commonLoading), findsOneWidget);
     semantics.dispose();
   });
 

@@ -28,6 +28,9 @@ class ReportRow {
 class ReportTable extends StatelessWidget {
   const ReportTable({required this.columns, required this.rows, super.key});
 
+  /// Shown in a cell that has no value.
+  static const String noValue = '—';
+
   /// Headings; the first one is that of the row names.
   final List<String> columns;
   final List<ReportRow> rows;

@@ -1,37 +1,64 @@
+import 'package:pennypincher_pro/core/constants/app_constants.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
+
 /// Every screen of the application with its URL path and title.
 ///
 /// Paths are absolute so deep links map one-to-one to screens. Navigate
 /// with `context.goNamed(AppRoute.x.name)`.
 enum AppRoute {
-  splash('/', 'PennyPincher Pro'),
-  login('/login', 'Sign in'),
-  dashboard('/dashboard', 'Dashboard'),
-  netWorth('/net-worth', 'Net Worth'),
-  netWorthAssets('/net-worth/assets', 'Assets'),
-  netWorthLiabilities('/net-worth/liabilities', 'Liabilities'),
-  netWorthReport('/net-worth/report', 'Net Worth Report'),
-  budget('/budget', 'Budget'),
-  budgetOverview('/budget/overview', 'Budget Overview'),
-  budgetIncome('/budget/income', 'Income Sources'),
-  budgetComparison('/budget/comparison', 'Budget Comparison'),
-  expenses('/expenses', 'Expenses'),
-  expensesCreditCards('/expenses/credit-cards', 'Credit Cards'),
-  expensesLoans('/expenses/loans', 'Loans'),
-  expensesFixed('/expenses/fixed', 'Fixed Expenses'),
-  expensesVariable('/expenses/variable', 'Variable Expenses'),
-  expensesSavings('/expenses/savings', 'Savings'),
-  goals('/goals', 'Goals'),
-  goalProjection('/goals/:$goalIdParam/projection', 'Goal Projection'),
-  settings('/settings', 'Settings'),
-  settingsProfile('/settings/profile', 'Profile');
+  splash('/'),
+  login('/login'),
+  dashboard('/dashboard'),
+  netWorth('/net-worth'),
+  netWorthAssets('/net-worth/assets'),
+  netWorthLiabilities('/net-worth/liabilities'),
+  netWorthReport('/net-worth/report'),
+  budget('/budget'),
+  budgetOverview('/budget/overview'),
+  budgetIncome('/budget/income'),
+  budgetComparison('/budget/comparison'),
+  expenses('/expenses'),
+  expensesCreditCards('/expenses/credit-cards'),
+  expensesLoans('/expenses/loans'),
+  expensesFixed('/expenses/fixed'),
+  expensesVariable('/expenses/variable'),
+  expensesSavings('/expenses/savings'),
+  goals('/goals'),
+  goalProjection('/goals/:$goalIdParam/projection'),
+  settings('/settings'),
+  settingsProfile('/settings/profile');
 
-  const AppRoute(this.path, this.title);
+  const AppRoute(this.path);
 
   /// Path parameter that identifies a financial goal.
   static const String goalIdParam = 'goalId';
 
   final String path;
-  final String title;
+
+  /// Title of the screen in the language of [l10n].
+  String title(AppLocalizations l10n) => switch (this) {
+        splash => AppConstants.appName,
+        login => l10n.routeLogin,
+        dashboard => l10n.routeDashboard,
+        netWorth => l10n.routeNetWorth,
+        netWorthAssets => l10n.routeNetWorthAssets,
+        netWorthLiabilities => l10n.routeNetWorthLiabilities,
+        netWorthReport => l10n.routeNetWorthReport,
+        budget => l10n.routeBudget,
+        budgetOverview => l10n.routeBudgetOverview,
+        budgetIncome => l10n.routeBudgetIncome,
+        budgetComparison => l10n.routeBudgetComparison,
+        expenses => l10n.routeExpenses,
+        expensesCreditCards => l10n.routeExpensesCreditCards,
+        expensesLoans => l10n.routeExpensesLoans,
+        expensesFixed => l10n.routeExpensesFixed,
+        expensesVariable => l10n.routeExpensesVariable,
+        expensesSavings => l10n.routeExpensesSavings,
+        goals => l10n.routeGoals,
+        goalProjection => l10n.routeGoalProjection,
+        settings => l10n.routeSettings,
+        settingsProfile => l10n.routeSettingsProfile,
+      };
 
   /// Routes rendered without the navigation shell.
   static const Set<AppRoute> standalone = {splash, login};

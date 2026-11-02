@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/di/injection.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
@@ -19,7 +20,6 @@ import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budge
 import 'package:pennypincher_pro/features/dashboard/domain/entity/dashboard_summary_entity.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/part_of_day.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/bloc/dashboard_bloc.dart';
-import 'package:pennypincher_pro/features/dashboard/presentation/dashboard_texts.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/budget_summary_card.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/dashboard_content.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/dashboard_header.dart';
@@ -38,6 +38,7 @@ import '../../../../helpers/dashboard_fixtures.dart';
 import '../../../../helpers/dashboard_mocks.dart';
 import '../../../../helpers/expense_mocks.dart';
 import '../../../../helpers/goal_mocks.dart';
+import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/net_worth_mocks.dart';
 import '../../../../helpers/pump_app.dart';
@@ -62,6 +63,7 @@ void main() {
     Size size = _phone,
     Stream<DashboardState> stream = const Stream.empty(),
     bool settle = true,
+    Locale locale = testLocale,
   }) async {
     if (getIt.isRegistered<DashboardBloc>()) {
       await getIt.unregister<DashboardBloc>();
@@ -71,6 +73,7 @@ void main() {
       location: AppRoute.dashboard.path,
       size: size,
       settle: settle,
+      locale: locale,
     );
     await tester.pump();
     return bloc;
@@ -113,8 +116,8 @@ void main() {
     );
     clearInteractions(bloc);
 
-    expect(find.text(DashboardTexts.loadErrorTitle), findsOneWidget);
-    await tester.tap(find.text(DashboardTexts.retry));
+    expect(find.text(l10n.dashboardLoadErrorTitle), findsOneWidget);
+    await tester.tap(find.text(l10n.commonRetry));
 
     verify(() => bloc.add(const DashboardLoadRequested())).called(1);
   });
@@ -189,11 +192,35 @@ void main() {
 
         expect(find.text(text), findsOneWidget);
         expect(
-          find.text('${DashboardTexts.overviewPrefix} October 2026'),
+          find.text(l10n.dashboardOverview('October 2026')),
           findsOneWidget,
         );
       });
     }
+
+    testWidgets('greets and formats the overview in Spanish', (tester) async {
+      await pumpDashboard(
+        tester,
+        loadedDashboard(dashboardSummary),
+        locale: AppLocales.spanish,
+      );
+
+      expect(find.text('Buenos días, Josimar'), findsOneWidget);
+      expect(
+        find.text('Tu resumen financiero de octubre 2026'),
+        findsOneWidget,
+      );
+      expect(find.text(l10nEs.netWorth.toUpperCase()), findsOneWidget);
+      expect(find.text(l10nEs.totalAssets.toUpperCase()), findsOneWidget);
+      expect(find.text(l10n.netWorth.toUpperCase()), findsNothing);
+      // Amounts keep the Colombian format in both languages.
+      expect(
+        find.text(
+          CurrencyFormatter.format(dashboardSummary.netWorth.totalAssets),
+        ),
+        findsOneWidget,
+      );
+    });
 
     testWidgets('greets without a name when the profile has none',
         (tester) async {
@@ -326,8 +353,8 @@ void main() {
         ),
       );
 
-      expect(find.text(DashboardTexts.noPreviousSnapshot), findsOneWidget);
-      expect(find.text(DashboardTexts.sparklineHint), findsOneWidget);
+      expect(find.text(l10n.dashboardNoPreviousSnapshot), findsOneWidget);
+      expect(find.text(l10n.dashboardSparklineHint), findsOneWidget);
       expect(find.byType(MiniSparkline), findsNothing);
     });
 
@@ -368,7 +395,11 @@ void main() {
       expect(cashFlow.style?.color, AppColors.success);
       expect(
         find.text(
-          '${PercentFormatter.format(dashboardSummary.budget.figures!.cashFlowPercentage)} ${DashboardTexts.ofIncome}',
+          l10n.shareOfIncome(
+            PercentFormatter.format(
+              dashboardSummary.budget.figures!.cashFlowPercentage,
+            ),
+          ),
         ),
         findsOneWidget,
       );
@@ -410,7 +441,7 @@ void main() {
       );
 
       registerMonthlyBudgetBloc(MonthlyBudgetState(month: DateTime(2026, 10)));
-      await tapAndSettle(tester, find.text(DashboardTexts.createBudgetTitle));
+      await tapAndSettle(tester, find.text(l10n.dashboardCreateBudgetTitle));
 
       expect(_location(tester), AppRoute.budgetOverview.path);
     });
@@ -475,7 +506,7 @@ void main() {
       );
 
       registerGoalsBloc(const CrudLoaded([]));
-      await tapAndSettle(tester, find.text(DashboardTexts.firstGoalTitle));
+      await tapAndSettle(tester, find.text(l10n.firstGoalTitle));
 
       expect(_location(tester), AppRoute.goals.path);
     });
@@ -507,9 +538,9 @@ void main() {
     });
 
     final links = {
-      DashboardTexts.addExpense: AppRoute.expenses,
-      DashboardTexts.netWorthReport: AppRoute.netWorthReport,
-      DashboardTexts.budgetComparison: AppRoute.budgetComparison,
+      l10n.dashboardAddExpense: AppRoute.expenses,
+      l10n.dashboardNetWorthReport: AppRoute.netWorthReport,
+      l10n.dashboardBudgetComparison: AppRoute.budgetComparison,
     };
     for (final MapEntry(key: label, value: route) in links.entries) {
       testWidgets('"$label" opens ${route.path}', (tester) async {
@@ -536,7 +567,7 @@ void main() {
       expect(find.byType(QuickActionsRow), findsOneWidget);
 
       registerAssetBloc(const CrudLoaded([]));
-      await tapAndSettle(tester, find.text(DashboardTexts.onboardingTitle));
+      await tapAndSettle(tester, find.text(l10n.dashboardOnboardingTitle));
       expect(_location(tester), AppRoute.netWorthAssets.path);
     });
   });
@@ -566,7 +597,7 @@ void main() {
       );
 
       expect(
-        find.text('${DashboardTexts.snapshotSavedPrefix} October 2026'),
+        find.text(l10n.snapshotSaved('October 2026')),
         findsOneWidget,
       );
     });
@@ -591,7 +622,7 @@ void main() {
         ),
       );
       expect(
-        find.text('${DashboardTexts.refreshFailedPrefix} Offline'),
+        find.text(l10n.dashboardRefreshFailed('Offline')),
         findsOneWidget,
       );
     });

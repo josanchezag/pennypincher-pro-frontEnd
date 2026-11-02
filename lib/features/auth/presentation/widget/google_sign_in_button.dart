@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 
@@ -11,8 +12,6 @@ class GoogleSignInButton extends StatelessWidget {
     super.key,
   });
 
-  static const String label = 'Sign in with Google';
-  static const String progressLabel = 'Signing in';
   static const double height = AppSpacing.xxl;
   static const double spinnerSize = AppSpacing.md;
   static const double spinnerStrokeWidth = 2;
@@ -28,7 +27,7 @@ class GoogleSignInButton extends StatelessWidget {
       child: FilledButton.icon(
         onPressed: isLoading ? null : onPressed,
         icon: isLoading ? const _Spinner() : const Icon(Icons.login),
-        label: const Text(label),
+        label: Text(context.l10n.signInWithGoogle),
       ),
     );
   }
@@ -39,10 +38,10 @@ class _Spinner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox.square(
+    return SizedBox.square(
       dimension: GoogleSignInButton.spinnerSize,
       child: CircularProgressIndicator(
-        semanticsLabel: GoogleSignInButton.progressLabel,
+        semanticsLabel: context.l10n.signingIn,
         strokeWidth: GoogleSignInButton.spinnerStrokeWidth,
         color: AppColors.textSecondary,
       ),

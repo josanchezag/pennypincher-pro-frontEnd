@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 
@@ -22,23 +23,22 @@ class SkeletonBox extends StatelessWidget {
   }
 }
 
-/// Column of [SkeletonBox]es announced to screen readers as [label].
+/// Column of [SkeletonBox]es announced to screen readers as [label], or
+/// as loading when there is none.
 class LoadingSkeleton extends StatelessWidget {
   const LoadingSkeleton({
     required this.heights,
-    this.label = defaultLabel,
+    this.label,
     super.key,
   });
 
-  static const String defaultLabel = 'Loading';
-
   final List<double> heights;
-  final String label;
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: label,
+      label: label ?? context.l10n.commonLoading,
       liveRegion: true,
       child: ListView.separated(
         padding: const EdgeInsets.all(AppSpacing.md),

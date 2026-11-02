@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pennypincher_pro/core/constants/app_constants.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/layout/account_menu.dart';
 import 'package:pennypincher_pro/core/router/app_destination.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
@@ -19,9 +20,6 @@ class AppShell extends StatelessWidget {
     required this.child,
     super.key,
   });
-
-  static const String settingsTooltip = 'Settings';
-  static const String backTooltip = 'Back to dashboard';
 
   final String location;
 
@@ -81,7 +79,7 @@ class _MobileLayout extends StatelessWidget {
         title: const Text(AppConstants.appName),
         leading: _inSettings
             ? IconButton(
-                tooltip: AppShell.backTooltip,
+                tooltip: context.l10n.shellBackToDashboard,
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () => context.goNamed(AppRoute.dashboard.name),
               )
@@ -89,7 +87,7 @@ class _MobileLayout extends StatelessWidget {
         actions: [
           if (!_inSettings)
             IconButton(
-              tooltip: AppShell.settingsTooltip,
+              tooltip: context.l10n.shellSettingsTooltip,
               icon: Icon(AppDestination.settings.icon),
               onPressed: () => _goTo(context, AppDestination.settings),
             ),
@@ -169,7 +167,7 @@ class _BottomBar extends StatelessWidget {
         for (final destination in destinations)
           NavigationDestination(
             icon: Icon(destination.icon),
-            label: destination.label,
+            label: destination.label(context.l10n),
           ),
       ],
     );
@@ -194,7 +192,7 @@ class _SideRail extends StatelessWidget {
         for (final destination in AppDestination.values)
           NavigationRailDestination(
             icon: Icon(destination.icon),
-            label: Text(destination.label),
+            label: Text(destination.label(context.l10n)),
           ),
       ],
     );

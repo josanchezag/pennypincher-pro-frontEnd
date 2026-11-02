@@ -21,7 +21,7 @@ class GoogleAuthDataSource {
   /// the callback does not match the request.
   Future<GoogleAuthorization> authorize() async {
     if (!_config.isGoogleSignInConfigured) {
-      throw const OAuthException.notConfigured();
+      throw OAuthException.notConfigured();
     }
     _authenticator.clearPendingCallback();
     final verifier = _pkce.generateVerifier();
@@ -46,10 +46,10 @@ class GoogleAuthDataSource {
   static String _codeFrom(String callback, {required String expectedState}) {
     final params = Uri.tryParse(callback)?.queryParameters;
     if (params == null) {
-      throw const OAuthException.failed();
+      throw OAuthException.failed();
     }
     if (params.containsKey(OAuthParams.error)) {
-      throw const OAuthException.cancelled();
+      throw OAuthException.cancelled();
     }
     final actualState = params[OAuthParams.state];
     final stateIsValid = PkceGenerator.stateMatches(
@@ -57,11 +57,11 @@ class GoogleAuthDataSource {
       actual: actualState,
     );
     if (!stateIsValid) {
-      throw const OAuthException.stateMismatch();
+      throw OAuthException.stateMismatch();
     }
     final code = params[OAuthParams.code];
     if (code == null || code.isEmpty) {
-      throw const OAuthException.failed();
+      throw OAuthException.failed();
     }
     return code;
   }

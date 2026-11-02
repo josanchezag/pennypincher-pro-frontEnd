@@ -15,11 +15,11 @@ import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_snap
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_summary_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_report_bloc.dart';
-import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_texts.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/assets_screen.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/net_worth_screen.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/widget/net_worth_chart.dart';
 
+import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/net_worth_fixtures.dart';
 import '../../../../helpers/net_worth_mocks.dart';
@@ -75,7 +75,7 @@ void main() {
     );
     clearInteractions(bloc);
 
-    await tester.tap(find.text(NetWorthTexts.retry));
+    await tester.tap(find.text(l10n.commonRetry));
 
     verify(() => bloc.add(const NetWorthLoadRequested())).called(1);
   });
@@ -84,12 +84,12 @@ void main() {
       (tester) async {
     await pumpOverview(tester, _loaded());
 
-    expect(_card(tester, NetWorthTexts.totalAssets).value, contains('185'));
+    expect(_card(tester, l10n.totalAssets).value, contains('185'));
     expect(
-      _card(tester, NetWorthTexts.totalLiabilities).valueColor,
+      _card(tester, l10n.totalLiabilities).valueColor,
       AppColors.error,
     );
-    final netWorth = _card(tester, NetWorthTexts.netWorth);
+    final netWorth = _card(tester, l10n.netWorth);
     expect(netWorth.valueColor, AppColors.success);
     expect(netWorth.delta?.isPositive, isTrue);
     expect(netWorth.delta?.text, startsWith(r'+$'));
@@ -109,7 +109,7 @@ void main() {
       ),
     );
 
-    final netWorth = _card(tester, NetWorthTexts.netWorth);
+    final netWorth = _card(tester, l10n.netWorth);
     expect(netWorth.valueColor, AppColors.error);
     expect(netWorth.delta?.isPositive, isFalse);
   });
@@ -196,14 +196,14 @@ void main() {
       tester.getSemantics(
         find.descendant(
           of: find.byType(NetWorthScreen),
-          matching: find.text(AppRoute.netWorth.title),
+          matching: find.text(AppRoute.netWorth.title(l10n)),
         ),
       ),
-      matchesSemantics(label: AppRoute.netWorth.title, isHeader: true),
+      matchesSemantics(label: AppRoute.netWorth.title(l10n), isHeader: true),
     );
     expect(
-      tester.getSemantics(find.text(NetWorthTexts.history)),
-      matchesSemantics(label: NetWorthTexts.history, isHeader: true),
+      tester.getSemantics(find.text(l10n.netWorthHistory)),
+      matchesSemantics(label: l10n.netWorthHistory, isHeader: true),
     );
     semantics.dispose();
   });
@@ -222,7 +222,7 @@ void main() {
 
     expect(
       find.bySemanticsLabel(
-        RegExp('^${NetWorthChart.semanticsPrefix}, 2 months from August 2026'),
+        RegExp('^${'Net worth history chart'}, 2 months from August 2026'),
       ),
       findsOneWidget,
     );
@@ -232,9 +232,9 @@ void main() {
   testWidgets('shows an empty history without snapshots', (tester) async {
     await pumpOverview(tester, _loaded(history: []));
 
-    expect(find.text(NetWorthTexts.emptyHistoryTitle), findsOneWidget);
+    expect(find.text(l10n.netWorthEmptyHistoryTitle), findsOneWidget);
     expect(find.byType(LineChart), findsNothing);
-    expect(_card(tester, NetWorthTexts.netWorth).delta, isNull);
+    expect(_card(tester, l10n.netWorth).delta, isNull);
   });
 
   testWidgets('creates a snapshot and confirms it', (tester) async {
@@ -281,11 +281,11 @@ void main() {
     registerAssetBloc(const CrudLoaded([]));
 
     await tester.scrollUntilVisible(
-      find.text(AppRoute.netWorthAssets.title),
+      find.text(AppRoute.netWorthAssets.title(l10n)),
       NetWorthChart.height,
       scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.text(AppRoute.netWorthAssets.title));
+    await tester.tap(find.text(AppRoute.netWorthAssets.title(l10n)));
     await tester.pumpAndSettle();
 
     expect(find.byType(AssetsScreen), findsOneWidget);
@@ -298,9 +298,9 @@ void main() {
       await pumpOverview(tester, _loaded(), size: size);
 
       for (final subtitle in [
-        NetWorthTexts.assetsSubtitle,
-        NetWorthTexts.liabilitiesSubtitle,
-        NetWorthTexts.reportSubtitle,
+        l10n.netWorthAssetsSubtitle,
+        l10n.netWorthLiabilitiesSubtitle,
+        l10n.netWorthReportSubtitle,
       ]) {
         final text = find.text(subtitle);
         await tester.ensureVisible(text);
@@ -320,11 +320,11 @@ void main() {
     Future<double> reportTop(Size size) async {
       tester.view.physicalSize = size;
       await tester.pumpAndSettle();
-      final report = find.text(NetWorthTexts.reportSubtitle);
+      final report = find.text(l10n.netWorthReportSubtitle);
       await tester.ensureVisible(report);
       await tester.pumpAndSettle();
       return tester.getTopLeft(report).dy -
-          tester.getTopLeft(find.text(NetWorthTexts.assetsSubtitle)).dy;
+          tester.getTopLeft(find.text(l10n.netWorthAssetsSubtitle)).dy;
     }
 
     await pumpOverview(tester, _loaded(), size: const Size(1280, 1000));
@@ -336,7 +336,7 @@ void main() {
     await pumpOverview(tester, _loaded());
     registerNetWorthReportBloc(const NetWorthReportState());
 
-    final link = find.text(NetWorthTexts.reportSubtitle);
+    final link = find.text(l10n.netWorthReportSubtitle);
     await tester.scrollUntilVisible(
       link,
       200,

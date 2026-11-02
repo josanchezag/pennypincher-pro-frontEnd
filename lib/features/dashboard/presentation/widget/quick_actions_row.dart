@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_breakpoints.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
@@ -8,7 +9,6 @@ import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/widgets/button_progress_icon.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/bloc/dashboard_bloc.dart';
-import 'package:pennypincher_pro/features/dashboard/presentation/dashboard_texts.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/dashboard_section.dart';
 
 /// The four quick actions: record this month's snapshot (disabled while
@@ -26,7 +26,7 @@ class QuickActionsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DashboardSection(
-      title: DashboardTexts.quickActionsTitle,
+      title: context.l10n.dashboardQuickActions,
       child: LayoutBuilder(
         builder: (context, constraints) => TileGrid(
           columns:
@@ -43,7 +43,7 @@ class QuickActionsRow extends StatelessWidget {
         _QuickAction(
           key: recordSnapshotKey,
           icon: Icons.add_chart,
-          label: DashboardTexts.recordSnapshot,
+          label: context.l10n.recordSnapshot,
           busy: state.recordingSnapshot,
           onTap: state.isBusy
               ? null
@@ -54,19 +54,19 @@ class QuickActionsRow extends StatelessWidget {
         _link(
           context,
           Icons.receipt_long_outlined,
-          DashboardTexts.addExpense,
+          context.l10n.dashboardAddExpense,
           AppRoute.expenses,
         ),
         _link(
           context,
           Icons.show_chart,
-          DashboardTexts.netWorthReport,
+          context.l10n.dashboardNetWorthReport,
           AppRoute.netWorthReport,
         ),
         _link(
           context,
           Icons.bar_chart,
-          DashboardTexts.budgetComparison,
+          context.l10n.dashboardBudgetComparison,
           AppRoute.budgetComparison,
         ),
       ];

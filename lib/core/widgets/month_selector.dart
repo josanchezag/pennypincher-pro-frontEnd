@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/time/calendar_month.dart';
@@ -17,8 +19,6 @@ class MonthSelector extends StatelessWidget {
     super.key,
   });
 
-  static const String previousTooltip = 'Previous month';
-  static const String nextTooltip = 'Next month';
   static const Key previousKey = Key('month-selector-previous');
   static const Key nextKey = Key('month-selector-next');
 
@@ -32,8 +32,10 @@ class MonthSelector extends StatelessWidget {
   final DateTime? last;
   final bool enabled;
 
-  /// `October 2026`.
-  static String label(DateTime month) => MonthFormat.long.format(month);
+  /// `October 2026`, or `Octubre 2026` in Spanish: the label stands
+  /// alone, so it starts with a capital letter in every language.
+  static String label(DateTime month) =>
+      toBeginningOfSentenceCase(MonthFormat.long.format(month));
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +45,12 @@ class MonthSelector extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _arrow(previousKey, previousTooltip, Icons.chevron_left, previous),
+        _arrow(
+          previousKey,
+          context.l10n.monthPrevious,
+          Icons.chevron_left,
+          previous,
+        ),
         const SizedBox(width: AppSpacing.xxs),
         SizedBox(
           width: labelWidth,
@@ -57,7 +64,7 @@ class MonthSelector extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.xxs),
-        _arrow(nextKey, nextTooltip, Icons.chevron_right, next),
+        _arrow(nextKey, context.l10n.monthNext, Icons.chevron_right, next),
       ],
     );
   }

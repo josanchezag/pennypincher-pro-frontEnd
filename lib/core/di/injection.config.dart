@@ -20,6 +20,8 @@ import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart'
     as _i953;
 import 'package:pennypincher_pro/core/crud/domain/usecase/crud_use_cases.dart'
     as _i678;
+import 'package:pennypincher_pro/core/l10n/locale_cubit.dart' as _i132;
+import 'package:pennypincher_pro/core/l10n/locale_store.dart' as _i84;
 import 'package:pennypincher_pro/core/network/auth_interceptor.dart' as _i93;
 import 'package:pennypincher_pro/core/network/network_module.dart' as _i683;
 import 'package:pennypincher_pro/core/router/app_router.dart' as _i446;
@@ -239,6 +241,9 @@ extension GetItInjectableX on _i174.GetIt {
         _i113.DioAuthRemoteDataSource(gh<_i361.Dio>(instanceName: 'plainDio')));
     gh.lazySingleton<_i506.WebAuthenticator>(
         () => _i506.FlutterWebAuthenticator());
+    gh.lazySingleton<_i84.LocaleStore>(() => _i84.BrowserLocaleStore());
+    gh.lazySingleton<_i132.LocaleCubit>(
+        () => _i132.LocaleCubit(gh<_i84.LocaleStore>()));
     gh.lazySingleton<_i886.GoogleAuthDataSource>(
         () => _i886.GoogleAuthDataSource(
               gh<_i504.AppConfig>(),

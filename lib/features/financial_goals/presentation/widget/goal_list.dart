@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_breakpoints.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
-import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
 
 /// Builds the card of one goal.
 typedef GoalCardBuilder = Widget Function(FinancialGoal goal);
@@ -94,10 +94,13 @@ class _Header extends StatelessWidget {
       children: [
         Semantics(
           header: true,
-          child: Text(AppRoute.goals.title, style: AppTypography.heading1),
+          child: Text(
+            AppRoute.goals.title(context.l10n),
+            style: AppTypography.heading1,
+          ),
         ),
         const SizedBox(height: AppSpacing.xxs),
-        const Text(GoalsTexts.subtitle, style: AppTypography.bodyMedium),
+        Text(context.l10n.goalsSubtitle, style: AppTypography.bodyMedium),
         const SizedBox(height: AppSpacing.sm),
         SizedBox(
           height: AppSpacing.xxs,
