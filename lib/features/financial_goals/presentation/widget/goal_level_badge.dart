@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_level.dart';
@@ -26,7 +27,7 @@ class GoalLevelBadge extends StatelessWidget {
         ),
       ),
       child: Text(
-        level.label.toUpperCase(),
+        level.label(context.l10n).toUpperCase(),
         style: AppTypography.label.copyWith(color: level.onColor),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,

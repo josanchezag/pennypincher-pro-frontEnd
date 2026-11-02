@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pennypincher_pro/core/constants/app_constants.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
@@ -26,8 +27,8 @@ class BrandHeader extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: AppSpacing.xs),
-        const Text(
-          AppConstants.tagline,
+        Text(
+          context.l10n.appTagline,
           style: AppTypography.bodyMedium,
           textAlign: TextAlign.center,
         ),

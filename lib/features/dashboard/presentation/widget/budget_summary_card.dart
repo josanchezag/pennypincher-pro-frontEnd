@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
@@ -8,7 +9,6 @@ import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/dashboard_summary_entity.dart';
-import 'package:pennypincher_pro/features/dashboard/presentation/dashboard_texts.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/dashboard_action_card.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/dashboard_card.dart';
 
@@ -29,40 +29,43 @@ class BudgetSummaryCard extends StatelessWidget {
     if (figures == null) {
       return DashboardActionCard(
         icon: Icons.add_chart,
-        title: DashboardTexts.createBudgetTitle,
-        message: '${DashboardTexts.createBudgetMessage} '
-            '${MonthFormat.long.format(budget.month)}.',
+        title: context.l10n.dashboardCreateBudgetTitle,
+        message: context.l10n.dashboardCreateBudgetMessage(
+          MonthFormat.long.format(budget.month),
+        ),
         route: AppRoute.budgetOverview,
       );
     }
     return DashboardCard(
       icon: Icons.pie_chart_outline,
-      title: '${DashboardTexts.budgetTitle}${DashboardTexts.titleSeparator}'
-          '${MonthFormat.long.format(budget.month)}',
-      children: _rows(figures),
+      title: context.l10n.dashboardBudgetTitle(
+        MonthFormat.long.format(budget.month),
+      ),
+      children: _rows(context.l10n, figures),
     );
   }
 
-  static List<Widget> _rows(BudgetFigures figures) {
+  static List<Widget> _rows(AppLocalizations l10n, BudgetFigures figures) {
     final cashFlow = figures.monthlyCashFlow;
     return [
       _FigureRow(
-        label: DashboardTexts.income,
+        label: l10n.income,
         amount: figures.totalIncome,
         color: AppColors.success,
       ),
       _FigureRow(
-        label: DashboardTexts.expenses,
+        label: l10n.expenses,
         amount: figures.totalExpenses,
         color: AppColors.error,
       ),
       const Divider(height: AppSpacing.lg),
       _FigureRow(
-        label: DashboardTexts.cashFlow,
+        label: l10n.cashFlow,
         amount: cashFlow,
         color: cashFlowColor(cashFlow),
-        detail: '${PercentFormatter.format(figures.cashFlowPercentage)} '
-            '${DashboardTexts.ofIncome}',
+        detail: l10n.shareOfIncome(
+          PercentFormatter.format(figures.cashFlowPercentage),
+        ),
       ),
     ];
   }

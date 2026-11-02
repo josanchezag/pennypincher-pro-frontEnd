@@ -3,6 +3,7 @@ import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
 import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
 import 'package:pennypincher_pro/core/crud/presentation/layout/item_layout.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_tile.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_breakpoints.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/widgets/screen_title_row.dart';
@@ -36,6 +37,7 @@ class CrudListView<T extends CrudItem, D> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return LayoutBuilder(
       builder: (context, constraints) => CustomScrollView(
         slivers: [
@@ -48,13 +50,13 @@ class CrudListView<T extends CrudItem, D> extends StatelessWidget {
             ),
             sliver: SliverMainAxisGroup(
               slivers: [
-                SliverToBoxAdapter(child: _header()),
-                ..._content(_columnsFor(constraints.maxWidth)),
+                SliverToBoxAdapter(child: _header(l10n)),
+                ..._content(l10n, _columnsFor(constraints.maxWidth)),
                 if (_layout.summaryAtBottom)
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.only(top: AppSpacing.lg),
-                      child: _layout.summary(items),
+                      child: _layout.summary(l10n, items),
                     ),
                   ),
               ],
@@ -68,17 +70,17 @@ class CrudListView<T extends CrudItem, D> extends StatelessWidget {
   static int _columnsFor(double width) =>
       ScreenSize.fromWidth(width) == ScreenSize.mobile ? 1 : wideColumns;
 
-  Widget _header() => Column(
+  Widget _header(AppLocalizations l10n) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ScreenTitleRow(
-            title: config.title,
-            backTooltip: config.backTooltip,
+            title: config.title(l10n),
+            backTooltip: config.backTooltip(l10n),
             parent: config.parent.name,
           ),
           if (!_layout.summaryAtBottom) ...[
             const SizedBox(height: AppSpacing.md),
-            _layout.summary(items),
+            _layout.summary(l10n, items),
           ],
           SizedBox(
             height: AppSpacing.xxs,
@@ -87,27 +89,32 @@ class CrudListView<T extends CrudItem, D> extends StatelessWidget {
         ],
       );
 
-  List<Widget> _content(int columns) {
+  List<Widget> _content(AppLocalizations l10n, int columns) {
     if (items.isEmpty) {
       return [
         SliverToBoxAdapter(
           child: StatusMessage(
             icon: config.emptyIcon,
-            title: config.emptyTitle,
-            message: config.emptyMessage,
+            title: config.emptyTitle(l10n),
+            message: config.emptyMessage(l10n),
           ),
         ),
       ];
     }
-    return _layout.itemSlivers(items: items, columns: columns, tile: _tile);
+    return _layout.itemSlivers(
+      l10n: l10n,
+      items: items,
+      columns: columns,
+      tile: _tile,
+    );
   }
 
   Widget _tile(BuildContext context, T item) => ItemTile(
         dismissKey: ValueKey(item.id),
         name: item.name,
-        content: _layout.tileContent(item),
+        content: _layout.tileContent(context.l10n, item),
         height: _layout.tileHeight,
-        deleteTooltip: config.deleteTooltip(item.name),
+        deleteTooltip: config.deleteTooltip(context.l10n, item.name),
         onTap: busy ? null : () => onEdit(item),
         onDelete: busy ? null : () => onDelete(item),
       );

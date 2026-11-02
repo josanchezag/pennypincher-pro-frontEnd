@@ -4,7 +4,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/crud/domain/balance_item.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/crud/presentation/crud_screen.dart';
-import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_tile.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
@@ -12,11 +11,11 @@ import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/loan_entity.dart';
-import 'package:pennypincher_pro/features/expense_details/presentation/expense_texts.dart';
 
 import '../../../../helpers/crud_screen_helpers.dart';
 import '../../../../helpers/expense_fixtures.dart';
 import '../../../../helpers/expense_mocks.dart';
+import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/pump_app.dart';
 
@@ -63,7 +62,7 @@ void main() {
       );
       expect(
         find.textContaining(
-          ExpenseTexts.monthlyInstallment,
+          l10n.monthlyInstallment,
           findRichText: true,
         ),
         findsNWidgets(3),
@@ -72,7 +71,7 @@ void main() {
       await tester.pumpAndSettle();
       expectStat(
         tester,
-        ExpenseTexts.totalOutstandingDebt,
+        l10n.totalOutstandingDebt,
         const Money.fromCents(8650000025),
       );
       expect(tester.takeException(), isNull);
@@ -106,11 +105,11 @@ void main() {
 
     await tester.tap(find.byKey(CrudScreen.addButtonKey));
     await tester.pumpAndSettle();
-    expect(find.text(CrudTexts.optionalAmountHelper), findsOneWidget);
+    expect(find.text(l10n.crudOptionalAmountHelper), findsOneWidget);
     await fillAndSave(tester, {
-      CrudTexts.nameLabel: 'Davivienda 7141',
-      ExpenseTexts.monthlyInstallment: '2.080.231',
-      ExpenseTexts.remainingBalance: '45.500.000,25',
+      l10n.crudNameLabel: 'Davivienda 7141',
+      l10n.monthlyInstallment: '2.080.231',
+      l10n.remainingBalance: '45.500.000,25',
     });
 
     verify(
@@ -138,7 +137,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Edit loan'), findsOneWidget);
       expect(find.text('50000000'), findsOneWidget);
-      await fillAndSave(tester, {ExpenseTexts.originalAmount: typed});
+      await fillAndSave(tester, {l10n.originalAmount: typed});
 
       verify(
         () => bloc.add(
@@ -162,13 +161,13 @@ void main() {
     await tester.tap(find.byKey(CrudScreen.addButtonKey));
     await tester.pumpAndSettle();
     await fillAndSave(tester, {
-      CrudTexts.nameLabel: 'Familia',
-      ExpenseTexts.monthlyInstallment: '0',
-      ExpenseTexts.remainingBalance: '1',
-      ExpenseTexts.originalAmount: '1,500',
+      l10n.crudNameLabel: 'Familia',
+      l10n.monthlyInstallment: '0',
+      l10n.remainingBalance: '1',
+      l10n.originalAmount: '1,500',
     });
 
-    expect(find.text(CrudTexts.amountInvalid), findsOneWidget);
+    expect(find.text(l10n.crudAmountInvalid), findsOneWidget);
     verifyNever(
       () => bloc.add(any(that: isA<CrudSaveRequested<BalanceDraft>>())),
     );

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pennypincher_pro/core/constants/app_constants.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/auth_guard.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
@@ -22,8 +23,6 @@ class SplashScreen extends StatefulWidget {
 
   /// Location requested before the session check.
   final String? from;
-
-  static const String progressLabel = 'Loading';
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -88,15 +87,15 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) => _leaveFor(state),
-      child: const Scaffold(
+      child: Scaffold(
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              BrandHeader(titleStyle: AppTypography.display),
-              SizedBox(height: AppSpacing.xl),
+              const BrandHeader(titleStyle: AppTypography.display),
+              const SizedBox(height: AppSpacing.xl),
               CircularProgressIndicator(
-                semanticsLabel: SplashScreen.progressLabel,
+                semanticsLabel: context.l10n.commonLoading,
               ),
             ],
           ),

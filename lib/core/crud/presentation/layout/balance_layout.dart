@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pennypincher_pro/core/crud/domain/balance_item.dart';
 import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
-import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
 import 'package:pennypincher_pro/core/crud/presentation/layout/item_layout.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_fields.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_sections.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_tile.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
@@ -24,10 +24,10 @@ class BalanceAmountStyle {
   });
 
   /// Label of the field and of the amount in a tile.
-  final String label;
+  final LocalizedText label;
 
   /// Label of the summary card with the sum of the amounts.
-  final String totalLabel;
+  final LocalizedText totalLabel;
   final IconData icon;
   final Color color;
 }
@@ -37,7 +37,7 @@ class BalanceAmountStyle {
 class OriginalAmountStyle<T> {
   const OriginalAmountStyle({required this.label, required this.read});
 
-  final String label;
+  final LocalizedText label;
   final Money? Function(T item) read;
 }
 
@@ -85,16 +85,16 @@ class BalanceLayout<T extends BalanceItem> extends ItemLayout<T, BalanceDraft> {
       });
 
   @override
-  List<Widget> formFields() => [
+  List<Widget> formFields(AppLocalizations l10n) => [
         ItemFormFields.nameField(),
         ..._ordered(
-          ItemFormFields.amountField(monthlyAmount, monthly.label),
-          ItemFormFields.amountField(balanceAmount, balance.label),
+          ItemFormFields.amountField(monthlyAmount, monthly.label(l10n)),
+          ItemFormFields.amountField(balanceAmount, balance.label(l10n)),
         ),
         if (original case final original?)
           ItemFormFields.amountField(
             originalAmount,
-            original.label,
+            original.label(l10n),
             optional: true,
           ),
       ];
@@ -110,10 +110,14 @@ class BalanceLayout<T extends BalanceItem> extends ItemLayout<T, BalanceDraft> {
       );
 
   @override
-  Widget summary(List<T> items) => ResponsiveCardRow(
+  Widget summary(AppLocalizations l10n, List<T> items) => ResponsiveCardRow(
         children: _ordered(
-          _totalCard(monthly, sumMoney(items, (item) => item.monthlyAmount)),
-          _totalCard(balance, sumMoney(items, (item) => item.balance)),
+          _totalCard(
+            l10n,
+            monthly,
+            sumMoney(items, (item) => item.monthlyAmount),
+          ),
+          _totalCard(l10n, balance, sumMoney(items, (item) => item.balance)),
         ),
       );
 
@@ -122,18 +126,18 @@ class BalanceLayout<T extends BalanceItem> extends ItemLayout<T, BalanceDraft> {
       original == null ? ItemTile.compactHeight : ItemTile.footerHeight;
 
   @override
-  ItemTileContent tileContent(T item) => ItemTileContent(
+  ItemTileContent tileContent(AppLocalizations l10n, T item) => ItemTileContent(
         details: LabeledAmount(
-          label: monthly.label,
+          label: monthly.label(l10n),
           amount: CurrencyFormatter.format(item.monthlyAmount),
         ),
         amount: CurrencyFormatter.format(item.balance),
         amountColor: balance.color,
-        footer: _progress(item),
+        footer: _progress(l10n, item),
       );
 
   /// How much of the original amount is paid, when it is tracked.
-  Widget? _progress(T item) {
+  Widget? _progress(AppLocalizations l10n, T item) {
     final share = paidShare(
       balance: item.balance,
       originalAmount: original?.read(item),
@@ -142,13 +146,15 @@ class BalanceLayout<T extends BalanceItem> extends ItemLayout<T, BalanceDraft> {
         ? null
         : ShareProgress(
             share: share,
-            label: '${PercentFormatter.format(share * _percent)} '
-                '${CrudTexts.paidSuffix}',
+            label: l10n.crudPaidShare(
+              PercentFormatter.format(share * _percent),
+            ),
           );
   }
 
   @override
   List<Widget> itemSlivers({
+    required AppLocalizations l10n,
     required List<T> items,
     required int columns,
     required ItemTileBuilder<T> tile,
@@ -163,8 +169,13 @@ class BalanceLayout<T extends BalanceItem> extends ItemLayout<T, BalanceDraft> {
           ? [balanceWidget, monthlyWidget]
           : [monthlyWidget, balanceWidget];
 
-  static Widget _totalCard(BalanceAmountStyle style, Money total) => StatCard(
-        label: style.totalLabel,
+  static Widget _totalCard(
+    AppLocalizations l10n,
+    BalanceAmountStyle style,
+    Money total,
+  ) =>
+      StatCard(
+        label: style.totalLabel(l10n),
         value: CurrencyFormatter.format(total),
         icon: style.icon,
         valueColor: style.color,

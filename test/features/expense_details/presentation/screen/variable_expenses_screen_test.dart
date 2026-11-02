@@ -4,17 +4,16 @@ import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/crud/presentation/crud_screen.dart';
-import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_sheet.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/variable_expense_entity.dart';
-import 'package:pennypincher_pro/features/expense_details/presentation/expense_texts.dart';
 
 import '../../../../helpers/expense_fixtures.dart';
 import '../../../../helpers/expense_mocks.dart';
+import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/pump_app.dart';
 
@@ -85,7 +84,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Edit variable expense'), findsOneWidget);
     await tester.enterText(
-      find.widgetWithText(TextField, ExpenseTexts.monthlyAmount),
+      find.widgetWithText(TextField, l10n.monthlyAmount),
       '1.900.000',
     );
     await tester.tap(find.byKey(ItemFormSheet.saveKey));
@@ -104,6 +103,6 @@ void main() {
       ),
     ).called(1);
     expect(find.byKey(CrudScreen.addButtonKey), findsOneWidget);
-    expect(CrudTexts.allCategories, 'All');
+    expect(l10n.crudAllCategories, 'All');
   });
 }

@@ -155,7 +155,7 @@ void main() {
       act: (bloc) => bloc.add(const AuthSignInRequested()),
       expect: () => [
         const AuthLoading(),
-        const AuthError(SignInMessages.accountNotAllowed),
+        AuthError(SignInMessages.accountNotAllowed),
       ],
     );
 
@@ -170,7 +170,7 @@ void main() {
       act: (bloc) => bloc.add(const AuthSignInRequested()),
       expect: () => [
         const AuthLoading(),
-        const AuthError(SignInMessages.registrationDisabled),
+        AuthError(SignInMessages.registrationDisabled),
       ],
     );
 

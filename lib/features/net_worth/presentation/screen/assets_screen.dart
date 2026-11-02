@@ -13,34 +13,33 @@ import 'package:pennypincher_pro/features/net_worth/presentation/bloc/asset_bloc
 class AssetsScreen extends StatelessWidget {
   const AssetsScreen({super.key});
 
-  static const CrudScreenConfig<Asset, CategorizedDraft<AssetCategory>> config =
+  static final CrudScreenConfig<Asset, CategorizedDraft<AssetCategory>> config =
       CrudScreenConfig(
     route: AppRoute.netWorthAssets,
     parent: AppRoute.netWorth,
-    itemNoun: 'asset',
+    itemNoun: (l10n) => l10n.assetNoun,
     emptyIcon: Icons.account_balance_wallet_outlined,
-    emptyMessage: 'Add what you own, such as your home, car or savings, '
-        'to start tracking your net worth.',
+    emptyMessage: (l10n) => l10n.assetsEmptyMessage,
     layout: CategorizedLayout(
-      amountLabel: 'Value',
-      totalLabel: 'Total assets',
+      amountLabel: (l10n) => l10n.assetValue,
+      totalLabel: (l10n) => l10n.totalAssets,
       totalIcon: Icons.trending_up,
       totalColor: AppColors.success,
       categoryLabels: {
-        AssetCategory.realEstate: 'Real estate',
-        AssetCategory.vehicle: 'Vehicle',
-        AssetCategory.business: 'Business',
-        AssetCategory.cash: 'Cash',
-        AssetCategory.savings: 'Savings',
-        AssetCategory.equipment: 'Equipment',
-        AssetCategory.other: 'Other',
+        AssetCategory.realEstate: (l10n) => l10n.assetCategoryRealEstate,
+        AssetCategory.vehicle: (l10n) => l10n.assetCategoryVehicle,
+        AssetCategory.business: (l10n) => l10n.assetCategoryBusiness,
+        AssetCategory.cash: (l10n) => l10n.assetCategoryCash,
+        AssetCategory.savings: (l10n) => l10n.assetCategorySavings,
+        AssetCategory.equipment: (l10n) => l10n.assetCategoryEquipment,
+        AssetCategory.other: (l10n) => l10n.categoryOther,
       },
     ),
   );
 
   @override
   Widget build(BuildContext context) =>
-      const CrudScreen<Asset, CategorizedDraft<AssetCategory>, AssetBloc>(
+      CrudScreen<Asset, CategorizedDraft<AssetCategory>, AssetBloc>(
         config: config,
       );
 }

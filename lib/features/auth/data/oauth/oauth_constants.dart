@@ -1,3 +1,5 @@
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
+
 /// Parameters of the Google OAuth 2.0 authorization code flow with PKCE
 /// (RFC 7636).
 abstract final class GoogleOAuth {
@@ -46,11 +48,14 @@ abstract final class OAuthErrorCodes {
   static const String notConfigured = 'GOOGLE_AUTH_NOT_CONFIGURED';
 }
 
-/// User-facing messages of the sign-in flow.
+/// User-facing messages of the sign-in flow, in the current interface
+/// language.
 abstract final class OAuthMessages {
-  static const String cancelled = 'Sign-in was cancelled.';
-  static const String stateMismatch =
-      'The sign-in response could not be verified. Please try again.';
-  static const String failed = 'Google sign-in failed. Please try again.';
-  static const String notConfigured = 'Google sign-in is not configured.';
+  static String get cancelled => CurrentL10n.texts.signInCancelled;
+
+  static String get stateMismatch => CurrentL10n.texts.signInStateMismatch;
+
+  static String get failed => CurrentL10n.texts.signInFailed;
+
+  static String get notConfigured => CurrentL10n.texts.signInNotConfigured;
 }

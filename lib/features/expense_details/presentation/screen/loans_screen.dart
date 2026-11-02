@@ -8,7 +8,6 @@ import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/loan_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/loan_bloc.dart';
-import 'package:pennypincher_pro/features/expense_details/presentation/expense_texts.dart';
 
 /// `/expenses/loans`: every loan with its monthly installment, remaining
 /// balance and, when the original amount is tracked, how much is paid;
@@ -16,28 +15,27 @@ import 'package:pennypincher_pro/features/expense_details/presentation/expense_t
 class LoansScreen extends StatelessWidget {
   const LoansScreen({super.key});
 
-  static const CrudScreenConfig<Loan, BalanceDraft> config = CrudScreenConfig(
+  static final CrudScreenConfig<Loan, BalanceDraft> config = CrudScreenConfig(
     route: AppRoute.expensesLoans,
     parent: AppRoute.expenses,
-    itemNoun: 'loan',
+    itemNoun: (l10n) => l10n.loanNoun,
     emptyIcon: Icons.account_balance_outlined,
-    emptyMessage: 'Add your loans with their monthly installment and '
-        'remaining balance to follow how your debt goes down.',
+    emptyMessage: (l10n) => l10n.loansEmptyMessage,
     layout: BalanceLayout(
       monthly: BalanceAmountStyle(
-        label: ExpenseTexts.monthlyInstallment,
-        totalLabel: ExpenseTexts.totalMonthlyPayments,
+        label: (l10n) => l10n.monthlyInstallment,
+        totalLabel: (l10n) => l10n.totalMonthlyPayments,
         icon: Icons.event_repeat_outlined,
         color: AppColors.warning,
       ),
       balance: BalanceAmountStyle(
-        label: ExpenseTexts.remainingBalance,
-        totalLabel: ExpenseTexts.totalOutstandingDebt,
+        label: (l10n) => l10n.remainingBalance,
+        totalLabel: (l10n) => l10n.totalOutstandingDebt,
         icon: Icons.trending_down,
         color: AppColors.error,
       ),
       original: OriginalAmountStyle(
-        label: ExpenseTexts.originalAmount,
+        label: (l10n) => l10n.originalAmount,
         read: _originalAmount,
       ),
       summaryAtBottom: true,
@@ -48,5 +46,5 @@ class LoansScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      const CrudScreen<Loan, BalanceDraft, LoanBloc>(config: config);
+      CrudScreen<Loan, BalanceDraft, LoanBloc>(config: config);
 }

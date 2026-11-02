@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
 import 'package:pennypincher_pro/core/widgets/responsive_card_row.dart';
-import 'package:pennypincher_pro/features/dashboard/presentation/dashboard_texts.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/goal_progress_chip.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/user_avatar.dart';
 
@@ -17,7 +17,7 @@ class DashboardSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: DashboardTexts.loadingLabel,
+      label: context.l10n.dashboardLoadingLabel,
       liveRegion: true,
       child: ListView(
         physics: const NeverScrollableScrollPhysics(),

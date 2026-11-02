@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
-import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
 
 /// Wraps a goal card and, when [play] turns on, celebrates once that the
 /// goal passed half of its target: the card swells slightly, glows in gold
@@ -135,7 +135,7 @@ class _Message extends StatelessWidget {
             ),
           ),
           child: Text(
-            GoalsTexts.halfwayThere,
+            context.l10n.goalsHalfwayThere,
             style: AppTypography.label.copyWith(color: AppColors.textPrimary),
           ),
         ),

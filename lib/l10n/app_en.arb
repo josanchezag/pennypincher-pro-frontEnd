@@ -1,0 +1,710 @@
+{
+  "@@locale": "en",
+  "shellSettingsTooltip": "Settings",
+  "shellBackToDashboard": "Back to dashboard",
+  "accountMenuTooltip": "Account",
+  "accountMenuSignOut": "Sign out",
+  "accountMenuLanguage": "Language",
+  "languageSpanish": "Español",
+  "languageEnglish": "English",
+  "routeLogin": "Sign in",
+  "routeDashboard": "Dashboard",
+  "routeNetWorth": "Net Worth",
+  "routeNetWorthAssets": "Assets",
+  "routeNetWorthLiabilities": "Liabilities",
+  "routeNetWorthReport": "Net Worth Report",
+  "routeBudget": "Budget",
+  "routeBudgetOverview": "Budget Overview",
+  "routeBudgetIncome": "Income Sources",
+  "routeBudgetComparison": "Budget Comparison",
+  "routeExpenses": "Expenses",
+  "routeExpensesCreditCards": "Credit Cards",
+  "routeExpensesLoans": "Loans",
+  "routeExpensesFixed": "Fixed Expenses",
+  "routeExpensesVariable": "Variable Expenses",
+  "routeExpensesSavings": "Savings",
+  "routeGoals": "Goals",
+  "routeGoalProjection": "Goal Projection",
+  "routeSettings": "Settings",
+  "routeSettingsProfile": "Profile",
+  "navNetWorth": "Net Worth",
+  "commonRetry": "Retry",
+  "commonCancel": "Cancel",
+  "commonSave": "Save",
+  "commonSaving": "Saving",
+  "commonDelete": "Delete",
+  "commonLoading": "Loading",
+  "commonBackTo": "Back to {screen}",
+  "@commonBackTo": {
+    "placeholders": {
+      "screen": {
+        "type": "String"
+      }
+    }
+  },
+  "monthPrevious": "Previous month",
+  "monthNext": "Next month",
+  "timeRangeAll": "All",
+  "timeRangeSixMonths": "6M",
+  "timeRangeOneYear": "1Y",
+  "timeRangeThreeYears": "3Y",
+  "placeholderMessage": "This screen is under construction.",
+  "notFoundTitle": "Page not found",
+  "notFoundMessage": "The page you are looking for does not exist.",
+  "errorNetwork": "Could not reach the server. Check your connection and try again.",
+  "errorInvalidResponse": "The server sent an unexpected response.",
+  "errorUnexpected": "Something went wrong. Please try again.",
+  "crudAdd": "Add {item}",
+  "@crudAdd": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "crudEdit": "Edit {item}",
+  "@crudEdit": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "crudDeleteTitle": "Delete {item}?",
+  "@crudDeleteTitle": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "crudDeleteTooltip": "Delete {name}",
+  "@crudDeleteTooltip": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "crudDeleteMessage": "\"{name}\" will be removed from your list and no longer counted in your totals.",
+  "@crudDeleteMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "crudEmptyTitle": "No {items}",
+  "@crudEmptyTitle": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "crudLoadErrorTitle": "Could not load the list",
+  "crudLoadingLabel": "Loading list",
+  "crudNameLabel": "Name",
+  "crudCategoryLabel": "Category",
+  "crudNameRequired": "Enter a name.",
+  "crudNameTooLong": "Use at most {max} characters.",
+  "@crudNameTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "crudAmountRequired": "Enter an amount.",
+  "crudAmountInvalid": "Enter an amount like 1.500.000 or 1.500.000,50, up to 13 digits.",
+  "crudAmountNotPositive": "Enter an amount greater than 0.",
+  "crudAmountHelper": "Example: 1.500.000 or 1.500.000,50",
+  "crudOptionalAmountHelper": "Optional. Example: 1.500.000 or 1.500.000,50",
+  "crudPaidShare": "{percent} paid",
+  "@crudPaidShare": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "crudAllCategories": "All",
+  "crudCategoryFilterLabel": "Filter by category",
+  "crudEmptyCategoryTitle": "Nothing in {category}",
+  "@crudEmptyCategoryTitle": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "crudEmptyCategoryMessage": "Items you add to this category will appear here.",
+  "crudCategoryRequired": "Choose a category.",
+  "monthlyPayment": "Monthly payment",
+  "totalMonthlyPayments": "Total monthly payments",
+  "totalBalance": "Total balance",
+  "totalOutstandingBalance": "Total outstanding balance",
+  "monthlyInstallment": "Monthly installment",
+  "remainingBalance": "Remaining balance",
+  "originalAmount": "Original amount",
+  "totalOutstandingDebt": "Total outstanding debt",
+  "monthlyAmount": "Monthly amount",
+  "totalMonthlyAmount": "Total monthly amount",
+  "totalMonthlyContributions": "Total monthly contributions",
+  "totalSavingsBalance": "Total savings balance",
+  "monthlyContribution": "Monthly contribution",
+  "currentBalance": "Current balance",
+  "assetValue": "Value",
+  "totalAssets": "Total assets",
+  "totalLiabilities": "Total liabilities",
+  "totalMonthlyIncome": "Total monthly income",
+  "creditCardNoun": "credit card",
+  "loanNoun": "loan",
+  "fixedExpenseNoun": "fixed expense",
+  "variableExpenseNoun": "variable expense",
+  "savingsAccountNoun": "savings account",
+  "assetNoun": "asset",
+  "liabilityNoun": "liability",
+  "incomeSourceNoun": "income source",
+  "creditCardsEmptyMessage": "Add your credit cards with their monthly payment and total balance to see what you pay and owe on them.",
+  "loansEmptyMessage": "Add your loans with their monthly installment and remaining balance to follow how your debt goes down.",
+  "fixedExpensesEmptyMessage": "Add what you pay every month, such as rent, school or insurance, to know your fixed monthly costs.",
+  "variableExpensesEmptyMessage": "Add your estimated monthly spending, such as dining out, streaming or clothing, to budget for it.",
+  "savingsEmptyMessage": "Start your reserves: add your first savings account, such as an emergency fund, with what you put into it each month.",
+  "assetsEmptyMessage": "Add what you own, such as your home, car or savings, to start tracking your net worth.",
+  "liabilitiesEmptyMessage": "Add what you owe, such as credit cards or loans, to see the full picture of your net worth.",
+  "incomeEmptyMessage": "Add your first income source, such as your salary or a rent you collect, to calculate your monthly income.",
+  "categoryOther": "Other",
+  "assetCategoryRealEstate": "Real estate",
+  "assetCategoryVehicle": "Vehicle",
+  "assetCategoryBusiness": "Business",
+  "assetCategoryCash": "Cash",
+  "assetCategorySavings": "Savings",
+  "assetCategoryEquipment": "Equipment",
+  "liabilityCategoryCreditCard": "Credit card",
+  "liabilityCategoryPersonalLoan": "Personal loan",
+  "liabilityCategoryBankLoan": "Bank loan",
+  "liabilityCategoryFamilyDebt": "Family debt",
+  "incomeCategoryEmployment": "Employment",
+  "incomeCategoryRental": "Rental",
+  "incomeCategoryBusiness": "Business",
+  "incomeCategoryInvestment": "Investment",
+  "incomeCategoryFreelance": "Freelance",
+  "fixedCategoryFood": "Food",
+  "fixedCategoryEducation": "Education",
+  "fixedCategoryTransport": "Transport",
+  "fixedCategoryUtilities": "Utilities",
+  "fixedCategoryInsurance": "Insurance",
+  "fixedCategoryHousing": "Housing",
+  "fixedCategoryHealth": "Health",
+  "fixedCategoryCharity": "Charity",
+  "fixedCategoryCommunication": "Communication",
+  "fixedCategoryTaxes": "Taxes",
+  "variableCategoryLeisure": "Leisure",
+  "variableCategoryStreaming": "Streaming",
+  "variableCategoryHouseholdStaff": "Household staff",
+  "variableCategoryDining": "Dining",
+  "variableCategoryClothing": "Clothing",
+  "variableCategoryGifts": "Gifts",
+  "appTagline": "Your personal finance command center",
+  "signInWithGoogle": "Sign in with Google",
+  "signingIn": "Signing in",
+  "devLogin": "Dev login",
+  "googleSignInNotConfiguredForBuild": "Google sign-in is not configured for this build.",
+  "signInAccountNotAllowed": "This Google account isn't allowed to use PennyPincher Pro.",
+  "signInRegistrationDisabled": "Sign-ups are closed right now.",
+  "signInCancelled": "Sign-in was cancelled.",
+  "signInStateMismatch": "The sign-in response could not be verified. Please try again.",
+  "signInFailed": "Google sign-in failed. Please try again.",
+  "signInNotConfigured": "Google sign-in is not configured.",
+  "netWorth": "Net worth",
+  "income": "Income",
+  "expenses": "Expenses",
+  "cashFlow": "Cash flow",
+  "shareOfIncome": "{percent} of income",
+  "@shareOfIncome": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "changeVersus": "{change} vs {month}",
+  "@changeVersus": {
+    "placeholders": {
+      "change": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "recordSnapshot": "Record snapshot",
+  "snapshotSaved": "Snapshot saved for {month}",
+  "@snapshotSaved": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "firstGoalTitle": "Set your first financial goal",
+  "dashboardGreetingMorning": "Good morning",
+  "dashboardGreetingAfternoon": "Good afternoon",
+  "dashboardGreetingEvening": "Good evening",
+  "dashboardGreetingWithName": "{greeting}, {name}",
+  "@dashboardGreetingWithName": {
+    "placeholders": {
+      "greeting": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardOverview": "Your financial overview for {month}",
+  "@dashboardOverview": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardRefresh": "Refresh",
+  "dashboardLoadingLabel": "Loading dashboard",
+  "dashboardLoadErrorTitle": "Could not load your dashboard",
+  "dashboardRefreshFailed": "Could not refresh: {message}",
+  "@dashboardRefreshFailed": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardNoPreviousSnapshot": "No previous snapshot",
+  "dashboardSparklineLabel": "Net worth of the last months: {firstAmount} in {firstMonth}, {lastAmount} in {lastMonth}",
+  "@dashboardSparklineLabel": {
+    "placeholders": {
+      "firstAmount": {
+        "type": "String"
+      },
+      "firstMonth": {
+        "type": "String"
+      },
+      "lastAmount": {
+        "type": "String"
+      },
+      "lastMonth": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardSparklineHint": "Record a snapshot in two different months to see your trend here.",
+  "dashboardBudgetTitle": "This month's budget · {month}",
+  "@dashboardBudgetTitle": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardCreateBudgetTitle": "Create this month's budget",
+  "dashboardCreateBudgetMessage": "See your income, expenses and cash flow for {month}.",
+  "@dashboardCreateBudgetMessage": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardGoalsTitle": "Financial goals",
+  "dashboardFirstGoalMessage": "Choose the net worth you want to reach and follow your progress here.",
+  "dashboardQuickActions": "Quick actions",
+  "dashboardAddExpense": "Add expense",
+  "dashboardNetWorthReport": "Net worth report",
+  "dashboardBudgetComparison": "Budget comparison",
+  "dashboardOnboardingTitle": "Start by adding your assets",
+  "dashboardOnboardingMessage": "Add what you own and what you owe to see your net worth. Then create a budget and set your financial goals.",
+  "assets": "Assets",
+  "liabilities": "Liabilities",
+  "tableMonth": "Month",
+  "monthByMonth": "Month by month",
+  "netWorthCreateSnapshot": "Create snapshot",
+  "netWorthCreateSnapshotHint": "Save this month's net worth to your history",
+  "netWorthHistory": "History",
+  "netWorthEmptyHistoryTitle": "No snapshots yet",
+  "netWorthEmptyHistoryMessage": "Create a snapshot to start tracking your net worth month by month.",
+  "netWorthLoadErrorTitle": "Could not load your net worth",
+  "netWorthLoadingLabel": "Loading net worth",
+  "netWorthAssetsSubtitle": "Manage what you own",
+  "netWorthLiabilitiesSubtitle": "Manage what you owe",
+  "netWorthReportSubtitle": "Full history and monthly changes",
+  "netWorthChartDescription": "Net worth history chart, {count, plural, =1{1 month} other{{count} months}} from {first} to {last}, latest {amount}",
+  "@netWorthChartDescription": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "first": {
+        "type": "String"
+      },
+      "last": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "labelValue": "{label} {amount}",
+  "@labelValue": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "netWorthReportLoadingLabel": "Loading net worth report",
+  "netWorthReportLoadErrorTitle": "Could not load the report",
+  "netWorthReportEmptyTitle": "No history in this range",
+  "netWorthReportEmptyMessage": "Record a snapshot from the Net Worth screen to start your history.",
+  "netWorthLatest": "Latest net worth",
+  "netWorthBestMonth": "Best month",
+  "netWorthBestMonthOf": "Best month · {month}",
+  "@netWorthBestMonthOf": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "netWorthBest": "Best",
+  "netWorthChangeInRange": "Change in range",
+  "netWorthSince": "since {month}",
+  "@netWorthSince": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "netWorthChangeSince": "{percent} since {month}",
+  "@netWorthChangeSince": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "netWorthDelta": "Change",
+  "expenseCardCount": "{count, plural, =1{1 card} other{{count} cards}}",
+  "@expenseCardCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "expenseLoanCount": "{count, plural, =1{1 loan} other{{count} loans}}",
+  "@expenseLoanCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "expenseItemCount": "{count, plural, =1{1 expense} other{{count} expenses}}",
+  "@expenseItemCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "expenseAccountCount": "{count, plural, =1{1 account} other{{count} accounts}}",
+  "@expenseAccountCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "expenseHubLoadError": "Could not load this total.",
+  "expenseBudgetHint": "Budget months keep the totals of their last calculation. Recalculate a month in Budget Overview to include the changes you make here.",
+  "expenseOpenBudgetOverview": "Open Budget Overview",
+  "totalIncome": "Total income",
+  "totalExpenses": "Total expenses",
+  "noBudget": "No budget",
+  "budgetLoadingLabel": "Loading budget",
+  "budgetLoadErrorTitle": "Could not load the budget",
+  "budgetNoBudgetTitle": "No budget for {month}",
+  "@budgetNoBudgetTitle": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetNoBudgetMessage": "Create a budget to calculate this month's income, expenses and cash flow from your current income sources and expenses.",
+  "budgetCreate": "Create Budget",
+  "budgetBreakdownTitle": "Where your income goes",
+  "budgetIdeal": "ideal {percent}",
+  "@budgetIdeal": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetNoIdeal": "no target",
+  "budgetOnTarget": "within target",
+  "budgetSlightlyOver": "slightly over target",
+  "budgetOver": "over target",
+  "budgetSlightlyUnder": "slightly under target",
+  "budgetUnder": "under target",
+  "budgetLegend": "Each row shows the share of your income and then the ideal share. Credit cards: green at or below the ideal, amber up to {tolerance}% above it, red further above. Savings and charity: green at or above the ideal, amber down to {tolerance}% below it, red further below.",
+  "@budgetLegend": {
+    "placeholders": {
+      "tolerance": {
+        "type": "int"
+      }
+    }
+  },
+  "budgetDetailsTitle": "Month details",
+  "budgetExchangeRate": "TRM (USD/COP)",
+  "budgetWorkDays": "Work days",
+  "budgetNotSet": "Not set",
+  "budgetEditValue": "Edit {label}",
+  "@budgetEditValue": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetClearHint": "Leave empty to clear it.",
+  "budgetExchangeRateInvalid": "Enter a rate greater than zero, like 3.950 or 3.950,25.",
+  "budgetWorkDaysInvalid": "Enter a whole number from 0 to {max}.",
+  "@budgetWorkDaysInvalid": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "budgetIncomeTitle": "Income sources",
+  "budgetIncomeNote": "This budget uses your income and expenses as of its last calculation. Recalculate it after changing them.",
+  "budgetIncomeChanged": "Your current income differs from this budget.",
+  "budgetNoIncome": "You have no income sources yet.",
+  "budgetCurrentTotal": "Current total",
+  "budgetManageIncome": "Manage",
+  "budgetRecalculate": "Recalculate",
+  "budgetRecalculateTitle": "Recalculate {month}?",
+  "@budgetRecalculateTitle": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetRecalculateMessage": "The budget will be updated with your current income sources and expenses.",
+  "budgetCreated": "Budget created for {month}",
+  "@budgetCreated": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetAlreadyExisted": "Budget for {month} already existed and was loaded",
+  "@budgetAlreadyExisted": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetUpdated": "Budget updated",
+  "budgetRecalculated": "Budget recalculated",
+  "budgetComparisonLink": "Compare months",
+  "budgetComparisonLoadingLabel": "Loading budget comparison",
+  "budgetComparisonLoadErrorTitle": "Could not load the comparison",
+  "budgetComparisonEmptyTitle": "No budgets to compare yet",
+  "budgetComparisonEmptyMessage": "Create the budget of a month to compare its income and expenses with the months around it.",
+  "budgetOpenBudget": "Open budget",
+  "budgetComparisonSubtitle": "Last {count, plural, =1{month} other{{count} months}} up to {month}",
+  "@budgetComparisonSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetComparisonChartTitle": "Income vs expenses",
+  "budgetComparisonChartDescription": "Budget comparison chart, {first} – {last}, {count} with a budget",
+  "@budgetComparisonChartDescription": {
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "last": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "budgetCashFlowPercentShort": "CF %",
+  "budgetComponentCreditCards": "Credit cards",
+  "budgetComponentLoans": "Loans",
+  "budgetComponentMonthlyExpenses": "Monthly expenses",
+  "budgetComponentSavings": "Savings",
+  "budgetComponentCharity": "Charity",
+  "goalsSubtitle": "Your roadmap to financial independence, measured against your current net worth.",
+  "goalsLoadingLabel": "Loading goals",
+  "goalsLoadErrorTitle": "Could not load your goals",
+  "goalsAddGoal": "Add goal",
+  "goalsEditGoal": "Edit goal",
+  "goalsDeleteGoal": "Delete goal",
+  "goalsDeleteTitle": "Delete goal?",
+  "goalsDeleteMessage": "\"{name}\" will be removed for good, with its projection.",
+  "@goalsDeleteMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsEmptyTitle": "Start your financial roadmap",
+  "goalsEmptyMessage": "Define the net worth you want to reach, invest toward it every month and see when you will get there.",
+  "goalsUseStandard": "Use the 4 standard goals",
+  "goalsTarget": "Target",
+  "goalsCurrentNetWorth": "Current net worth",
+  "goalsRemaining": "Remaining",
+  "goalsProjectedDate": "Projected date",
+  "goalsMonthlyInvestment": "Monthly investment",
+  "goalsReturnRate": "Return rate",
+  "goalsExpectedAnnualReturn": "Expected annual return",
+  "goalsTargetYears": "Target years",
+  "goalsLevel": "Level",
+  "goalsLevelRequired": "Choose a level.",
+  "goalsProgress": "Progress {percent}",
+  "@goalsProgress": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsProjectionsUnavailable": "Progress and projected dates could not be loaded.",
+  "goalsReached": "Goal reached",
+  "goalsNotReachable": "Not reachable within {years} years",
+  "@goalsNotReachable": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "goalsHalfwayThere": "Halfway there!",
+  "goalsReturnRequired": "Enter the expected annual return.",
+  "goalsReturnInvalid": "Enter a percentage above 0 and up to 100, like 11 or 11,5.",
+  "goalsReturnHelper": "Yearly, in percent. Example: 11 or 11,5",
+  "goalsTargetYearsInvalid": "Enter a whole number from 1 to 100.",
+  "goalsTargetYearsHelper": "Optional. From 1 to 100",
+  "goalsYearsSuffix": "years",
+  "goalsSeeProjection": "See projection",
+  "goalsProjectionLoading": "Loading projection",
+  "goalsProjectionErrorTitle": "Could not load the projection",
+  "goalsNotFoundTitle": "Goal not found",
+  "goalsNotFoundMessage": "This goal no longer exists. It may have been deleted.",
+  "goalsYearsFromNow": "Years from now",
+  "goalsChartDescription": "Projection chart of {name}, Target {target}",
+  "@goalsChartDescription": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsChartDescriptionWithEnd": "Projection chart of {name}, Target {target}, {amount} on {date}",
+  "@goalsChartDescriptionWithEnd": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsSummaryReach": "At this rate, you'll reach {name} in {years} on {date}",
+  "@goalsSummaryReach": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "years": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsYears": "{count, plural, =1{{years} year} other{{years} years}}",
+  "@goalsYears": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      },
+      "years": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsAlreadyReached": "You've already reached {name}: your current net worth covers its target.",
+  "@goalsAlreadyReached": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsNotReachableSummary": "At this rate, you won't reach {name} within {years} years. Investing more each month or a higher return brings it closer.",
+  "@goalsNotReachableSummary": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "goalLevelFinancialSecurity": "Financial security",
+  "goalLevelFinancialIndependence": "Financial independence",
+  "goalLevelFinancialFreedom": "Financial freedom",
+  "goalLevelAbsoluteFreedom": "Absolute freedom"
+}

@@ -13,32 +13,34 @@ import 'package:pennypincher_pro/features/net_worth/presentation/bloc/liability_
 class LiabilitiesScreen extends StatelessWidget {
   const LiabilitiesScreen({super.key});
 
-  static const CrudScreenConfig<Liability, CategorizedDraft<LiabilityCategory>>
+  static final CrudScreenConfig<Liability, CategorizedDraft<LiabilityCategory>>
       config = CrudScreenConfig(
     route: AppRoute.netWorthLiabilities,
     parent: AppRoute.netWorth,
-    itemNoun: 'liability',
+    itemNoun: (l10n) => l10n.liabilityNoun,
     emptyIcon: Icons.credit_card_off_outlined,
-    emptyMessage: 'Add what you owe, such as credit cards or loans, '
-        'to see the full picture of your net worth.',
+    emptyMessage: (l10n) => l10n.liabilitiesEmptyMessage,
     layout: CategorizedLayout(
-      amountLabel: 'Current balance',
-      totalLabel: 'Total liabilities',
+      amountLabel: (l10n) => l10n.currentBalance,
+      totalLabel: (l10n) => l10n.totalLiabilities,
       totalIcon: Icons.trending_down,
       totalColor: AppColors.error,
       categoryLabels: {
-        LiabilityCategory.creditCard: 'Credit card',
-        LiabilityCategory.personalLoan: 'Personal loan',
-        LiabilityCategory.bankLoan: 'Bank loan',
-        LiabilityCategory.familyDebt: 'Family debt',
-        LiabilityCategory.other: 'Other',
+        LiabilityCategory.creditCard: (l10n) =>
+            l10n.liabilityCategoryCreditCard,
+        LiabilityCategory.personalLoan: (l10n) =>
+            l10n.liabilityCategoryPersonalLoan,
+        LiabilityCategory.bankLoan: (l10n) => l10n.liabilityCategoryBankLoan,
+        LiabilityCategory.familyDebt: (l10n) =>
+            l10n.liabilityCategoryFamilyDebt,
+        LiabilityCategory.other: (l10n) => l10n.categoryOther,
       },
     ),
   );
 
   @override
-  Widget build(BuildContext context) => const CrudScreen<Liability,
-          CategorizedDraft<LiabilityCategory>, LiabilityBloc>(
+  Widget build(BuildContext context) =>
+      CrudScreen<Liability, CategorizedDraft<LiabilityCategory>, LiabilityBloc>(
         config: config,
       );
 }

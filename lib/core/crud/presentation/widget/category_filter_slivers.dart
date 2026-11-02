@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
-import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_breakpoints.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
@@ -53,7 +53,7 @@ class _CategoryFilterSliversState<T extends CategorizedItem<C>, C extends Enum>
   /// one stays reachable without horizontal scrolling.
   Widget _chips() {
     final chips = [
-      _chip(null, CrudTexts.allCategories),
+      _chip(null, context.l10n.crudAllCategories),
       for (final MapEntry(key: category, value: label)
           in widget.categoryLabels.entries)
         _chip(category, label),
@@ -62,7 +62,7 @@ class _CategoryFilterSliversState<T extends CategorizedItem<C>, C extends Enum>
       padding: const EdgeInsets.only(top: AppSpacing.md),
       child: Semantics(
         container: true,
-        label: CrudTexts.categoryFilterLabel,
+        label: context.l10n.crudCategoryFilterLabel,
         child: LayoutBuilder(
           builder: (context, constraints) =>
               ScreenSize.fromWidth(constraints.maxWidth) == ScreenSize.mobile
@@ -89,9 +89,10 @@ class _CategoryFilterSliversState<T extends CategorizedItem<C>, C extends Enum>
 
   Widget _emptyCategory(C category) => StatusMessage(
         icon: Icons.filter_alt_off_outlined,
-        title: '${CrudTexts.emptyCategoryPrefix} '
-            '${widget.categoryLabels[category] ?? category.name}',
-        message: CrudTexts.emptyCategoryMessage,
+        title: context.l10n.crudEmptyCategoryTitle(
+          widget.categoryLabels[category] ?? category.name,
+        ),
+        message: context.l10n.crudEmptyCategoryMessage,
       );
 }
 

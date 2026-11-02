@@ -63,7 +63,7 @@ abstract final class ApiEnvelope {
   static AppException exceptionFrom(DioException exception) {
     final response = exception.response;
     if (response == null) {
-      return const AppException(
+      return AppException(
         code: ErrorCodes.networkError,
         message: ErrorMessages.network,
       );
@@ -99,7 +99,7 @@ abstract final class ApiEnvelope {
     return fields.isEmpty ? message : '$message: ${fields.join('; ')}';
   }
 
-  static AppException _invalidResponse() => const AppException(
+  static AppException _invalidResponse() => AppException(
         code: ErrorCodes.invalidResponse,
         message: ErrorMessages.invalidResponse,
       );

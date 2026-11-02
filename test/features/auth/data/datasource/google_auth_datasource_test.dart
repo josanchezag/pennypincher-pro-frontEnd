@@ -131,7 +131,7 @@ void main() {
         url: any(named: 'url'),
         callbackUrlScheme: any(named: 'callbackUrlScheme'),
       ),
-    ).thenThrow(const OAuthException.cancelled());
+    ).thenThrow(OAuthException.cancelled());
 
     expect(dataSource.authorize(), _throwsOAuth(OAuthErrorCodes.cancelled));
   });

@@ -7,7 +7,6 @@ import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/savings_account_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/savings_account_bloc.dart';
-import 'package:pennypincher_pro/features/expense_details/presentation/expense_texts.dart';
 
 /// `/expenses/savings`: the total savings balance first, in green, and the
 /// monthly contributions, above every savings account. Expects a
@@ -15,24 +14,23 @@ import 'package:pennypincher_pro/features/expense_details/presentation/expense_t
 class SavingsScreen extends StatelessWidget {
   const SavingsScreen({super.key});
 
-  static const CrudScreenConfig<SavingsAccount, BalanceDraft> config =
+  static final CrudScreenConfig<SavingsAccount, BalanceDraft> config =
       CrudScreenConfig(
     route: AppRoute.expensesSavings,
     parent: AppRoute.expenses,
-    itemNoun: 'savings account',
+    itemNoun: (l10n) => l10n.savingsAccountNoun,
     emptyIcon: Icons.savings_outlined,
-    emptyMessage: 'Start your reserves: add your first savings account, '
-        'such as an emergency fund, with what you put into it each month.',
+    emptyMessage: (l10n) => l10n.savingsEmptyMessage,
     layout: BalanceLayout(
       monthly: BalanceAmountStyle(
-        label: ExpenseTexts.monthlyContribution,
-        totalLabel: ExpenseTexts.totalMonthlyContributions,
+        label: (l10n) => l10n.monthlyContribution,
+        totalLabel: (l10n) => l10n.totalMonthlyContributions,
         icon: Icons.event_repeat_outlined,
         color: AppColors.textPrimary,
       ),
       balance: BalanceAmountStyle(
-        label: ExpenseTexts.currentBalance,
-        totalLabel: ExpenseTexts.totalSavingsBalance,
+        label: (l10n) => l10n.currentBalance,
+        totalLabel: (l10n) => l10n.totalSavingsBalance,
         icon: Icons.savings_outlined,
         color: AppColors.success,
       ),
@@ -42,7 +40,7 @@ class SavingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      const CrudScreen<SavingsAccount, BalanceDraft, SavingsAccountBloc>(
+      CrudScreen<SavingsAccount, BalanceDraft, SavingsAccountBloc>(
         config: config,
       );
 }

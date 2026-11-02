@@ -7,7 +7,6 @@ import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/variable_expense_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/variable_expense_bloc.dart';
-import 'package:pennypincher_pro/features/expense_details/presentation/expense_texts.dart';
 
 /// `/expenses/variable`: the monthly total, category chips that filter the
 /// list, and the estimated variable expenses grouped by category with
@@ -15,34 +14,36 @@ import 'package:pennypincher_pro/features/expense_details/presentation/expense_t
 class VariableExpensesScreen extends StatelessWidget {
   const VariableExpensesScreen({super.key});
 
-  static const CrudScreenConfig<VariableExpense,
+  static final CrudScreenConfig<VariableExpense,
       CategorizedDraft<VariableExpenseCategory>> config = CrudScreenConfig(
     route: AppRoute.expensesVariable,
     parent: AppRoute.expenses,
-    itemNoun: 'variable expense',
+    itemNoun: (l10n) => l10n.variableExpenseNoun,
     emptyIcon: Icons.shopping_bag_outlined,
-    emptyMessage: 'Add your estimated monthly spending, such as dining out, '
-        'streaming or clothing, to budget for it.',
+    emptyMessage: (l10n) => l10n.variableExpensesEmptyMessage,
     layout: CategorizedLayout(
-      amountLabel: ExpenseTexts.monthlyAmount,
-      totalLabel: ExpenseTexts.totalMonthlyAmount,
+      amountLabel: (l10n) => l10n.monthlyAmount,
+      totalLabel: (l10n) => l10n.totalMonthlyAmount,
       totalIcon: Icons.receipt_long_outlined,
       totalColor: AppColors.warning,
       filterable: true,
       categoryLabels: {
-        VariableExpenseCategory.leisure: 'Leisure',
-        VariableExpenseCategory.streaming: 'Streaming',
-        VariableExpenseCategory.householdStaff: 'Household staff',
-        VariableExpenseCategory.dining: 'Dining',
-        VariableExpenseCategory.clothing: 'Clothing',
-        VariableExpenseCategory.gifts: 'Gifts',
-        VariableExpenseCategory.other: 'Other',
+        VariableExpenseCategory.leisure: (l10n) => l10n.variableCategoryLeisure,
+        VariableExpenseCategory.streaming: (l10n) =>
+            l10n.variableCategoryStreaming,
+        VariableExpenseCategory.householdStaff: (l10n) =>
+            l10n.variableCategoryHouseholdStaff,
+        VariableExpenseCategory.dining: (l10n) => l10n.variableCategoryDining,
+        VariableExpenseCategory.clothing: (l10n) =>
+            l10n.variableCategoryClothing,
+        VariableExpenseCategory.gifts: (l10n) => l10n.variableCategoryGifts,
+        VariableExpenseCategory.other: (l10n) => l10n.categoryOther,
       },
     ),
   );
 
   @override
-  Widget build(BuildContext context) => const CrudScreen<VariableExpense,
+  Widget build(BuildContext context) => CrudScreen<VariableExpense,
           CategorizedDraft<VariableExpenseCategory>, VariableExpenseBloc>(
         config: config,
       );

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pennypincher_pro/core/theme/app_theme.dart';
+import 'package:intl/intl.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/widgets/month_selector.dart';
+
+import '../../helpers/l10n.dart';
 
 void main() {
   late List<DateTime> changes;
@@ -14,10 +17,11 @@ void main() {
     DateTime? first,
     DateTime? last,
     bool enabled = true,
+    Locale locale = testLocale,
   }) =>
       tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.dark,
+        localizedApp(
+          locale: locale,
           home: Scaffold(
             body: Center(
               child: MonthSelector(
@@ -39,8 +43,8 @@ void main() {
     await pump(tester, DateTime(2026, 10, 22));
 
     expect(find.text('October 2026'), findsOneWidget);
-    expect(find.byTooltip(MonthSelector.previousTooltip), findsOneWidget);
-    expect(find.byTooltip(MonthSelector.nextTooltip), findsOneWidget);
+    expect(find.byTooltip(l10n.monthPrevious), findsOneWidget);
+    expect(find.byTooltip(l10n.monthNext), findsOneWidget);
   });
 
   testWidgets('moves one month back and forward across years', (tester) async {
@@ -86,5 +90,29 @@ void main() {
 
     expect(tester.getCenter(find.byKey(MonthSelector.nextKey)), mayNext);
     expect(tester.takeException(), isNull);
+  });
+
+  group('in Spanish', () {
+    setUp(() => Intl.defaultLocale = 'es');
+    tearDown(() => Intl.defaultLocale = testLocale.languageCode);
+
+    testWidgets('names the month in Spanish', (tester) async {
+      await pump(tester, DateTime(2026, 10), locale: AppLocales.spanish);
+
+      expect(find.text('Octubre 2026'), findsOneWidget);
+      expect(find.byTooltip(l10nEs.monthPrevious), findsOneWidget);
+      expect(find.byTooltip(l10nEs.monthNext), findsOneWidget);
+    });
+
+    testWidgets('keeps the arrows in place for every month name',
+        (tester) async {
+      await pump(tester, DateTime(2026, 5), locale: AppLocales.spanish);
+      final mayNext = tester.getCenter(find.byKey(MonthSelector.nextKey));
+      await pump(tester, DateTime(2026, 9), locale: AppLocales.spanish);
+
+      expect(find.text('Septiembre 2026'), findsOneWidget);
+      expect(tester.getCenter(find.byKey(MonthSelector.nextKey)), mayNext);
+      expect(tester.takeException(), isNull);
+    });
   });
 }

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
@@ -9,7 +10,6 @@ import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/widgets/chart_style.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_trend_entity.dart';
-import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_texts.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/widget/chart_scale.dart';
 
 /// Full-width chart of a net worth report: the net worth line over the
@@ -63,13 +63,14 @@ class FullHistoryChart extends StatelessWidget {
     final chartScale = scale;
     return Semantics(
       container: true,
-      label: _description(),
+      label: _description(context.l10n),
       child: ExcludeSemantics(
         child: SizedBox(
           height: height,
           child: LayoutBuilder(
             builder: (context, constraints) => LineChart(
               _ChartData(
+                context.l10n,
                 this,
                 chartScale,
                 labelStep(chartScale, constraints.maxWidth),
@@ -81,20 +82,22 @@ class FullHistoryChart extends StatelessWidget {
     );
   }
 
-  String _description() {
+  String _description(AppLocalizations l10n) {
     final last = _points.last;
-    return '${NetWorthTexts.reportChartLabel}, ${_points.length} '
-        '${NetWorthTexts.months} ${NetWorthTexts.from} '
-        '${MonthFormat.long.format(_points.first.month)} ${NetWorthTexts.to} '
-        '${MonthFormat.long.format(last.month)}, ${NetWorthTexts.latest} '
-        '${CurrencyFormatter.format(last.netWorth)}';
+    return l10n.netWorthChartDescription(
+      _points.length,
+      MonthFormat.long.format(_points.first.month),
+      MonthFormat.long.format(last.month),
+      CurrencyFormatter.format(last.netWorth),
+    );
   }
 }
 
 /// fl_chart configuration of a [FullHistoryChart].
 class _ChartData {
-  const _ChartData(this.chart, this.scale, this.labelEvery);
+  const _ChartData(this.l10n, this.chart, this.scale, this.labelEvery);
 
+  final AppLocalizations l10n;
   final FullHistoryChart chart;
   final ChartScale scale;
   final int labelEvery;
@@ -168,22 +171,21 @@ class _ChartData {
         ],
       );
 
-  static LineTooltipItem _tooltipItem(NetWorthTrendPoint point) =>
-      LineTooltipItem(
+  LineTooltipItem _tooltipItem(NetWorthTrendPoint point) => LineTooltipItem(
         '${MonthFormat.long.format(point.month)}\n',
         AppTypography.bodySmall,
         textAlign: TextAlign.left,
         children: [
-          _line(NetWorthTexts.netWorth, point.netWorth, newLine: true),
-          _line(NetWorthTexts.totalAssets, point.totalAssets, newLine: true),
-          _line(NetWorthTexts.totalLiabilities, point.totalLiabilities),
+          _line(l10n.netWorth, point.netWorth, newLine: true),
+          _line(l10n.totalAssets, point.totalAssets, newLine: true),
+          _line(l10n.totalLiabilities, point.totalLiabilities),
         ],
       );
 
-  static TextSpan _line(String label, Money amount, {bool newLine = false}) =>
+  TextSpan _line(String label, Money amount, {bool newLine = false}) =>
       TextSpan(
-        text:
-            '$label ${CurrencyFormatter.format(amount)}${newLine ? '\n' : ''}',
+        text: '${l10n.labelValue(label, CurrencyFormatter.format(amount))}'
+            '${newLine ? '\n' : ''}',
         style: ChartStyle.tooltipValue,
       );
 

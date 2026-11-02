@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
@@ -7,7 +8,6 @@ import 'package:pennypincher_pro/core/widgets/button_progress_icon.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/dashboard_summary_entity.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/part_of_day.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/bloc/dashboard_bloc.dart';
-import 'package:pennypincher_pro/features/dashboard/presentation/dashboard_texts.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/user_avatar.dart';
 
 /// Avatar, greeting with the user's first name, the month shown and a
@@ -20,10 +20,18 @@ class DashboardHeader extends StatelessWidget {
   final DashboardState state;
 
   /// `Good morning, Josimar`, or only the greeting without a name.
-  static String greeting(PartOfDay period, UserProfile user) {
-    final hello = DashboardTexts.greeting(period);
+  static String greeting(
+    AppLocalizations l10n,
+    PartOfDay period,
+    UserProfile user,
+  ) {
+    final hello = switch (period) {
+      PartOfDay.morning => l10n.dashboardGreetingMorning,
+      PartOfDay.afternoon => l10n.dashboardGreetingAfternoon,
+      PartOfDay.evening => l10n.dashboardGreetingEvening,
+    };
     final name = user.firstName;
-    return name.isEmpty ? hello : '$hello, $name';
+    return name.isEmpty ? hello : l10n.dashboardGreetingWithName(hello, name);
   }
 
   @override
@@ -35,7 +43,7 @@ class DashboardHeader extends StatelessWidget {
         const SizedBox(width: AppSpacing.md),
         Expanded(
           child: _Greeting(
-            greeting: greeting(state.period, summary.user),
+            greeting: greeting(context.l10n, state.period, summary.user),
             month: summary.referenceMonth,
           ),
         ),
@@ -62,7 +70,7 @@ class _Greeting extends StatelessWidget {
           child: Text(greeting, style: AppTypography.heading1),
         ),
         Text(
-          '${DashboardTexts.overviewPrefix} ${MonthFormat.long.format(month)}',
+          context.l10n.dashboardOverview(MonthFormat.long.format(month)),
           style: AppTypography.bodyMedium,
         ),
       ],
@@ -80,7 +88,7 @@ class _RefreshButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       key: DashboardHeader.refreshKey,
-      tooltip: DashboardTexts.refresh,
+      tooltip: context.l10n.dashboardRefresh,
       onPressed: state.isBusy
           ? null
           : () => context

@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
+import 'package:pennypincher_pro/core/layout/account_menu.dart';
 import 'package:pennypincher_pro/core/layout/app_shell.dart';
 import 'package:pennypincher_pro/core/router/app_destination.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
@@ -36,6 +37,7 @@ import 'package:pennypincher_pro/features/net_worth/presentation/screen/net_wort
 import '../../helpers/budget_mocks.dart';
 import '../../helpers/expense_mocks.dart';
 import '../../helpers/goal_mocks.dart';
+import '../../helpers/l10n.dart';
 import '../../helpers/mocks.dart';
 import '../../helpers/net_worth_mocks.dart';
 import '../../helpers/pump_app.dart';
@@ -139,7 +141,7 @@ void main() {
         expect(
           find.descendant(
             of: find.byType(PlaceholderScreen),
-            matching: find.text(route.title),
+            matching: find.text(route.title(l10n)),
           ),
           findsOneWidget,
         );
@@ -278,7 +280,7 @@ void main() {
     testWidgets('shows the not found screen for unknown paths', (tester) async {
       await tester.pumpApp(location: '/does-not-exist');
 
-      expect(find.text(NotFoundScreen.title), findsOneWidget);
+      expect(find.text(l10n.notFoundTitle), findsOneWidget);
     });
 
     testWidgets('navigates between sections from the rail', (tester) async {
@@ -290,7 +292,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(PlaceholderScreen),
-          matching: find.text(AppRoute.settings.title),
+          matching: find.text(AppRoute.settings.title(l10n)),
         ),
         findsOneWidget,
       );
@@ -318,7 +320,10 @@ void main() {
       await tester.pumpApp(location: AppRoute.settings.path, authBloc: bloc);
       final router = GoRouter.of(tester.element(find.byType(AppShell)));
 
-      await tester.tap(find.byTooltip(AppShell.signOutTooltip));
+      await tester.tap(find.byTooltip(l10n.accountMenuTooltip));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(AccountMenu.signOutKey));
+      await tester.pump();
       verify(() => bloc.add(const AuthSignOutRequested())).called(1);
       states.add(const AuthUnauthenticated(signedOut: true));
       await tester.pumpAndSettle();
@@ -364,7 +369,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(PlaceholderScreen),
-          matching: find.text(AppRoute.settingsProfile.title),
+          matching: find.text(AppRoute.settingsProfile.title(l10n)),
         ),
         findsOneWidget,
       );

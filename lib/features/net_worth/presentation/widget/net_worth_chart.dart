@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
@@ -35,7 +36,6 @@ class NetWorthChart extends StatelessWidget {
   static const double bottomAxisHeight = 28;
   static const double lineWidth = 3;
   static const double dotRadius = 3;
-  static const String semanticsPrefix = 'Net worth history chart';
 
   /// Snapshots sorted from the oldest month; must not be empty.
   final List<NetWorthSnapshot> history;
@@ -45,7 +45,7 @@ class NetWorthChart extends StatelessWidget {
     final scale = ChartScale.of(history);
     return Semantics(
       container: true,
-      label: _description(),
+      label: _description(context.l10n),
       child: ExcludeSemantics(
         child: SizedBox(
           height: height,
@@ -60,12 +60,14 @@ class NetWorthChart extends StatelessWidget {
     );
   }
 
-  String _description() {
-    final first = MonthFormat.long.format(history.first.snapshotDate);
+  String _description(AppLocalizations l10n) {
     final last = history.last;
-    return '$semanticsPrefix, ${history.length} months from $first to '
-        '${MonthFormat.long.format(last.snapshotDate)}, latest '
-        '${CurrencyFormatter.format(last.netWorth)}';
+    return l10n.netWorthChartDescription(
+      history.length,
+      MonthFormat.long.format(history.first.snapshotDate),
+      MonthFormat.long.format(last.snapshotDate),
+      CurrencyFormatter.format(last.netWorth),
+    );
   }
 
   /// Chart without data that only draws the y axis labels, aligned with

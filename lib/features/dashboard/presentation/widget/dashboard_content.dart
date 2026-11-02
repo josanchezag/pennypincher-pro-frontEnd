@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/widgets/responsive_card_row.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/dashboard_summary_entity.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/bloc/dashboard_bloc.dart';
-import 'package:pennypincher_pro/features/dashboard/presentation/dashboard_texts.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/budget_summary_card.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/dashboard_action_card.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/dashboard_header.dart';
@@ -36,11 +36,11 @@ class DashboardContent extends StatelessWidget {
           DashboardHeader(state: state),
           const SizedBox(height: AppSpacing.lg),
           if (summary.isEmpty)
-            const DashboardActionCard(
+            DashboardActionCard(
               key: onboardingKey,
               icon: Icons.account_balance_wallet_outlined,
-              title: DashboardTexts.onboardingTitle,
-              message: DashboardTexts.onboardingMessage,
+              title: context.l10n.dashboardOnboardingTitle,
+              message: context.l10n.dashboardOnboardingMessage,
               route: AppRoute.netWorthAssets,
             )
           else

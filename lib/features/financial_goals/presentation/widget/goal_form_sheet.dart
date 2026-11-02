@@ -3,10 +3,10 @@ import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/crud/presentation/layout/item_form.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_fields.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_sheet.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_level.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/goal_styles.dart';
-import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_form_fields.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
@@ -21,9 +21,9 @@ class GoalForm extends ItemForm<FinancialGoal, GoalDraft> {
   static const String expectedReturn = 'expectedAnnualReturn';
   static const String targetYears = 'targetYears';
 
-  static final Map<GoalLevel, String> levelLabels = {
-    for (final level in GoalLevel.values) level: level.label,
-  };
+  static Map<GoalLevel, String> levelLabels(AppLocalizations l10n) => {
+        for (final level in GoalLevel.values) level: level.label(l10n),
+      };
 
   @override
   FormGroup formGroup(FinancialGoal? initial) => FormGroup({
@@ -39,21 +39,21 @@ class GoalForm extends ItemForm<FinancialGoal, GoalDraft> {
       });
 
   @override
-  List<Widget> formFields() => [
+  List<Widget> formFields(AppLocalizations l10n) => [
         ItemFormFields.nameField(),
         ItemFormFields.categoryField<GoalLevel>(
           level,
-          levelLabels,
-          label: GoalsTexts.level,
-          requiredMessage: GoalsTexts.levelRequired,
+          levelLabels(l10n),
+          label: l10n.goalsLevel,
+          requiredMessage: l10n.goalsLevelRequired,
         ),
-        ItemFormFields.amountField(targetAmount, GoalsTexts.target),
+        ItemFormFields.amountField(targetAmount, l10n.goalsTarget),
         ItemFormFields.amountField(
           monthlyInvestment,
-          GoalsTexts.monthlyInvestment,
+          l10n.goalsMonthlyInvestment,
         ),
-        GoalFormFields.returnField(expectedReturn),
-        GoalFormFields.targetYearsField(targetYears),
+        GoalFormFields.returnField(l10n, expectedReturn),
+        GoalFormFields.targetYearsField(l10n, targetYears),
       ];
 
   @override
@@ -80,9 +80,11 @@ abstract final class GoalFormSheet {
       ItemFormSheet.show<FinancialGoal, GoalDraft>(
         context,
         form: form,
-        title: goal == null ? GoalsTexts.addGoal : GoalsTexts.editGoal,
+        title: goal == null
+            ? context.l10n.goalsAddGoal
+            : context.l10n.goalsEditGoal,
         bloc: bloc,
         initial: goal,
-        deleteLabel: GoalsTexts.deleteGoal,
+        deleteLabel: context.l10n.goalsDeleteGoal,
       );
 }

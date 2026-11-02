@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
@@ -7,7 +8,6 @@ import 'package:pennypincher_pro/core/widgets/responsive_card_row.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_snapshot_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_summary_entity.dart';
-import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_texts.dart';
 
 /// Total assets, total liabilities and net worth: side by side from
 /// tablet up, stacked on mobile.
@@ -28,40 +28,42 @@ class NetWorthStatCards extends StatelessWidget {
   final Money? change;
 
   @override
-  Widget build(BuildContext context) => ResponsiveCardRow(children: _cards());
+  Widget build(BuildContext context) =>
+      ResponsiveCardRow(children: _cards(context.l10n));
 
-  List<Widget> _cards() => [
+  List<Widget> _cards(AppLocalizations l10n) => [
         StatCard(
-          label: NetWorthTexts.totalAssets,
+          label: l10n.totalAssets,
           value: CurrencyFormatter.format(current.totalAssets),
           icon: Icons.trending_up,
           valueColor: AppColors.success,
         ),
         StatCard(
-          label: NetWorthTexts.totalLiabilities,
+          label: l10n.totalLiabilities,
           value: CurrencyFormatter.format(current.totalLiabilities),
           icon: Icons.trending_down,
           valueColor: AppColors.error,
         ),
         StatCard(
-          label: NetWorthTexts.netWorth,
+          label: l10n.netWorth,
           value: CurrencyFormatter.format(current.netWorth),
           icon: Icons.account_balance_outlined,
           valueColor: _colorOf(current.netWorth),
-          delta: _delta(),
+          delta: _delta(l10n),
         ),
       ];
 
-  StatDelta? _delta() {
+  StatDelta? _delta(AppLocalizations l10n) {
     final reference = baseline;
     final difference = change;
     if (reference == null || difference == null) {
       return null;
     }
     return StatDelta(
-      text: '${CurrencyFormatter.formatSigned(difference)} '
-          '${NetWorthTexts.versus} '
-          '${MonthFormat.short.format(reference.snapshotDate)}',
+      text: l10n.changeVersus(
+        CurrencyFormatter.formatSigned(difference),
+        MonthFormat.short.format(reference.snapshotDate),
+      ),
       isPositive: !difference.isNegative,
     );
   }

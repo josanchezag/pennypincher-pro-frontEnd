@@ -18,6 +18,8 @@ dependencies:
   equatable: ^2.0.5
   fl_chart: ^0.68.0
   flutter_bloc: ^8.1.6
+  flutter_localizations:
+    sdk: flutter
   flutter_secure_storage: ^9.2.2
   flutter_web_auth_2: ^4.0.1
   freezed_annotation: ^2.4.4
@@ -42,6 +44,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  # Generates AppLocalizations from lib/l10n (see l10n.yaml) on every
+  # `flutter pub get`, `flutter test` and `flutter build`.
+  generate: true
   fonts:
     - family: Inter
       fonts:

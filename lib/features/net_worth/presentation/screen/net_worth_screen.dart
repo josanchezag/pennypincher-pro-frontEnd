@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
@@ -9,7 +10,6 @@ import 'package:pennypincher_pro/core/widgets/button_progress_icon.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
 import 'package:pennypincher_pro/core/widgets/status_message.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart';
-import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_texts.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/widget/net_worth_chart.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/widget/net_worth_history_card.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/widget/net_worth_links.dart';
@@ -36,20 +36,20 @@ class NetWorthScreen extends StatelessWidget {
         listenWhen: _snapshotFinished,
         listener: _reportSnapshot,
         builder: (context, state) => switch (state) {
-          NetWorthLoading() => const LoadingSkeleton(
+          NetWorthLoading() => LoadingSkeleton(
               heights: skeletonHeights,
-              label: NetWorthTexts.loadingLabel,
+              label: context.l10n.netWorthLoadingLabel,
             ),
           NetWorthLoadFailure(:final message) => StatusMessage(
               icon: Icons.cloud_off_outlined,
-              title: NetWorthTexts.loadErrorTitle,
+              title: context.l10n.netWorthLoadErrorTitle,
               message: message,
               action: FilledButton.icon(
                 onPressed: () => context
                     .read<NetWorthBloc>()
                     .add(const NetWorthLoadRequested()),
                 icon: const Icon(Icons.refresh),
-                label: const Text(NetWorthTexts.retry),
+                label: Text(context.l10n.commonRetry),
               ),
             ),
           final NetWorthLoaded loaded => _Overview(state: loaded),
@@ -76,8 +76,7 @@ class NetWorthScreen extends StatelessWidget {
     }
     AppSnackbar.showSuccess(
       context,
-      '${NetWorthTexts.snapshotSavedPrefix} '
-      '${MonthFormat.long.format(loaded.month)}',
+      context.l10n.snapshotSaved(MonthFormat.long.format(loaded.month)),
     );
   }
 }
@@ -124,7 +123,10 @@ class _Header extends StatelessWidget {
         Semantics(
           container: true,
           header: true,
-          child: Text(AppRoute.netWorth.title, style: AppTypography.heading1),
+          child: Text(
+            AppRoute.netWorth.title(context.l10n),
+            style: AppTypography.heading1,
+          ),
         ),
         Semantics(container: true, child: _snapshotButton(context)),
       ],
@@ -132,7 +134,7 @@ class _Header extends StatelessWidget {
   }
 
   Widget _snapshotButton(BuildContext context) => Tooltip(
-        message: NetWorthTexts.createSnapshotHint,
+        message: context.l10n.netWorthCreateSnapshotHint,
         child: FilledButton.icon(
           key: NetWorthScreen.createSnapshotKey,
           onPressed: creating
@@ -143,7 +145,7 @@ class _Header extends StatelessWidget {
           icon: creating
               ? const ButtonProgressIcon()
               : const Icon(Icons.add_chart),
-          label: const Text(NetWorthTexts.createSnapshot),
+          label: Text(context.l10n.netWorthCreateSnapshot),
         ),
       );
 }

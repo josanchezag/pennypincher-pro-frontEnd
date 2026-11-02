@@ -11,17 +11,17 @@ import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/fixed_expense_entity.dart';
-import 'package:pennypincher_pro/features/expense_details/presentation/expense_texts.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/fixed_expenses_screen.dart';
 
 import '../../../../helpers/expense_fixtures.dart';
 import '../../../../helpers/expense_mocks.dart';
+import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/pump_app.dart';
 
 typedef _Draft = CategorizedDraft<FixedExpenseCategory>;
 
-const CrudScreenConfig<FixedExpense, _Draft> _config =
+final CrudScreenConfig<FixedExpense, _Draft> _config =
     FixedExpensesScreen.config;
 const CrudLoaded<FixedExpense> _loaded =
     CrudLoaded([rent, schoolAna, tithe, englishClasses]);
@@ -101,7 +101,7 @@ void main() {
       isTrue,
     );
 
-    await tester.tap(_chip(CrudTexts.allCategories));
+    await tester.tap(_chip(l10n.crudAllCategories));
     await tester.pumpAndSettle();
     expect(find.text('Arriendo'), findsOneWidget);
   });
@@ -118,8 +118,8 @@ void main() {
     await tester.tap(_chip('Taxes'));
     await tester.pumpAndSettle();
 
-    expect(find.text('${CrudTexts.emptyCategoryPrefix} Taxes'), findsOneWidget);
-    expect(find.text(CrudTexts.emptyCategoryMessage), findsOneWidget);
+    expect(find.text(l10n.crudEmptyCategoryTitle('Taxes')), findsOneWidget);
+    expect(find.text(l10n.crudEmptyCategoryMessage), findsOneWidget);
     expect(find.text('Colegio Ana'), findsNothing);
     expect(tester.takeException(), isNull);
   });
@@ -136,7 +136,7 @@ void main() {
       }
       await tester.tap(_chip('Other'));
       await tester.pumpAndSettle();
-      final empty = find.text('${CrudTexts.emptyCategoryPrefix} Other');
+      final empty = find.text(l10n.crudEmptyCategoryTitle('Other'));
       expect(empty, findsOneWidget);
     });
   }
@@ -147,9 +147,9 @@ void main() {
     await tester.tap(find.byKey(CrudScreen.addButtonKey));
     await tester.pumpAndSettle();
     expect(find.text('Add fixed expense'), findsWidgets);
-    await tester.enterText(_field(CrudTexts.nameLabel), 'Diezmo');
-    await tester.enterText(_field(ExpenseTexts.monthlyAmount), '3.715.292');
-    await tester.tap(find.text(CrudTexts.categoryLabel));
+    await tester.enterText(_field(l10n.crudNameLabel), 'Diezmo');
+    await tester.enterText(_field(l10n.monthlyAmount), '3.715.292');
+    await tester.tap(find.text(l10n.crudCategoryLabel));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Charity').last);
     await tester.pumpAndSettle();
@@ -182,10 +182,10 @@ void main() {
       tester.element(find.byType(ItemFormSheet<FixedExpense, _Draft>)),
     ).pop();
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip(_config.deleteTooltip('Arriendo')));
+    await tester.tap(find.byTooltip(_config.deleteTooltip(l10n, 'Arriendo')));
     await tester.pumpAndSettle();
     expect(find.text('Delete fixed expense?'), findsOneWidget);
-    await tester.tap(find.text(CrudTexts.delete));
+    await tester.tap(find.text(l10n.commonDelete));
     await tester.pumpAndSettle();
 
     verify(() => bloc.add(const CrudDeleteRequested('f3'))).called(1);

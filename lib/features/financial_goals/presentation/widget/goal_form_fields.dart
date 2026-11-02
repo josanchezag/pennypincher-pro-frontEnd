@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/utils/percent_input.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
-import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 /// The goal fields the generic item fields do not cover: the expected
@@ -10,6 +10,7 @@ import 'package:reactive_forms/reactive_forms.dart';
 abstract final class GoalFormFields {
   static const String returnInvalidError = 'returnInvalid';
   static const String targetYearsInvalidError = 'targetYearsInvalid';
+  static const String percentSuffix = '%';
   static const int _maxReturnBasisPoints = PercentInput.basisPointsPerUnit;
 
   static final TextInputFormatter percentCharacters =
@@ -38,28 +39,33 @@ abstract final class GoalFormFields {
     return text.isEmpty ? null : int.parse(text);
   }
 
-  static Widget returnField(String controlName) => _NumberField(
+  static Widget returnField(AppLocalizations l10n, String controlName) =>
+      _NumberField(
         controlName: controlName,
-        label: GoalsTexts.expectedAnnualReturn,
-        helper: GoalsTexts.returnHelper,
-        suffix: GoalsTexts.percentSuffix,
+        label: l10n.goalsExpectedAnnualReturn,
+        helper: l10n.goalsReturnHelper,
+        suffix: percentSuffix,
         allowed: percentCharacters,
         decimal: true,
         messages: {
-          ValidationMessage.required: (_) => GoalsTexts.returnRequired,
-          returnInvalidError: (_) => GoalsTexts.returnInvalid,
+          ValidationMessage.required: (_) => l10n.goalsReturnRequired,
+          returnInvalidError: (_) => l10n.goalsReturnInvalid,
         },
       );
 
-  static Widget targetYearsField(String controlName) => _NumberField(
+  static Widget targetYearsField(
+    AppLocalizations l10n,
+    String controlName,
+  ) =>
+      _NumberField(
         controlName: controlName,
-        label: GoalsTexts.targetYears,
-        helper: GoalsTexts.targetYearsHelper,
-        suffix: GoalsTexts.yearsSuffix,
+        label: l10n.goalsTargetYears,
+        helper: l10n.goalsTargetYearsHelper,
+        suffix: l10n.goalsYearsSuffix,
         allowed: FilteringTextInputFormatter.digitsOnly,
         decimal: false,
         messages: {
-          targetYearsInvalidError: (_) => GoalsTexts.targetYearsInvalid,
+          targetYearsInvalidError: (_) => l10n.goalsTargetYearsInvalid,
         },
       );
 

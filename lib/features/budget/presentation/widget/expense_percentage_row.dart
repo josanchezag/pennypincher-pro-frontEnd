@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_budget_entity.dart';
-import 'package:pennypincher_pro/features/budget/presentation/budget_texts.dart';
 
 /// How a category's share of the income compares with its ideal share.
 ///
@@ -21,19 +21,26 @@ import 'package:pennypincher_pro/features/budget/presentation/budget_texts.dart'
 /// Shares are compared in exact hundredths of a percent, as the API sends
 /// them.
 enum PercentageStatus {
-  neutral(AppColors.neutral, BudgetTexts.noIdeal),
-  onTarget(AppColors.success, BudgetTexts.onTarget),
-  slightlyOver(AppColors.warning, BudgetTexts.slightlyOver),
-  over(AppColors.error, BudgetTexts.over),
-  slightlyUnder(AppColors.warning, BudgetTexts.slightlyUnder),
-  under(AppColors.error, BudgetTexts.under);
+  neutral(AppColors.neutral),
+  onTarget(AppColors.success),
+  slightlyOver(AppColors.warning),
+  over(AppColors.error),
+  slightlyUnder(AppColors.warning),
+  under(AppColors.error);
 
-  const PercentageStatus(this.color, this.description);
+  const PercentageStatus(this.color);
 
   final Color color;
 
   /// Read by screen readers after the percentages.
-  final String description;
+  String description(AppLocalizations l10n) => switch (this) {
+        neutral => l10n.budgetNoIdeal,
+        onTarget => l10n.budgetOnTarget,
+        slightlyOver => l10n.budgetSlightlyOver,
+        over => l10n.budgetOver,
+        slightlyUnder => l10n.budgetSlightlyUnder,
+        under => l10n.budgetUnder,
+      };
 
   static const int _hundred = 100;
   static const int _tolerance = BudgetLimits.targetTolerancePercent;
@@ -110,7 +117,7 @@ class ExpensePercentageRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       container: true,
-      label: _semanticsLabel(),
+      label: _semanticsLabel(context.l10n),
       child: ExcludeSemantics(
         child: LayoutBuilder(
           builder: (context, constraints) =>
@@ -120,13 +127,13 @@ class ExpensePercentageRow extends StatelessWidget {
     );
   }
 
-  String _semanticsLabel() => [
+  String _semanticsLabel(AppLocalizations l10n) => [
         label,
         amount,
-        '${PercentFormatter.format(percentage)} ${BudgetTexts.ofIncome}',
+        l10n.shareOfIncome(PercentFormatter.format(percentage)),
         if (idealPercentage != null)
-          '${BudgetTexts.idealPrefix} ${PercentFormatter.format(idealPercentage!)}',
-        status.description,
+          l10n.budgetIdeal(PercentFormatter.format(idealPercentage!)),
+        status.description(l10n),
       ].join(', ');
 
   Widget _wide() => Row(

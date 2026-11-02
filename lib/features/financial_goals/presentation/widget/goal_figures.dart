@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
@@ -7,7 +8,6 @@ import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/labeled_figure.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_projection_entity.dart';
-import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/circular_progress_indicator_widget.dart';
 
 /// Formatted values of a goal card.
@@ -23,12 +23,16 @@ abstract final class GoalFormat {
       PercentFormatter.format(fraction * _percent);
 
   /// Month the target is reached, or why there is none.
-  static String achievement(GoalProjection? projection) {
+  static String achievement(
+    AppLocalizations l10n,
+    GoalProjection? projection,
+  ) {
     final date = projection?.projectedAchievementDate;
     return switch (projection) {
       null => PercentFormatter.none,
-      GoalProjection(alreadyReached: true) => GoalsTexts.goalReached,
-      GoalProjection(reachable: false) => GoalsTexts.notReachable,
+      GoalProjection(alreadyReached: true) => l10n.goalsReached,
+      GoalProjection(reachable: false) =>
+        l10n.goalsNotReachable(GoalProjection.maxHorizonYears),
       _ => date == null ? PercentFormatter.none : MonthFormat.long.format(date),
     };
   }
@@ -44,6 +48,7 @@ class GoalProgressSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final projection = goal.projection;
+    final l10n = context.l10n;
     return Row(
       children: [
         GoalCircularProgress(percent: goal.progressPercentage),
@@ -53,15 +58,15 @@ class GoalProgressSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               LabeledFigure(
-                label: GoalsTexts.target,
+                label: l10n.goalsTarget,
                 value: GoalFormat.amount(goal.targetAmount),
               ),
               LabeledFigure(
-                label: GoalsTexts.currentNetWorth,
+                label: l10n.goalsCurrentNetWorth,
                 value: GoalFormat.amount(projection?.currentNetWorth),
               ),
               LabeledFigure(
-                label: GoalsTexts.remaining,
+                label: l10n.goalsRemaining,
                 value: GoalFormat.amount(projection?.remainingAmount),
               ),
             ],
@@ -80,25 +85,26 @@ class GoalPlanSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         LabeledFigure(
-          label: GoalsTexts.projectedDate,
-          value: GoalFormat.achievement(goal.projection),
+          label: l10n.goalsProjectedDate,
+          value: GoalFormat.achievement(l10n, goal.projection),
         ),
         Row(
           children: [
             Expanded(
               child: LabeledFigure(
-                label: GoalsTexts.monthlyInvestment,
+                label: l10n.goalsMonthlyInvestment,
                 value: GoalFormat.amount(goal.monthlyInvestment),
               ),
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: LabeledFigure(
-                label: GoalsTexts.returnRate,
+                label: l10n.goalsReturnRate,
                 value: GoalFormat.rate(goal.expectedAnnualReturn),
               ),
             ),

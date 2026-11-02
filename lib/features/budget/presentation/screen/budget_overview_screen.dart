@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
+import 'package:pennypincher_pro/core/time/month_format.dart';
 import 'package:pennypincher_pro/core/widgets/app_snackbar.dart';
 import 'package:pennypincher_pro/core/widgets/button_progress_icon.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
@@ -11,7 +13,6 @@ import 'package:pennypincher_pro/core/widgets/month_selector.dart';
 import 'package:pennypincher_pro/core/widgets/status_message.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_budget_entity.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart';
-import 'package:pennypincher_pro/features/budget/presentation/budget_texts.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_overview_content.dart';
 
 /// `/budget/overview`: the budget of one month with a month selector, or
@@ -59,14 +60,14 @@ class BudgetOverviewScreen extends StatelessWidget {
       BudgetLoadStatus.loading => const _Loading(),
       BudgetLoadStatus.failure => StatusMessage(
           icon: Icons.cloud_off_outlined,
-          title: BudgetTexts.loadErrorTitle,
+          title: context.l10n.budgetLoadErrorTitle,
           message: state.loadError ?? '',
           action: FilledButton.icon(
             onPressed: () => context
                 .read<MonthlyBudgetBloc>()
                 .add(const MonthlyBudgetReloadRequested()),
             icon: const Icon(Icons.refresh),
-            label: const Text(BudgetTexts.retry),
+            label: Text(context.l10n.commonRetry),
           ),
         ),
       BudgetLoadStatus.loaded when budget == null => _NoBudget(state: state),
@@ -83,16 +84,16 @@ class BudgetOverviewScreen extends StatelessWidget {
       AppSnackbar.showError(context, error);
       return;
     }
+    final l10n = context.l10n;
     AppSnackbar.showSuccess(
       context,
       switch (state.finishedAction!) {
         BudgetAction.create when state.alreadyExisted =>
-          '${BudgetTexts.existingPrefix} ${MonthSelector.label(state.month)} '
-              '${BudgetTexts.existingSuffix}',
+          l10n.budgetAlreadyExisted(MonthFormat.long.format(state.month)),
         BudgetAction.create =>
-          '${BudgetTexts.createdPrefix} ${MonthSelector.label(state.month)}',
-        BudgetAction.update => BudgetTexts.updated,
-        BudgetAction.recalculate => BudgetTexts.recalculated,
+          l10n.budgetCreated(MonthFormat.long.format(state.month)),
+        BudgetAction.update => l10n.budgetUpdated,
+        BudgetAction.recalculate => l10n.budgetRecalculated,
       },
     );
   }
@@ -115,7 +116,7 @@ class _Header extends StatelessWidget {
           container: true,
           header: true,
           child: Text(
-            AppRoute.budgetOverview.title,
+            AppRoute.budgetOverview.title(context.l10n),
             style: AppTypography.heading1,
           ),
         ),
@@ -151,7 +152,7 @@ class _HeaderActions extends StatelessWidget {
           key: BudgetOverviewScreen.comparisonKey,
           onPressed: () => context.goNamed(AppRoute.budgetComparison.name),
           icon: const Icon(Icons.bar_chart),
-          label: const Text(BudgetTexts.comparisonLink),
+          label: Text(context.l10n.budgetComparisonLink),
         ),
       ],
     );
@@ -164,7 +165,7 @@ class _Loading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: BudgetTexts.loadingLabel,
+      label: context.l10n.budgetLoadingLabel,
       liveRegion: true,
       child: Column(
         children: [
@@ -188,9 +189,10 @@ class _NoBudget extends StatelessWidget {
     final creating = state.runningAction == BudgetAction.create;
     return StatusMessage(
       icon: Icons.pie_chart_outline,
-      title: '${BudgetTexts.noBudgetTitlePrefix} '
-          '${MonthSelector.label(state.month)}',
-      message: BudgetTexts.noBudgetMessage,
+      title: context.l10n.budgetNoBudgetTitle(
+        MonthFormat.long.format(state.month),
+      ),
+      message: context.l10n.budgetNoBudgetMessage,
       action: FilledButton.icon(
         key: BudgetOverviewScreen.createBudgetKey,
         onPressed: state.canCreate
@@ -199,7 +201,7 @@ class _NoBudget extends StatelessWidget {
                 .add(const MonthlyBudgetCreateRequested())
             : null,
         icon: creating ? const ButtonProgressIcon() : const Icon(Icons.add),
-        label: const Text(BudgetTexts.createBudget),
+        label: Text(context.l10n.budgetCreate),
       ),
     );
   }

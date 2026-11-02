@@ -7,7 +7,6 @@ import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/credit_card_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/credit_card_bloc.dart';
-import 'package:pennypincher_pro/features/expense_details/presentation/expense_texts.dart';
 
 /// `/expenses/credit-cards`: every credit card with its monthly payment
 /// and balance, and both totals under the list. Expects a
@@ -15,24 +14,23 @@ import 'package:pennypincher_pro/features/expense_details/presentation/expense_t
 class CreditCardsScreen extends StatelessWidget {
   const CreditCardsScreen({super.key});
 
-  static const CrudScreenConfig<CreditCard, BalanceDraft> config =
+  static final CrudScreenConfig<CreditCard, BalanceDraft> config =
       CrudScreenConfig(
     route: AppRoute.expensesCreditCards,
     parent: AppRoute.expenses,
-    itemNoun: 'credit card',
+    itemNoun: (l10n) => l10n.creditCardNoun,
     emptyIcon: Icons.credit_card_outlined,
-    emptyMessage: 'Add your credit cards with their monthly payment and '
-        'total balance to see what you pay and owe on them.',
+    emptyMessage: (l10n) => l10n.creditCardsEmptyMessage,
     layout: BalanceLayout(
       monthly: BalanceAmountStyle(
-        label: ExpenseTexts.monthlyPayment,
-        totalLabel: ExpenseTexts.totalMonthlyPayments,
+        label: (l10n) => l10n.monthlyPayment,
+        totalLabel: (l10n) => l10n.totalMonthlyPayments,
         icon: Icons.event_repeat_outlined,
         color: AppColors.warning,
       ),
       balance: BalanceAmountStyle(
-        label: ExpenseTexts.totalBalance,
-        totalLabel: ExpenseTexts.totalOutstandingBalance,
+        label: (l10n) => l10n.totalBalance,
+        totalLabel: (l10n) => l10n.totalOutstandingBalance,
         icon: Icons.trending_down,
         color: AppColors.error,
       ),
@@ -42,7 +40,7 @@ class CreditCardsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      const CrudScreen<CreditCard, BalanceDraft, CreditCardBloc>(
+      CrudScreen<CreditCard, BalanceDraft, CreditCardBloc>(
         config: config,
       );
 }

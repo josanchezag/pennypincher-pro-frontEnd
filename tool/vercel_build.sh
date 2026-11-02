@@ -77,7 +77,8 @@ flutter build web --release --no-web-resources-cdn \
 
 # --- Verify the bundle -------------------------------------------------------
 bundle="build/web"
-for file in index.html auth.html auth_callback.js auth.css flutter_bootstrap.js main.dart.js; do
+for file in index.html auth.html auth_callback.js auth.css flutter_bootstrap.js main.dart.js \
+  favicon.ico favicon.png icons/apple-touch-icon.png; do
   [[ -f "${bundle}/${file}" ]] || fail "${bundle}/${file} is missing"
 done
 for forbidden in localhost 127.0.0.1 dev-login; do

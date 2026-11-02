@@ -10,7 +10,6 @@ import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart'
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_sheet.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
-import 'package:pennypincher_pro/core/widgets/confirmation_dialog.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/asset_entity.dart';
@@ -18,12 +17,13 @@ import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/assets_screen.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/net_worth_screen.dart';
 
+import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/net_worth_fixtures.dart';
 import '../../../../helpers/net_worth_mocks.dart';
 import '../../../../helpers/pump_app.dart';
 
-const CrudScreenConfig<Asset, CategorizedDraft<AssetCategory>> _config =
+final CrudScreenConfig<Asset, CategorizedDraft<AssetCategory>> _config =
     AssetsScreen.config;
 const CrudLoaded<Asset> _loaded = CrudLoaded([car, apartment, wallet]);
 
@@ -68,9 +68,9 @@ void main() {
     );
     clearInteractions(bloc);
 
-    expect(find.text(CrudTexts.loadErrorTitle), findsOneWidget);
+    expect(find.text(l10n.crudLoadErrorTitle), findsOneWidget);
     expect(find.text('Could not reach the server.'), findsOneWidget);
-    await tester.tap(find.text(CrudTexts.retry));
+    await tester.tap(find.text(l10n.commonRetry));
 
     verify(
       () => bloc.add(
@@ -83,7 +83,7 @@ void main() {
     await pumpAssets(tester, const CrudLoaded([]));
 
     expect(find.text('No assets'), findsOneWidget);
-    expect(find.text(_config.emptyMessage), findsOneWidget);
+    expect(find.text(_config.emptyMessage(l10n)), findsOneWidget);
     expect(find.byKey(CrudScreen.addButtonKey), findsOneWidget);
   });
 
@@ -106,8 +106,11 @@ void main() {
     await pumpAssets(tester, _loaded);
 
     expect(find.bySemanticsLabel(RegExp('^Apto Madera')), findsOneWidget);
-    expect(find.byTooltip(_config.addLabel), findsOneWidget);
-    expect(find.byTooltip(_config.deleteTooltip('Apto Madera')), findsOne);
+    expect(find.byTooltip(_config.addLabel(l10n)), findsOneWidget);
+    expect(
+      find.byTooltip(_config.deleteTooltip(l10n, 'Apto Madera')),
+      findsOne,
+    );
     semantics.dispose();
   });
 
@@ -125,9 +128,9 @@ void main() {
   Future<void> fillNewAsset(WidgetTester tester) async {
     await tester.tap(find.byKey(CrudScreen.addButtonKey));
     await tester.pumpAndSettle();
-    await tester.enterText(_field(CrudTexts.nameLabel), '  Moto  ');
+    await tester.enterText(_field(l10n.crudNameLabel), '  Moto  ');
     await tester.enterText(_field('Value'), '8.500.000,50');
-    await tester.tap(find.text(CrudTexts.categoryLabel));
+    await tester.tap(find.text(l10n.crudCategoryLabel));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Vehicle').last);
     await tester.pumpAndSettle();
@@ -216,10 +219,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      tester.getSemantics(find.text(_config.addLabel).last),
+      tester.getSemantics(find.text(_config.addLabel(l10n)).last),
       matchesSemantics(label: 'Add asset', isHeader: true, namesRoute: true),
     );
-    expect(find.text(CrudTexts.amountHelper), findsOneWidget);
+    expect(find.text(l10n.crudAmountHelper), findsOneWidget);
     semantics.dispose();
   });
 
@@ -233,9 +236,9 @@ void main() {
     await tester.tap(find.byKey(ItemFormSheet.saveKey));
     await tester.pumpAndSettle();
 
-    expect(find.text(CrudTexts.nameRequired), findsOneWidget);
-    expect(find.text(CrudTexts.amountInvalid), findsOneWidget);
-    expect(find.text(CrudTexts.categoryRequired), findsOneWidget);
+    expect(find.text(l10n.crudNameRequired), findsOneWidget);
+    expect(find.text(l10n.crudAmountInvalid), findsOneWidget);
+    expect(find.text(l10n.crudCategoryRequired), findsOneWidget);
     verifyNever(() => bloc.add(any()));
   });
 
@@ -266,18 +269,19 @@ void main() {
 
   testWidgets('deletes an asset only after confirmation', (tester) async {
     final bloc = await pumpAssets(tester, _loaded);
-    final deleteButton = find.byTooltip(_config.deleteTooltip('Billetera'));
+    final deleteButton =
+        find.byTooltip(_config.deleteTooltip(l10n, 'Billetera'));
 
     await tester.tap(deleteButton);
     await tester.pumpAndSettle();
-    await tester.tap(find.text(ConfirmationDialog.cancelLabel));
+    await tester.tap(find.text(l10n.commonCancel));
     await tester.pumpAndSettle();
     verifyNever(() => bloc.add(const CrudDeleteRequested('a3')));
 
     await tester.tap(deleteButton);
     await tester.pumpAndSettle();
-    expect(find.text(_config.deleteMessage('Billetera')), findsOneWidget);
-    await tester.tap(find.text(CrudTexts.delete));
+    expect(find.text(_config.deleteMessage(l10n, 'Billetera')), findsOneWidget);
+    await tester.tap(find.text(l10n.commonDelete));
     await tester.pumpAndSettle();
 
     verify(() => bloc.add(const CrudDeleteRequested('a3'))).called(1);
@@ -311,7 +315,7 @@ void main() {
     await pumpAssets(tester, _loaded);
     registerNetWorthBloc(const NetWorthLoading());
 
-    await tester.tap(find.byTooltip(_config.backTooltip));
+    await tester.tap(find.byTooltip(_config.backTooltip(l10n)));
     await tester.pumpAndSettle();
 
     expect(find.byType(NetWorthScreen), findsOneWidget);

@@ -3,7 +3,6 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
-import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
@@ -11,7 +10,6 @@ import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budge
 import 'package:pennypincher_pro/features/budget/presentation/screen/budget_overview_screen.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/expense_summary_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/expenses_hub_bloc.dart';
-import 'package:pennypincher_pro/features/expense_details/presentation/expense_texts.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/credit_cards_screen.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/expenses_hub_screen.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/widget/expense_summary_card.dart';
@@ -19,6 +17,7 @@ import 'package:pennypincher_pro/features/expense_details/presentation/widget/ex
 import '../../../../helpers/budget_mocks.dart';
 import '../../../../helpers/expense_fixtures.dart';
 import '../../../../helpers/expense_mocks.dart';
+import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/pump_app.dart';
 
@@ -45,7 +44,7 @@ Finder _card(String title) => find.ancestor(
     );
 
 Finder _inCard(AppRoute route, Finder finder) =>
-    find.descendant(of: _card(route.title), matching: finder);
+    find.descendant(of: _card(route.title(l10n)), matching: finder);
 
 void main() {
   setUpAll(() {
@@ -78,8 +77,8 @@ void main() {
       await pumpHub(tester, _loaded, size: size);
 
       for (final route in _routes) {
-        await tester.scrollUntilVisible(find.text(route.title), 100);
-        expect(find.text(route.title), findsOneWidget);
+        await tester.scrollUntilVisible(find.text(route.title(l10n)), 100);
+        expect(find.text(route.title(l10n)), findsOneWidget);
       }
       expect(tester.takeException(), isNull);
     });
@@ -91,7 +90,7 @@ void main() {
 
     final balance = CurrencyFormatter.format(cardsSummary.balanceTotal!);
     for (final text in [
-      find.text(ExpenseTexts.totalMonthlyPayments.toUpperCase()),
+      find.text(l10n.totalMonthlyPayments.toUpperCase()),
       find.text(CurrencyFormatter.format(cardsSummary.monthlyTotal)),
       find.text('2 cards'),
       find.textContaining(balance, findRichText: true),
@@ -109,7 +108,7 @@ void main() {
     await pumpHub(tester, _loaded);
 
     final node = tester.getSemantics(
-      find.text(AppRoute.expensesCreditCards.title),
+      find.text(AppRoute.expensesCreditCards.title(l10n)),
     );
     expect(node.hasFlag(SemanticsFlag.isButton), isTrue);
     expect(node.hasFlag(SemanticsFlag.isHeader), isFalse);
@@ -135,7 +134,7 @@ void main() {
         await pumpHub(tester, mixed, size: size);
 
         for (final route in _routes) {
-          await tester.scrollUntilVisible(find.text(route.title), 100);
+          await tester.scrollUntilVisible(find.text(route.title(l10n)), 100);
           expect(tester.takeException(), isNull);
         }
       });
@@ -151,12 +150,12 @@ void main() {
       ),
     );
 
-    expect(find.text(CrudTexts.retry), findsOneWidget);
+    expect(find.text(l10n.commonRetry), findsOneWidget);
     expect(
       _inCard(AppRoute.expensesLoans, find.text('Could not reach the server.')),
       findsOneWidget,
     );
-    await tester.tap(find.text(CrudTexts.retry));
+    await tester.tap(find.text(l10n.commonRetry));
 
     verify(
       () => bloc.add(const ExpenseSummaryRetried(ExpenseKind.loans)),
@@ -167,7 +166,7 @@ void main() {
     await pumpHub(tester, _loaded);
     registerCreditCardBloc(const CrudLoaded([]));
 
-    await tester.tap(find.text(AppRoute.expensesCreditCards.title));
+    await tester.tap(find.text(AppRoute.expensesCreditCards.title(l10n)));
     await tester.pumpAndSettle();
 
     expect(find.byType(CreditCardsScreen), findsOneWidget);
@@ -177,10 +176,10 @@ void main() {
     await pumpHub(tester, _loaded, size: TestViewports.expenseWidths.first);
     registerMonthlyBudgetBloc(MonthlyBudgetState(month: DateTime(2026, 10)));
 
-    final link = find.text(ExpenseTexts.openBudgetOverview);
+    final link = find.text(l10n.expenseOpenBudgetOverview);
     await tester.ensureVisible(link);
     await tester.pumpAndSettle();
-    expect(find.text(ExpenseTexts.budgetHint), findsOneWidget);
+    expect(find.text(l10n.expenseBudgetHint), findsOneWidget);
     await tester.tap(link);
     await tester.pumpAndSettle();
 

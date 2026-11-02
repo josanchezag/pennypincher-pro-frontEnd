@@ -69,7 +69,7 @@ void main() {
 
     test('maps an interrupted Google flow to an authorization failure',
         () async {
-      when(google.authorize).thenThrow(const OAuthException.cancelled());
+      when(google.authorize).thenThrow(OAuthException.cancelled());
 
       final result = await repository.signInWithGoogle();
 
@@ -107,7 +107,7 @@ void main() {
 
     test('maps an unreachable backend to a network failure', () async {
       when(remote.devLogin).thenThrow(
-        const AppException(
+        AppException(
           code: ErrorCodes.networkError,
           message: ErrorMessages.network,
         ),

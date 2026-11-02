@@ -1,14 +1,15 @@
 import 'package:flutter/painting.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_level.dart';
 
 /// Display name and badge color of every goal level.
 extension GoalLevelStyle on GoalLevel {
-  String get label => switch (this) {
-        GoalLevel.financialSecurity => 'Financial security',
-        GoalLevel.financialIndependence => 'Financial independence',
-        GoalLevel.financialFreedom => 'Financial freedom',
-        GoalLevel.absoluteFreedom => 'Absolute freedom',
+  String label(AppLocalizations l10n) => switch (this) {
+        GoalLevel.financialSecurity => l10n.goalLevelFinancialSecurity,
+        GoalLevel.financialIndependence => l10n.goalLevelFinancialIndependence,
+        GoalLevel.financialFreedom => l10n.goalLevelFinancialFreedom,
+        GoalLevel.absoluteFreedom => l10n.goalLevelAbsoluteFreedom,
       };
 
   Color get color => switch (this) {

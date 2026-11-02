@@ -283,13 +283,15 @@ lib/
 │   ├── constants/   # AppConstants, EnvKeys, EnvDefaults
 │   ├── di/          # get_it + injectable (injection.dart y su .config.dart generado)
 │   ├── error/       # Failure (sealed) y AppException
-│   ├── layout/      # AppShell responsive (barra inferior / rail / rail expandido)
+│   ├── l10n/        # AppLocales, LocaleCubit (idioma elegido) y su LocaleStore
+│   ├── layout/      # AppShell responsive (barra inferior / rail / rail expandido) y menú de cuenta
 │   ├── network/     # Clientes dio (con y sin AuthInterceptor), sobre de la API
 │   ├── router/      # AppRoute, AppDestination, AppRouter (go_router) y AuthGuard
 │   ├── theme/       # AppColors, AppTypography, AppSpacing, AppBreakpoints, AppTheme
 │   └── widgets/     # Widgets reutilizables (placeholder, mensajes de estado)
 ├── features/
 │   └── <feature>/{data,domain,presentation}
+├── l10n/            # app_en.arb (plantilla) y app_es.arb
 ├── app.dart
 └── main.dart
 ```
@@ -310,6 +312,15 @@ anotada (`@injectable`, `@freezed`, `@JsonSerializable`) hay que regenerarlos y 
 ```bash
 dart run build_runner build --delete-conflicting-outputs
 ```
+
+### Idiomas
+
+La interfaz está en español (por defecto) e inglés; el idioma se cambia en el menú de cuenta
+y se recuerda en el navegador (solo el código `es`/`en`). Los textos viven en
+`lib/l10n/app_en.arb` (plantilla) y `lib/l10n/app_es.arb`. Las clases `AppLocalizations`
+**no se versionan**: `flutter pub get`, `flutter test` y `flutter build` las generan (gen-l10n,
+`l10n.yaml`). Un texto nuevo va en los dos ARB con la misma clave; en el código se lee con
+`context.l10n.clave`.
 
 ## Calidad
 

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_breakpoints.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/dashboard_summary_entity.dart';
-import 'package:pennypincher_pro/features/dashboard/presentation/dashboard_texts.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/dashboard_action_card.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/dashboard_section.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/goal_progress_chip.dart';
@@ -24,12 +24,12 @@ class GoalsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DashboardSection(
-      title: DashboardTexts.goalsTitle,
+      title: context.l10n.dashboardGoalsTitle,
       child: goals.isEmpty
-          ? const DashboardActionCard(
+          ? DashboardActionCard(
               icon: Icons.flag_outlined,
-              title: DashboardTexts.firstGoalTitle,
-              message: DashboardTexts.firstGoalMessage,
+              title: context.l10n.firstGoalTitle,
+              message: context.l10n.dashboardFirstGoalMessage,
               route: AppRoute.goals,
             )
           : _chips(

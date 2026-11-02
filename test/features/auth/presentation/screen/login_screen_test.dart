@@ -9,9 +9,9 @@ import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/sign_in_messages.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/login_screen.dart';
-import 'package:pennypincher_pro/features/auth/presentation/widget/google_sign_in_button.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/screen/dashboard_screen.dart';
 
+import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/mocks.dart';
 import '../../../../helpers/pump_app.dart';
@@ -54,8 +54,8 @@ void main() {
     await pumpLogin(tester);
 
     expect(find.text(AppConstants.appName), findsOneWidget);
-    expect(find.text(AppConstants.tagline), findsOneWidget);
-    expect(find.text(GoogleSignInButton.label), findsOneWidget);
+    expect(find.text(l10n.appTagline), findsOneWidget);
+    expect(find.text(l10n.signInWithGoogle), findsOneWidget);
     expect(_button(tester).onPressed, isNotNull);
   });
 
@@ -98,7 +98,7 @@ void main() {
     await pumpLogin(tester);
     final router = GoRouter.of(tester.element(find.byType(LoginScreen)));
 
-    states.add(const AuthError(SignInMessages.accountNotAllowed));
+    states.add(AuthError(SignInMessages.accountNotAllowed));
     await tester.pumpAndSettle();
 
     expect(find.text(SignInMessages.accountNotAllowed), findsOneWidget);
@@ -151,7 +151,7 @@ void main() {
   testWidgets('offers dev login when the flag is enabled', (tester) async {
     final bloc = await pumpLogin(tester, devLogin: true);
 
-    expect(find.text(LoginScreen.devLoginLabel), findsOneWidget);
+    expect(find.text(l10n.devLogin), findsOneWidget);
     await tester.tap(_devLoginButton);
 
     verify(() => bloc.add(const AuthDevSignInRequested())).called(1);
@@ -172,6 +172,6 @@ void main() {
     );
 
     expect(_button(tester).onPressed, isNull);
-    expect(find.text(LoginScreen.notConfiguredMessage), findsOneWidget);
+    expect(find.text(l10n.googleSignInNotConfiguredForBuild), findsOneWidget);
   });
 }

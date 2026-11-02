@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
 import 'package:pennypincher_pro/core/crud/presentation/layout/item_form.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 
 /// Builds the tile of one item.
 typedef ItemTileBuilder<T> = Widget Function(BuildContext context, T item);
@@ -33,7 +34,7 @@ abstract class ItemLayout<T extends CrudItem, D> extends ItemForm<T, D> {
   const ItemLayout();
 
   /// Cards with the totals of [items].
-  Widget summary(List<T> items);
+  Widget summary(AppLocalizations l10n, List<T> items);
 
   /// Whether the [summary] goes under the items instead of above them.
   bool get summaryAtBottom => false;
@@ -41,11 +42,12 @@ abstract class ItemLayout<T extends CrudItem, D> extends ItemForm<T, D> {
   /// Fixed height of every tile, so tiles line up in a grid.
   double get tileHeight;
 
-  ItemTileContent tileContent(T item);
+  ItemTileContent tileContent(AppLocalizations l10n, T item);
 
   /// Slivers that show the non-empty [items] in [columns], each with
   /// [tile].
   List<Widget> itemSlivers({
+    required AppLocalizations l10n,
     required List<T> items,
     required int columns,
     required ItemTileBuilder<T> tile,

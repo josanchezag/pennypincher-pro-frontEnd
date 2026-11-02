@@ -5,6 +5,7 @@ import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/crud_list_view.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_sheet.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/widgets/app_snackbar.dart';
 import 'package:pennypincher_pro/core/widgets/confirmation_dialog.dart';
@@ -43,7 +44,7 @@ class CrudScreen<T extends CrudItem, D, B extends CrudBloc<T, D>>
           floatingActionButton: state is CrudLoaded<T>
               ? FloatingActionButton(
                   key: addButtonKey,
-                  tooltip: config.addLabel,
+                  tooltip: config.addLabel(context.l10n),
                   onPressed: state.busy ? null : () => _edit(context, null),
                   child: const Icon(Icons.add),
                 )
@@ -55,18 +56,18 @@ class CrudScreen<T extends CrudItem, D, B extends CrudBloc<T, D>>
   }
 
   Widget _body(BuildContext context, CrudState<T> state) => switch (state) {
-        CrudLoading<T>() => const LoadingSkeleton(
+        CrudLoading<T>() => LoadingSkeleton(
             heights: skeletonHeights,
-            label: CrudTexts.loadingLabel,
+            label: context.l10n.crudLoadingLabel,
           ),
         CrudLoadFailure<T>(:final message) => StatusMessage(
             icon: Icons.cloud_off_outlined,
-            title: CrudTexts.loadErrorTitle,
+            title: context.l10n.crudLoadErrorTitle,
             message: message,
             action: FilledButton.icon(
               onPressed: () => context.read<B>().add(CrudLoadRequested<D>()),
               icon: const Icon(Icons.refresh),
-              label: const Text(CrudTexts.retry),
+              label: Text(context.l10n.commonRetry),
             ),
           ),
         CrudLoaded<T>(:final items, :final busy) => CrudListView<T, D>(
@@ -88,7 +89,9 @@ class CrudScreen<T extends CrudItem, D, B extends CrudBloc<T, D>>
   Future<void> _edit(BuildContext context, T? item) => ItemFormSheet.show<T, D>(
         context,
         form: config.layout,
-        title: item == null ? config.addLabel : config.editTitle,
+        title: item == null
+            ? config.addLabel(context.l10n)
+            : config.editTitle(context.l10n),
         bloc: context.read<B>(),
         initial: item,
       );
@@ -97,9 +100,9 @@ class CrudScreen<T extends CrudItem, D, B extends CrudBloc<T, D>>
     final bloc = context.read<B>();
     final confirmed = await ConfirmationDialog.show(
       context,
-      title: config.deleteTitle,
-      message: config.deleteMessage(item.name),
-      confirmLabel: CrudTexts.delete,
+      title: config.deleteTitle(context.l10n),
+      message: config.deleteMessage(context.l10n, item.name),
+      confirmLabel: context.l10n.commonDelete,
     );
     if (confirmed) {
       bloc.add(CrudDeleteRequested<D>(item.id));

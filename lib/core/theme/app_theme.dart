@@ -119,6 +119,16 @@ abstract final class AppTheme {
       NavigationBarThemeData(
     backgroundColor: AppColors.backgroundSecondary,
     indicatorColor: AppColors.brandPrimary,
+    // A size below the body text, so the longest Spanish label
+    // ("Presupuesto") stays on one line on 360 px phones.
+    labelTextStyle: WidgetStateProperty.resolveWith(
+      (states) => AppTypography.bodySmall.copyWith(
+        fontSize: AppTypography.labelSize,
+        color: states.contains(WidgetState.selected)
+            ? AppColors.textPrimary
+            : AppColors.textSecondary,
+      ),
+    ),
     iconTheme: WidgetStateProperty.resolveWith(
       (states) => IconThemeData(
         color: states.contains(WidgetState.selected)

@@ -15,35 +15,34 @@ class IncomeSourcesScreen extends StatelessWidget {
 
   /// Categories and amounts of the income sources, also used by the budget
   /// overview.
-  static const CategorizedLayout<IncomeSource, IncomeCategory> layout =
+  static final CategorizedLayout<IncomeSource, IncomeCategory> layout =
       CategorizedLayout(
-    amountLabel: 'Monthly amount',
-    totalLabel: 'Total monthly income',
+    amountLabel: (l10n) => l10n.monthlyAmount,
+    totalLabel: (l10n) => l10n.totalMonthlyIncome,
     totalIcon: Icons.payments_outlined,
     totalColor: AppColors.success,
     categoryLabels: {
-      IncomeCategory.employment: 'Employment',
-      IncomeCategory.rental: 'Rental',
-      IncomeCategory.business: 'Business',
-      IncomeCategory.investment: 'Investment',
-      IncomeCategory.freelance: 'Freelance',
-      IncomeCategory.other: 'Other',
+      IncomeCategory.employment: (l10n) => l10n.incomeCategoryEmployment,
+      IncomeCategory.rental: (l10n) => l10n.incomeCategoryRental,
+      IncomeCategory.business: (l10n) => l10n.incomeCategoryBusiness,
+      IncomeCategory.investment: (l10n) => l10n.incomeCategoryInvestment,
+      IncomeCategory.freelance: (l10n) => l10n.incomeCategoryFreelance,
+      IncomeCategory.other: (l10n) => l10n.categoryOther,
     },
   );
 
-  static const CrudScreenConfig<IncomeSource, CategorizedDraft<IncomeCategory>>
+  static final CrudScreenConfig<IncomeSource, CategorizedDraft<IncomeCategory>>
       config = CrudScreenConfig(
     route: AppRoute.budgetIncome,
     parent: AppRoute.budgetOverview,
-    itemNoun: 'income source',
+    itemNoun: (l10n) => l10n.incomeSourceNoun,
     emptyIcon: Icons.savings_outlined,
-    emptyMessage: 'Add your first income source, such as your salary or a '
-        'rent you collect, to calculate your monthly income.',
+    emptyMessage: (l10n) => l10n.incomeEmptyMessage,
     layout: layout,
   );
 
   @override
-  Widget build(BuildContext context) => const CrudScreen<IncomeSource,
+  Widget build(BuildContext context) => CrudScreen<IncomeSource,
           CategorizedDraft<IncomeCategory>, IncomeSourceBloc>(
         config: config,
       );

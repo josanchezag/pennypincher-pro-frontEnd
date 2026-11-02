@@ -14,12 +14,13 @@ import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/liability_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/liabilities_screen.dart';
 
+import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/net_worth_fixtures.dart';
 import '../../../../helpers/net_worth_mocks.dart';
 import '../../../../helpers/pump_app.dart';
 
-const CrudScreenConfig<Liability, CategorizedDraft<LiabilityCategory>> _config =
+final CrudScreenConfig<Liability, CategorizedDraft<LiabilityCategory>> _config =
     LiabilitiesScreen.config;
 
 Finder _field(String label) => find.widgetWithText(TextField, label);
@@ -68,7 +69,7 @@ void main() {
     await pumpLiabilities(tester, const CrudLoaded([]));
 
     expect(find.text('No liabilities'), findsOneWidget);
-    expect(find.text(_config.emptyMessage), findsOneWidget);
+    expect(find.text(_config.emptyMessage(l10n)), findsOneWidget);
   });
 
   testWidgets('uses two columns on desktop', (tester) async {
@@ -88,9 +89,9 @@ void main() {
     await tester.tap(find.byKey(CrudScreen.addButtonKey));
     await tester.pumpAndSettle();
     expect(find.text('Add liability'), findsWidgets);
-    await tester.enterText(_field(CrudTexts.nameLabel), 'Préstamo tío');
+    await tester.enterText(_field(l10n.crudNameLabel), 'Préstamo tío');
     await tester.enterText(_field('Current balance'), '5.000.000');
-    await tester.tap(find.text(CrudTexts.categoryLabel));
+    await tester.tap(find.text(l10n.crudCategoryLabel));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Family debt').last);
     await tester.pumpAndSettle();
@@ -113,10 +114,10 @@ void main() {
   testWidgets('deletes a liability after confirmation', (tester) async {
     final bloc = await pumpLiabilities(tester, const CrudLoaded([nuCard]));
 
-    await tester.tap(find.byTooltip(_config.deleteTooltip(nuCard.name)));
+    await tester.tap(find.byTooltip(_config.deleteTooltip(l10n, nuCard.name)));
     await tester.pumpAndSettle();
     expect(find.text('Delete liability?'), findsOneWidget);
-    await tester.tap(find.text(CrudTexts.delete));
+    await tester.tap(find.text(l10n.commonDelete));
     await tester.pumpAndSettle();
 
     verify(() => bloc.add(const CrudDeleteRequested('l1'))).called(1);

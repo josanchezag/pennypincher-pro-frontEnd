@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
-import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
+import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
@@ -66,16 +67,17 @@ abstract final class ItemFormFields {
       _AmountField(
         controlName: controlName,
         label: label,
-        helper: optional ? CrudTexts.optionalAmountHelper : null,
+        optional: optional,
       );
 
   /// Drop-down with every category of [labels], in its order, labelled
-  /// [label] and asking for a choice with [requiredMessage].
+  /// [label] and asking for a choice with [requiredMessage]; both default
+  /// to the texts of an item category.
   static Widget categoryField<C extends Enum>(
     String controlName,
     Map<C, String> labels, {
-    String label = CrudTexts.categoryLabel,
-    String requiredMessage = CrudTexts.categoryRequired,
+    String? label,
+    String? requiredMessage,
   }) =>
       _CategoryField<C>(
         controlName: controlName,
@@ -137,10 +139,11 @@ class _NameField extends StatelessWidget {
       formControlName: ItemFormFields.name,
       textCapitalization: TextCapitalization.sentences,
       maxLength: CrudItem.nameMaxLength,
-      decoration: const InputDecoration(labelText: CrudTexts.nameLabel),
+      decoration: InputDecoration(labelText: context.l10n.crudNameLabel),
       validationMessages: {
-        ValidationMessage.required: (_) => CrudTexts.nameRequired,
-        ValidationMessage.maxLength: (_) => CrudTexts.nameTooLong,
+        ValidationMessage.required: (_) => context.l10n.crudNameRequired,
+        ValidationMessage.maxLength: (_) =>
+            context.l10n.crudNameTooLong(CrudItem.nameMaxLength),
       },
     );
   }
@@ -150,12 +153,14 @@ class _AmountField extends StatelessWidget {
   const _AmountField({
     required this.controlName,
     required this.label,
-    this.helper,
+    required this.optional,
   });
 
   final String controlName;
   final String label;
-  final String? helper;
+
+  /// Whether the amount may be left empty; its hint then says so.
+  final bool optional;
 
   @override
   Widget build(BuildContext context) {
@@ -165,14 +170,17 @@ class _AmountField extends StatelessWidget {
       inputFormatters: [ItemFormFields.amountCharacters],
       decoration: InputDecoration(
         labelText: label,
-        prefixText: CrudTexts.amountPrefix,
-        helperText: helper ?? CrudTexts.amountHelper,
+        prefixText: '${CurrencyFormatter.symbol} ',
+        helperText: optional
+            ? context.l10n.crudOptionalAmountHelper
+            : context.l10n.crudAmountHelper,
       ),
       validationMessages: {
-        ValidationMessage.required: (_) => CrudTexts.amountRequired,
-        ItemFormFields.amountInvalidError: (_) => CrudTexts.amountInvalid,
+        ValidationMessage.required: (_) => context.l10n.crudAmountRequired,
+        ItemFormFields.amountInvalidError: (_) =>
+            context.l10n.crudAmountInvalid,
         ItemFormFields.amountNotPositiveError: (_) =>
-            CrudTexts.amountNotPositive,
+            context.l10n.crudAmountNotPositive,
       },
     );
   }
@@ -188,20 +196,23 @@ class _CategoryField<C extends Enum> extends StatelessWidget {
 
   final String controlName;
   final Map<C, String> labels;
-  final String label;
-  final String requiredMessage;
+  final String? label;
+  final String? requiredMessage;
 
   @override
   Widget build(BuildContext context) {
     return ReactiveDropdownField<C>(
       formControlName: controlName,
-      decoration: InputDecoration(labelText: label),
+      decoration: InputDecoration(
+        labelText: label ?? context.l10n.crudCategoryLabel,
+      ),
       items: [
         for (final MapEntry(key: category, value: text) in labels.entries)
           DropdownMenuItem(value: category, child: Text(text)),
       ],
       validationMessages: {
-        ValidationMessage.required: (_) => requiredMessage,
+        ValidationMessage.required: (_) =>
+            requiredMessage ?? context.l10n.crudCategoryRequired,
       },
     );
   }

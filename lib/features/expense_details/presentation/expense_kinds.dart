@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/expense_summary_entity.dart';
-import 'package:pennypincher_pro/features/expense_details/presentation/expense_texts.dart';
 
 /// How the hub presents the summary of one [ExpenseKind].
 class ExpenseKindView {
@@ -9,64 +9,55 @@ class ExpenseKindView {
     required this.route,
     required this.icon,
     required this.monthlyLabel,
-    required this.singular,
-    required this.plural,
+    required this.count,
     this.balanceLabel,
   });
 
   /// List screen the card opens; its title names the card.
   final AppRoute route;
   final IconData icon;
-  final String monthlyLabel;
+  final LocalizedText monthlyLabel;
 
   /// Label of the balance total, for the kinds that have one.
-  final String? balanceLabel;
+  final LocalizedText? balanceLabel;
 
-  /// Nouns of the item count, such as `card` and `cards`.
-  final String singular;
-  final String plural;
-
-  String countLabel(int count) => '$count ${count == 1 ? singular : plural}';
+  /// Number of items with their noun, such as `1 card` or `3 cards`.
+  final String Function(AppLocalizations l10n, int count) count;
 
   /// The view of every kind, in the order of [ExpenseKind.values].
-  static const Map<ExpenseKind, ExpenseKindView> all = {
+  static final Map<ExpenseKind, ExpenseKindView> all = {
     ExpenseKind.creditCards: ExpenseKindView(
       route: AppRoute.expensesCreditCards,
       icon: Icons.credit_card_outlined,
-      monthlyLabel: ExpenseTexts.totalMonthlyPayments,
-      balanceLabel: ExpenseTexts.totalOutstandingBalance,
-      singular: ExpenseTexts.cardNoun,
-      plural: ExpenseTexts.cardsNoun,
+      monthlyLabel: (l10n) => l10n.totalMonthlyPayments,
+      balanceLabel: (l10n) => l10n.totalOutstandingBalance,
+      count: (l10n, count) => l10n.expenseCardCount(count),
     ),
     ExpenseKind.loans: ExpenseKindView(
       route: AppRoute.expensesLoans,
       icon: Icons.account_balance_outlined,
-      monthlyLabel: ExpenseTexts.totalMonthlyPayments,
-      balanceLabel: ExpenseTexts.totalOutstandingDebt,
-      singular: ExpenseTexts.loanNoun,
-      plural: ExpenseTexts.loansNoun,
+      monthlyLabel: (l10n) => l10n.totalMonthlyPayments,
+      balanceLabel: (l10n) => l10n.totalOutstandingDebt,
+      count: (l10n, count) => l10n.expenseLoanCount(count),
     ),
     ExpenseKind.fixedExpenses: ExpenseKindView(
       route: AppRoute.expensesFixed,
       icon: Icons.event_repeat_outlined,
-      monthlyLabel: ExpenseTexts.totalMonthlyAmount,
-      singular: ExpenseTexts.expenseNoun,
-      plural: ExpenseTexts.expensesNoun,
+      monthlyLabel: (l10n) => l10n.totalMonthlyAmount,
+      count: (l10n, count) => l10n.expenseItemCount(count),
     ),
     ExpenseKind.variableExpenses: ExpenseKindView(
       route: AppRoute.expensesVariable,
       icon: Icons.shopping_bag_outlined,
-      monthlyLabel: ExpenseTexts.totalMonthlyAmount,
-      singular: ExpenseTexts.expenseNoun,
-      plural: ExpenseTexts.expensesNoun,
+      monthlyLabel: (l10n) => l10n.totalMonthlyAmount,
+      count: (l10n, count) => l10n.expenseItemCount(count),
     ),
     ExpenseKind.savings: ExpenseKindView(
       route: AppRoute.expensesSavings,
       icon: Icons.savings_outlined,
-      monthlyLabel: ExpenseTexts.totalMonthlyContributions,
-      balanceLabel: ExpenseTexts.totalSavingsBalance,
-      singular: ExpenseTexts.accountNoun,
-      plural: ExpenseTexts.accountsNoun,
+      monthlyLabel: (l10n) => l10n.totalMonthlyContributions,
+      balanceLabel: (l10n) => l10n.totalSavingsBalance,
+      count: (l10n, count) => l10n.expenseAccountCount(count),
     ),
   };
 }

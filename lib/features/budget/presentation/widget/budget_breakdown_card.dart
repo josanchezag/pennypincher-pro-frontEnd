@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_budget_entity.dart';
-import 'package:pennypincher_pro/features/budget/presentation/budget_texts.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_section_card.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/expense_percentage_row.dart';
 
@@ -13,15 +13,28 @@ class BudgetBreakdownCard extends StatelessWidget {
 
   final List<BudgetComponent> components;
 
+  /// Name of a budget category, such as `Credit cards`.
+  static String componentLabel(
+    AppLocalizations l10n,
+    BudgetComponentType type,
+  ) =>
+      switch (type) {
+        BudgetComponentType.creditCards => l10n.budgetComponentCreditCards,
+        BudgetComponentType.loans => l10n.budgetComponentLoans,
+        BudgetComponentType.monthlyExpenses =>
+          l10n.budgetComponentMonthlyExpenses,
+        BudgetComponentType.savings => l10n.budgetComponentSavings,
+        BudgetComponentType.charity => l10n.budgetComponentCharity,
+      };
+
   @override
   Widget build(BuildContext context) {
     return BudgetSectionCard(
-      title: BudgetTexts.breakdownTitle,
+      title: context.l10n.budgetBreakdownTitle,
       children: [
         for (final component in components) ...[
           ExpensePercentageRow(
-            label: BudgetTexts.componentLabels[component.type] ??
-                component.type.name,
+            label: componentLabel(context.l10n, component.type),
             amount: CurrencyFormatter.format(component.amount),
             percentage: component.percentage,
             idealPercentage: component.idealPercentage,
@@ -40,6 +53,9 @@ class _Legend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Text(BudgetTexts.legend, style: AppTypography.bodySmall);
+    return Text(
+      context.l10n.budgetLegend(BudgetLimits.targetTolerancePercent),
+      style: AppTypography.bodySmall,
+    );
   }
 }

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/widgets/status_message.dart';
 
 /// Temporary screen for a route whose feature is not built yet.
 class PlaceholderScreen extends StatelessWidget {
   const PlaceholderScreen({required this.route, super.key});
-
-  static const String message = 'This screen is under construction.';
 
   final AppRoute route;
 
@@ -15,8 +14,8 @@ class PlaceholderScreen extends StatelessWidget {
     return Scaffold(
       body: StatusMessage(
         icon: Icons.construction_outlined,
-        title: route.title,
-        message: message,
+        title: route.title(context.l10n),
+        message: context.l10n.placeholderMessage,
       ),
     );
   }
@@ -26,16 +25,13 @@ class PlaceholderScreen extends StatelessWidget {
 class NotFoundScreen extends StatelessWidget {
   const NotFoundScreen({super.key});
 
-  static const String title = 'Page not found';
-  static const String message = 'The page you are looking for does not exist.';
-
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: StatusMessage(
         icon: Icons.explore_off_outlined,
-        title: title,
-        message: message,
+        title: context.l10n.notFoundTitle,
+        message: context.l10n.notFoundMessage,
       ),
     );
   }

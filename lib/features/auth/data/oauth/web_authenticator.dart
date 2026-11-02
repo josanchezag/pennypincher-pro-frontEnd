@@ -34,7 +34,7 @@ class FlutterWebAuthenticator implements WebAuthenticator {
         callbackUrlScheme: callbackUrlScheme,
       );
     } on PlatformException {
-      throw const OAuthException.cancelled();
+      throw OAuthException.cancelled();
     }
   }
 }

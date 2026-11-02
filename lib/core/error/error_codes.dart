@@ -1,3 +1,5 @@
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
+
 /// Error codes produced on the client. Backend codes (for example
 /// `GOOGLE_AUTH_FAILED` or `UNAUTHORIZED`) are passed through unchanged.
 abstract final class ErrorCodes {
@@ -17,11 +19,12 @@ abstract final class ErrorCodes {
   static const String registrationDisabled = 'REGISTRATION_DISABLED';
 }
 
-/// User-facing messages for errors without a backend message.
+/// User-facing messages for errors without a backend message, in the
+/// current interface language.
 abstract final class ErrorMessages {
-  static const String network =
-      'Could not reach the server. Check your connection and try again.';
-  static const String invalidResponse =
-      'The server sent an unexpected response.';
-  static const String unexpected = 'Something went wrong. Please try again.';
+  static String get network => CurrentL10n.texts.errorNetwork;
+
+  static String get invalidResponse => CurrentL10n.texts.errorInvalidResponse;
+
+  static String get unexpected => CurrentL10n.texts.errorUnexpected;
 }

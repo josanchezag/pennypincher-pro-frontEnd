@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
@@ -9,7 +10,6 @@ import 'package:pennypincher_pro/core/time/month_format.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/chart_style.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_projection_entity.dart';
-import 'package:pennypincher_pro/features/financial_goals/presentation/goals_texts.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_figures.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/projection_scale.dart';
 
@@ -67,7 +67,7 @@ class ProjectionChart extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       container: true,
-      label: _description(),
+      label: _description(context.l10n),
       child: ExcludeSemantics(
         child: SizedBox(height: height, child: LineChart(_data(context))),
       ),
@@ -77,26 +77,34 @@ class ProjectionChart extends StatelessWidget {
   LineChartData _data(BuildContext context) {
     final scale = ProjectionScale.of(projection);
     final axisWidth = leftAxisWidthFor(scale, MediaQuery.textScalerOf(context));
-    return _ProjectionChartData(this, scale, axisWidth).build();
+    return _ProjectionChartData(context.l10n, this, scale, axisWidth).build();
   }
 
-  String _description() {
+  String _description(AppLocalizations l10n) {
     final points = projection.dataPoints;
     final last = points.isEmpty ? null : points.last;
-    return [
-      '${GoalsTexts.chartDescriptionPrefix} ${projection.name}',
-      '${GoalsTexts.targetLine} ${GoalFormat.amount(projection.targetAmount)}',
-      if (last != null)
-        '${GoalFormat.amount(last.projectedValue)} '
-            '${GoalsTexts.summaryOn} ${MonthFormat.long.format(last.date)}',
-    ].join(', ');
+    final target = GoalFormat.amount(projection.targetAmount);
+    return last == null
+        ? l10n.goalsChartDescription(projection.name, target)
+        : l10n.goalsChartDescriptionWithEnd(
+            projection.name,
+            target,
+            GoalFormat.amount(last.projectedValue),
+            MonthFormat.long.format(last.date),
+          );
   }
 }
 
 /// fl_chart configuration of a [ProjectionChart].
 class _ProjectionChartData {
-  const _ProjectionChartData(this.chart, this.scale, this.leftAxisWidth);
+  const _ProjectionChartData(
+    this.l10n,
+    this.chart,
+    this.scale,
+    this.leftAxisWidth,
+  );
 
+  final AppLocalizations l10n;
   final ProjectionChart chart;
   final ProjectionScale scale;
   final double leftAxisWidth;
@@ -163,7 +171,7 @@ class _ProjectionChartData {
         label: HorizontalLineLabel(
           show: true,
           style: AppTypography.label.copyWith(color: AppColors.accentGold),
-          labelResolver: (_) => GoalsTexts.targetLine,
+          labelResolver: (_) => l10n.goalsTarget,
         ),
       );
 
@@ -176,7 +184,7 @@ class _ProjectionChartData {
               x < scale.maxX / 2 ? Alignment.topRight : Alignment.topLeft,
           style: AppTypography.label.copyWith(color: AppColors.success),
           labelResolver: (_) =>
-              GoalFormat.achievement(_projection).toUpperCase(),
+              GoalFormat.achievement(l10n, _projection).toUpperCase(),
         ),
       );
 
@@ -217,8 +225,8 @@ class _ProjectionChartData {
         ),
         bottomTitles: AxisTitles(
           axisNameSize: ProjectionChart.axisNameHeight,
-          axisNameWidget: const Text(
-            GoalsTexts.yearsFromNow,
+          axisNameWidget: Text(
+            l10n.goalsYearsFromNow,
             style: AppTypography.bodySmall,
           ),
           sideTitles: SideTitles(

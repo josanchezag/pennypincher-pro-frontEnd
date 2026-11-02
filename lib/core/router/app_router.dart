@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pennypincher_pro/core/config/app_config.dart';
+import 'package:pennypincher_pro/core/layout/account_menu.dart';
 import 'package:pennypincher_pro/core/layout/app_shell.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/router/auth_guard.dart';
@@ -56,12 +57,22 @@ class AppRouter {
         ShellRoute(
           builder: (context, state, child) => AppShell(
             location: state.uri.path,
+            account: _account(authBloc.state),
             onSignOut: () => authBloc.add(const AuthSignOutRequested()),
             child: child,
           ),
           routes: AppRoute.shellRoutes.map(_shellRoute).toList(),
         ),
       ];
+
+  static ShellAccount? _account(AuthState state) => switch (state) {
+        AuthAuthenticated(:final user) => ShellAccount(
+            name: user.name,
+            email: user.email,
+            pictureUrl: user.pictureUrl,
+          ),
+        _ => null,
+      };
 
   /// Screens built by the features; every other route shows a placeholder.
   static final Map<AppRoute, WidgetBuilder> _screens = {
