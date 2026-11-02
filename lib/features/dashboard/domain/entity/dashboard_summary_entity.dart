@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
+import 'package:pennypincher_pro/core/utils/name_initials.dart';
 
 part 'dashboard_summary_entity.freezed.dart';
 
@@ -120,24 +121,13 @@ class UserProfile with _$UserProfile {
 
   const UserProfile._();
 
-  static final RegExp _whitespace = RegExp(r'\s+');
-
-  List<String> get _words =>
-      name.trim().split(_whitespace).where((w) => w.isNotEmpty).toList();
-
   /// First word of [name]: `Josimar` for `Josimar Sanchez`; empty when the
   /// name is blank.
-  String get firstName => _words.isEmpty ? '' : _words.first;
-
-  /// Upper-case initials of the first and last words: `JS`.
-  String get initials {
-    final words = _words;
-    if (words.isEmpty) {
-      return '';
-    }
-    final last = words.length > 1 ? _initial(words.last) : '';
-    return '${_initial(words.first)}$last'.toUpperCase();
+  String get firstName {
+    final words = NameInitials.words(name);
+    return words.isEmpty ? '' : words.first;
   }
 
-  static String _initial(String word) => String.fromCharCode(word.runes.first);
+  /// Upper-case initials of the first and last words: `JS`.
+  String get initials => NameInitials.of(name);
 }

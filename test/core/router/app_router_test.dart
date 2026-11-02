@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
+import 'package:pennypincher_pro/core/layout/account_menu.dart';
 import 'package:pennypincher_pro/core/layout/app_shell.dart';
 import 'package:pennypincher_pro/core/router/app_destination.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
@@ -318,7 +319,10 @@ void main() {
       await tester.pumpApp(location: AppRoute.settings.path, authBloc: bloc);
       final router = GoRouter.of(tester.element(find.byType(AppShell)));
 
-      await tester.tap(find.byTooltip(AppShell.signOutTooltip));
+      await tester.tap(find.byTooltip(AccountMenu.tooltip));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(AccountMenu.signOutKey));
+      await tester.pump();
       verify(() => bloc.add(const AuthSignOutRequested())).called(1);
       states.add(const AuthUnauthenticated(signedOut: true));
       await tester.pumpAndSettle();

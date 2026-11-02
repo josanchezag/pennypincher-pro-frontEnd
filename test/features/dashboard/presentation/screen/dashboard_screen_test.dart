@@ -29,6 +29,7 @@ import 'package:pennypincher_pro/features/dashboard/presentation/widget/goals_se
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/mini_sparkline.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/net_worth_summary_card.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/quick_actions_row.dart';
+import 'package:pennypincher_pro/features/dashboard/presentation/widget/user_avatar.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/expenses_hub_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_report_bloc.dart';
 
@@ -46,6 +47,11 @@ const Size _phone = Size(390, 844);
 String _location(WidgetTester tester) => GoRouter.of(
       tester.element(find.byType(Scaffold).first),
     ).routeInformationProvider.value.uri.path;
+
+final Finder _headerAvatar = find.descendant(
+  of: find.byType(UserAvatar),
+  matching: find.byType(CircleAvatar),
+);
 
 void main() {
   setUpAll(loadAppFonts);
@@ -205,14 +211,14 @@ void main() {
         (tester) async {
       await pumpDashboard(tester, loadedDashboard(dashboardSummary));
       expect(find.text('JS'), findsOneWidget);
-      final avatar = tester.widget<CircleAvatar>(find.byType(CircleAvatar));
+      final avatar = tester.widget<CircleAvatar>(_headerAvatar);
       expect(avatar.foregroundImage, isA<NetworkImage>());
       expect(avatar.onForegroundImageError, isNotNull);
 
       await pumpDashboard(tester, loadedDashboard(newUserSummary));
       expect(find.text('A'), findsOneWidget);
       expect(
-        tester.widget<CircleAvatar>(find.byType(CircleAvatar)).foregroundImage,
+        tester.widget<CircleAvatar>(_headerAvatar).foregroundImage,
         isNull,
       );
     });
