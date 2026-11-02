@@ -16,7 +16,7 @@ dependencies:
   dartz: ^0.10.1
   dio: ^5.7.0
   equatable: ^2.0.5
-  fl_chart: ^0.68.0
+  fl_chart: ^0.71.0
   flutter_bloc: ^8.1.6
   flutter_localizations:
     sdk: flutter
