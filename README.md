@@ -131,7 +131,22 @@ El resultado queda en `build/web` y se puede servir desde cualquier hosting est�
 Producción: `https://app.pennypincherpro.online` (esta app, en Vercel) y
 `https://api.pennypincherpro.online` (backend, en Render). Todo se hace desde el navegador,
 también desde el teléfono. No se guarda ningún token de Vercel en GitHub: Vercel compila el
-repositorio directamente con su integración de Git.
+repositorio directamente con su integración de Git. GitHub solo guarda la URL del *deploy hook*
+(ver "Cuándo se despliega").
+
+### Cuándo se despliega
+
+Vercel **no despliega solo** (`"git": {"deploymentEnabled": false}` en `vercel.json`): ni los
+push a `master` ni los de otras ramas crean despliegues. Todo cambio entra por un pull request
+contra `master`, donde el workflow "CI" corre todas las pruebas. Al hacer merge, el workflow
+"Deploy to Vercel" (`.github/workflows/deploy.yml`) espera a que "CI" pase en `master`,
+comprueba que el commit viene de un PR mergeado y llama al *deploy hook* de Vercel. Un push
+directo a `master` nunca se despliega. Configuración, una vez (después del paso a paso):
+
+- En Vercel: *Settings* → *Git* → *Deploy Hooks*: nombre `github-merged-pr`, rama `master`,
+  *Create Hook*. Copia la URL: es secreta, quien la tenga puede lanzar despliegues.
+- En GitHub (repo del frontend): *Settings* → *Secrets and variables* → *Actions* → *New
+  repository secret*, nombre `VERCEL_DEPLOY_HOOK_URL`, valor la URL del paso anterior.
 
 ### Cómo compila Vercel
 
