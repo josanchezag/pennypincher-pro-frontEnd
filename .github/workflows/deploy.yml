@@ -1,0 +1,75 @@
+name: Deploy to Vercel
+
+# Vercel's Git deployments are off (vercel.json, git.deploymentEnabled). This workflow is the only
+# way a new version reaches production: it runs after CI passes on master, checks that the commit
+# came from a merged pull request, and then calls the Vercel deploy hook. A direct push to master,
+# or any other branch, is never deployed.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [master]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: deploy-vercel
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy merged pull request
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check that the commit came from a merged pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          merged="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${SHA}/pulls" \
+            --jq '[.[] | select(.merged_at != null and .base.ref == "master")] | length')"
+          if [ "$merged" -eq 0 ]; then
+            echo "::error::Commit ${SHA} was pushed to master without a merged pull request; not deploying."
+            exit 1
+          fi
+          echo "Commit ${SHA} belongs to a merged pull request."
+
+      - name: Check that master has not moved on
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          # The deploy hook builds the latest commit on master, so only deploy if that is this commit.
+          head="$(gh api "repos/${GITHUB_REPOSITORY}/commits/master" --jq .sha)"
+          if [ "$head" != "$SHA" ]; then
+            echo "master is now at ${head}; its own run decides whether it deploys."
+            echo "SKIP=true" >> "$GITHUB_ENV"
+          fi
+
+      - name: Call the Vercel deploy hook
+        if: env.SKIP != 'true'
+        env:
+          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${VERCEL_DEPLOY_HOOK_URL}" ]; then
+            echo "::error::The VERCEL_DEPLOY_HOOK_URL secret is not set."
+            exit 1
+          fi
+          # The URL carries Vercel's key, so it is never echoed.
+          status="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' \
+            --request POST "${VERCEL_DEPLOY_HOOK_URL}")"
+          if [ "${status}" -lt 200 ] || [ "${status}" -ge 300 ]; then
+            echo "::error::Vercel answered HTTP ${status}."
+            exit 1
+          fi
+          echo "Vercel accepted the deploy (HTTP ${status})."
