@@ -15,6 +15,7 @@ el backend.
 | **Fortuna neta** | `/net-worth` | Activos − Pasivos, histórico mensual y avance hacia la meta. |
 | **Presupuesto mensual** | `/budget` | Ingresos y gastos por categoría, % real vs. % ideal, flujo de caja. |
 | **Detalles de gastos** | `/expenses` | Tarjetas de crédito, préstamos, gastos fijos, variables y ahorros. |
+| **Gastos hormiga** | `/expenses/ant` | Registro rápido de gastos pequeños, límite mensual, tendencia y cortes por presupuesto. |
 | **Metas financieras** | `/goals` | Seguridad, Independencia, Libertad y Libertad Absoluta, con proyección. |
 | **Preferencias** | `/settings` | Idioma de la interfaz y moneda de los montos, guardados en la cuenta. |
 
