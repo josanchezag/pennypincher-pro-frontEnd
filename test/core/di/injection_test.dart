@@ -34,6 +34,8 @@ import 'package:pennypincher_pro/features/net_worth/presentation/bloc/asset_bloc
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/liability_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_report_bloc.dart';
+import 'package:pennypincher_pro/features/settings/domain/repository/preferences_repository.dart';
+import 'package:pennypincher_pro/features/settings/presentation/cubit/preferences_cubit.dart';
 
 void main() {
   setUp(configureDependencies);
@@ -44,6 +46,11 @@ void main() {
     expect(getIt<AppRouter>(), same(getIt<AppRouter>()));
     expect(getIt<AuthBloc>(), same(getIt<AuthBloc>()));
     expect(getIt<SessionRefresher>(), isA<SessionRefresher>());
+  });
+
+  test('keeps one preferences cubit for the whole app', () {
+    expect(getIt<PreferencesCubit>(), same(getIt<PreferencesCubit>()));
+    expect(getIt<PreferencesRepository>(), isA<PreferencesRepository>());
   });
 
   test('creates a fresh list bloc for every screen', () {

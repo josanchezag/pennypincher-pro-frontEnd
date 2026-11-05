@@ -6,6 +6,7 @@ import 'package:pennypincher_pro/features/dashboard/data/datasource/dashboard_re
 
 import '../../../helpers/dashboard_fixtures.dart';
 import '../../../helpers/fake_http_adapter.dart';
+import '../../../helpers/l10n.dart';
 
 void main() {
   late FakeHttpAdapter adapter;
@@ -106,7 +107,7 @@ void main() {
     expect(request.data, {'snapshotDate': '2026-10-01'});
   });
 
-  test('reports a failed snapshot with the backend message', () {
+  test('reports a failed snapshot in the interface language', () {
     adapter.handler = (_) async => FakeResponse(
           400,
           errorEnvelope('VALIDATION_FAILED', 'Snapshot date is in the future'),
@@ -116,7 +117,8 @@ void main() {
       () => dataSource.recordSnapshot(DateTime(2026, 10)),
       throwsA(
         isA<AppException>()
-            .having((e) => e.message, 'message', contains('future')),
+            .having((e) => e.code, 'code', 'VALIDATION_FAILED')
+            .having((e) => e.message, 'message', l10n.errorValidationFailed),
       ),
     );
   });

@@ -39,6 +39,7 @@ abstract final class ApiPaths {
   static const String devLogin = '/auth/dev-login';
   static const String refresh = '/auth/refresh';
   static const String logout = '/auth/logout';
+  static const String myPreferences = '/users/me/preferences';
   static const String assets = '/assets';
   static const String liabilities = '/liabilities';
   static const String netWorthSnapshots = '/net-worth/snapshots';
@@ -84,9 +85,6 @@ abstract final class ApiEnvelopeKeys {
   static const String data = 'data';
   static const String error = 'error';
   static const String code = 'code';
-  static const String message = 'message';
-  static const String details = 'details';
-  static const String field = 'field';
 }
 
 /// Names of the HTTP clients registered in the service locator.
@@ -103,9 +101,4 @@ abstract final class HttpHeaders {
 abstract final class HttpStatusCodes {
   static const int unauthorized = 401;
   static const int notFound = 404;
-}
-
-/// Backend error codes the client reacts to.
-abstract final class ApiErrorCodes {
-  static const String conflict = 'CONFLICT';
 }

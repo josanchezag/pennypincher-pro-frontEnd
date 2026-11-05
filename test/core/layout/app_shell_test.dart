@@ -10,8 +10,8 @@ import 'package:pennypincher_pro/core/router/app_destination.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
-import 'package:pennypincher_pro/core/widgets/placeholder_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:pennypincher_pro/features/settings/presentation/screen/settings_screen.dart';
 
 import '../../helpers/expense_mocks.dart';
 import '../../helpers/l10n.dart';
@@ -46,7 +46,7 @@ void main() {
       expect(find.byTooltip(l10n.shellSettingsTooltip), findsNothing);
       expect(
         find.descendant(
-          of: find.byType(PlaceholderScreen),
+          of: find.byType(SettingsScreen),
           matching: find.text(AppRoute.settings.title(l10n)),
         ),
         findsOneWidget,
@@ -210,8 +210,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(AccountMenu.signOutKey), findsOneWidget);
 
-      // Past both languages to the last entry.
-      for (var i = 0; i < AppLocales.supported.length + 1; i++) {
+      // Past the settings entry to the last one.
+      for (var i = 0; i < 2; i++) {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
         await tester.pump();
       }
@@ -233,52 +233,36 @@ void main() {
       expect(_inBottomBar(l10n.navNetWorth), findsNothing);
     });
 
-    testWidgets('lists both languages with the current one marked',
-        (tester) async {
-      await tester.pumpApp(locale: AppLocales.spanish);
+    testWidgets('leads from the account menu to the settings', (tester) async {
+      await tester.pumpApp(
+        size: TestViewports.mobile,
+        locale: AppLocales.spanish,
+      );
 
       await tester.tap(find.byTooltip(l10nEs.accountMenuTooltip));
       await tester.pumpAndSettle();
 
-      expect(find.text(l10nEs.languageSpanish), findsOneWidget);
-      expect(find.text(l10nEs.languageEnglish), findsOneWidget);
+      expect(find.text(l10nEs.routeSettings), findsOneWidget);
+      expect(find.text(l10nEs.accountMenuSettingsHint), findsOneWidget);
       expect(find.text(l10nEs.accountMenuSignOut), findsOneWidget);
-      Color? checkColor(Locale locale) => tester
-          .widget<Icon>(
-            find.descendant(
-              of: find.byKey(AccountMenu.languageKey(locale)),
-              matching: find.byIcon(Icons.check),
-            ),
-          )
-          .color;
-      expect(checkColor(AppLocales.spanish), AppColors.brandPrimary);
-      expect(checkColor(AppLocales.english), Colors.transparent);
-      expect(
-        tester.getSemantics(find.text(l10nEs.languageSpanish)),
-        containsSemantics(isSelected: true),
-      );
-      expect(
-        tester.getSemantics(find.text(l10nEs.languageEnglish)),
-        containsSemantics(isSelected: false),
-      );
+
+      await tester.tap(find.byKey(AccountMenu.settingsKey));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SettingsScreen), findsOneWidget);
+      expect(find.text(l10nEs.settingsLanguageTitle), findsOneWidget);
     });
 
-    testWidgets('switches from the account menu and remembers the choice',
+    testWidgets('opens the settings from the menu on desktop too',
         (tester) async {
-      final store = MemoryLocaleStore();
-      final cubit = LocaleCubit(store);
-      addTearDown(cubit.close);
-      await tester.pumpApp(size: TestViewports.mobile, localeCubit: cubit);
+      await tester.pumpApp();
 
-      await tester.tap(find.byTooltip(l10nEs.accountMenuTooltip));
+      await tester.tap(find.byKey(AccountMenu.buttonKey));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(AccountMenu.languageKey(AppLocales.english)));
+      await tester.tap(find.byKey(AccountMenu.settingsKey));
       await tester.pumpAndSettle();
 
-      expect(store.languageCode, 'en');
-      expect(_inBottomBar(l10n.navNetWorth), findsOneWidget);
-      expect(find.byTooltip(l10n.accountMenuTooltip), findsOneWidget);
-      expect(_inBottomBar(l10nEs.navNetWorth), findsNothing);
+      expect(find.byType(SettingsScreen), findsOneWidget);
     });
   });
 }

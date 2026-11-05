@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 export 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 /// Languages of the interface. Spanish is the default until the user picks
-/// another one in the account menu.
+/// another one in the settings screen.
 abstract final class AppLocales {
   static const Locale spanish = Locale('es');
   static const Locale english = Locale('en');

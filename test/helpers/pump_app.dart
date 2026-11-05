@@ -13,6 +13,7 @@ import 'package:pennypincher_pro/features/dashboard/presentation/bloc/dashboard_
 import 'dashboard_mocks.dart';
 import 'l10n.dart';
 import 'mocks.dart';
+import 'settings_fakes.dart';
 import 'test_config.dart';
 
 /// Logical screen widths used to exercise each breakpoint.
@@ -33,7 +34,9 @@ extension PumpApp on WidgetTester {
   /// Pumps the whole app at [location] with a logical [size]. Signed-in
   /// users land on the dashboard, so unless the test registered its own
   /// dashboard bloc, one that stays loading is provided. The interface is
-  /// in [locale] (English by default) unless [localeCubit] is given.
+  /// in [locale] (English by default) unless [localeCubit] is given. The
+  /// account's preferences come from [preferences], which by default has
+  /// that language saved.
   Future<void> pumpApp({
     String location = '/dashboard',
     Size size = TestViewports.desktop,
@@ -42,6 +45,7 @@ extension PumpApp on WidgetTester {
     bool settle = true,
     Locale locale = testLocale,
     LocaleCubit? localeCubit,
+    FakePreferencesRepository? preferences,
   }) async {
     view.physicalSize = size;
     view.devicePixelRatio = 1;
@@ -56,14 +60,27 @@ extension PumpApp on WidgetTester {
       initialLocation: location,
     );
     addTearDown(router.dispose);
-    final language =
-        localeCubit ?? LocaleCubit(MemoryLocaleStore(locale.languageCode));
+    final store = MemoryLocaleStore(
+      (localeCubit?.state ?? locale).languageCode,
+    );
+    final language = localeCubit ?? LocaleCubit(store);
     if (localeCubit == null) {
       addTearDown(language.close);
     }
     addTearDown(() => Intl.defaultLocale = testLocale.languageCode);
+    final account = preferences ??
+        FakePreferencesRepository(
+          savedPreferences(language.state.languageCode),
+        );
+    final settings = preferencesCubit(account, language, store);
+    addTearDown(settings.close);
     await pumpWidget(
-      PennyPincherApp(router: router, authBloc: bloc, localeCubit: language),
+      PennyPincherApp(
+        router: router,
+        authBloc: bloc,
+        localeCubit: language,
+        preferencesCubit: settings,
+      ),
     );
     if (settle) {
       await pumpAndSettle();

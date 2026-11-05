@@ -1,8 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:pennypincher_pro/core/error/app_exception.dart';
 import 'package:pennypincher_pro/core/error/error_codes.dart';
 import 'package:pennypincher_pro/core/network/api_envelope.dart';
+
+import '../../helpers/l10n.dart';
 
 DioException _withResponse(int status, Object? body) {
   final options = RequestOptions(path: '/x');
@@ -57,7 +60,7 @@ void main() {
   });
 
   group('ApiEnvelope.exceptionFrom', () {
-    test('reads code, message and status from the error envelope', () {
+    test('reads code and status, and explains the code in its own words', () {
       final exception = ApiEnvelope.exceptionFrom(
         _withResponse(400, {
           'error': {'code': 'VALIDATION_FAILED', 'message': 'Invalid name'},
@@ -65,8 +68,50 @@ void main() {
       );
 
       expect(exception.code, 'VALIDATION_FAILED');
-      expect(exception.message, 'Invalid name');
+      expect(exception.message, l10n.errorValidationFailed);
       expect(exception.statusCode, 400);
+    });
+
+    test('gives every backend code a message of the interface', () {
+      final expected = {
+        'VALIDATION_FAILED': l10n.errorValidationFailed,
+        'UNAUTHORIZED': l10n.errorSessionExpired,
+        'FORBIDDEN': l10n.errorForbidden,
+        'FORBIDDEN_ORIGIN': l10n.errorForbidden,
+        'NOT_FOUND': l10n.errorNotFound,
+        'CONFLICT': l10n.errorConflict,
+        'RATE_LIMITED': l10n.errorRateLimited,
+        'ACCOUNT_NOT_ALLOWED': l10n.signInAccountNotAllowed,
+        'REGISTRATION_DISABLED': l10n.signInRegistrationDisabled,
+        'GOOGLE_AUTH_FAILED': l10n.signInFailed,
+        'IDENTITY_PROVIDER_UNAVAILABLE': l10n.errorIdentityProviderUnavailable,
+        'INTERNAL_ERROR': l10n.errorUnexpected,
+        'METHOD_NOT_ALLOWED': l10n.errorUnexpected,
+        'SOMETHING_NEW': l10n.errorUnexpected,
+      };
+      for (final MapEntry(key: code, value: message) in expected.entries) {
+        final exception = ApiEnvelope.exceptionFrom(
+          _withResponse(400, {
+            'error': {'code': code, 'message': 'English text for developers'},
+          }),
+        );
+
+        expect(exception.code, code);
+        expect(exception.message, message, reason: code);
+      }
+    });
+
+    test('explains the code in Spanish when the interface is Spanish', () {
+      Intl.defaultLocale = 'es';
+      addTearDown(() => Intl.defaultLocale = testLocale.languageCode);
+
+      final exception = ApiEnvelope.exceptionFrom(
+        _withResponse(404, {
+          'error': {'code': 'NOT_FOUND', 'message': 'Asset not found'},
+        }),
+      );
+
+      expect(exception.message, l10nEs.errorNotFound);
     });
 
     test('falls back to generic values for other bodies', () {
@@ -153,7 +198,7 @@ void main() {
   });
 
   group('ApiEnvelope validation details', () {
-    test('appends the field errors to the message', () {
+    test('never shows the English details of the backend', () {
       final exception = ApiEnvelope.exceptionFrom(
         _withResponse(400, {
           'error': {
@@ -169,25 +214,8 @@ void main() {
       );
 
       expect(exception.code, 'VALIDATION_FAILED');
-      expect(
-        exception.message,
-        'Validation failed for 2 field(s): '
-        'snapshotDate must not be in the future; is invalid',
-      );
-    });
-
-    test('keeps the message when the details are empty', () {
-      final exception = ApiEnvelope.exceptionFrom(
-        _withResponse(400, {
-          'error': {
-            'code': 'VALIDATION_FAILED',
-            'message': 'Validation failed',
-            'details': <Object?>[],
-          },
-        }),
-      );
-
-      expect(exception.message, 'Validation failed');
+      expect(exception.message, l10n.errorValidationFailed);
+      expect(exception.message, isNot(contains('snapshotDate')));
     });
   });
 }

@@ -6,6 +6,7 @@ import 'package:pennypincher_pro/core/l10n/locale_cubit.dart';
 import 'package:pennypincher_pro/core/router/app_router.dart';
 import 'package:pennypincher_pro/features/auth/data/oauth/web_authenticator.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:pennypincher_pro/features/settings/presentation/cubit/preferences_cubit.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +18,7 @@ void main() {
       router: getIt<AppRouter>().config,
       authBloc: getIt<AuthBloc>(),
       localeCubit: getIt<LocaleCubit>(),
+      preferencesCubit: getIt<PreferencesCubit>(),
     ),
   );
 }
