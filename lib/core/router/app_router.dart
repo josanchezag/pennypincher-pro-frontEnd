@@ -8,6 +8,7 @@ import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/router/auth_guard.dart';
 import 'package:pennypincher_pro/core/router/refresh_listenable.dart';
 import 'package:pennypincher_pro/core/widgets/placeholder_screen.dart';
+import 'package:pennypincher_pro/features/ant_expenses/presentation/ant_expenses_pages.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/login_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/splash_screen.dart';
@@ -81,6 +82,7 @@ class AppRouter {
     ...NetWorthPages.builders,
     ...BudgetPages.builders,
     ...ExpenseDetailsPages.builders,
+    ...AntExpensesPages.builders,
     ...FinancialGoalsPages.builders,
     ...SettingsPages.builders,
   };

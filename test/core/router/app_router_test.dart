@@ -9,6 +9,8 @@ import 'package:pennypincher_pro/core/layout/app_shell.dart';
 import 'package:pennypincher_pro/core/router/app_destination.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/widgets/placeholder_screen.dart';
+import 'package:pennypincher_pro/features/ant_expenses/presentation/ant_expenses_pages.dart';
+import 'package:pennypincher_pro/features/ant_expenses/presentation/screen/ant_expenses_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/login_screen.dart';
 import 'package:pennypincher_pro/features/auth/presentation/screen/splash_screen.dart';
@@ -36,6 +38,8 @@ import 'package:pennypincher_pro/features/net_worth/presentation/screen/net_wort
 import 'package:pennypincher_pro/features/settings/presentation/screen/settings_screen.dart';
 import 'package:pennypincher_pro/features/settings/presentation/settings_pages.dart';
 
+import '../../helpers/ant_fixtures.dart';
+import '../../helpers/ant_mocks.dart';
 import '../../helpers/budget_mocks.dart';
 import '../../helpers/expense_mocks.dart';
 import '../../helpers/goal_mocks.dart';
@@ -68,6 +72,7 @@ void main() {
           '/expenses/fixed',
           '/expenses/variable',
           '/expenses/savings',
+          '/expenses/ant',
           '/goals',
           '/goals/:goalId/projection',
           '/settings',
@@ -132,6 +137,7 @@ void main() {
           !BudgetPages.builders.containsKey(route) &&
           !DashboardPages.builders.containsKey(route) &&
           !ExpenseDetailsPages.builders.containsKey(route) &&
+          !AntExpensesPages.builders.containsKey(route) &&
           !FinancialGoalsPages.builders.containsKey(route) &&
           !SettingsPages.builders.containsKey(route),
     );
@@ -250,6 +256,17 @@ void main() {
       await tester.pumpApp(location: AppRoute.expensesVariable.path);
       expect(find.byType(VariableExpensesScreen), findsOneWidget);
       expect(find.byType(AppShell), findsOneWidget);
+    });
+
+    testWidgets('renders the ant expenses screen inside the shell',
+        (tester) async {
+      registerAntExpenseBloc(const CrudLoaded([]));
+      registerAntInsightsCubit(antInsightsLoaded);
+
+      await tester.pumpApp(location: AppRoute.expensesAnt.path);
+
+      expect(find.byType(AppShell), findsOneWidget);
+      expect(find.byType(AntExpensesScreen), findsOneWidget);
     });
 
     testWidgets('renders the savings screen inside the shell', (tester) async {

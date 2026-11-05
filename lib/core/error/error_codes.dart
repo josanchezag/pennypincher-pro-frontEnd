@@ -26,6 +26,10 @@ abstract final class ErrorCodes {
   static const String notFound = 'NOT_FOUND';
   static const String conflict = 'CONFLICT';
   static const String rateLimited = 'RATE_LIMITED';
+
+  /// Backend (409): the ant expense is already part of a budget cut, so it
+  /// can no longer be edited or deleted.
+  static const String antExpenseAlreadyCut = 'ANT_EXPENSE_ALREADY_CUT';
   static const String googleAuthFailed = 'GOOGLE_AUTH_FAILED';
   static const String identityProviderUnavailable =
       'IDENTITY_PROVIDER_UNAVAILABLE';
@@ -54,6 +58,7 @@ abstract final class ErrorMessages {
       ErrorCodes.notFound => texts.errorNotFound,
       ErrorCodes.conflict => texts.errorConflict,
       ErrorCodes.rateLimited => texts.errorRateLimited,
+      ErrorCodes.antExpenseAlreadyCut => texts.errorAntExpenseAlreadyCut,
       ErrorCodes.accountNotAllowed => texts.signInAccountNotAllowed,
       ErrorCodes.registrationDisabled => texts.signInRegistrationDisabled,
       ErrorCodes.googleAuthFailed => texts.signInFailed,
