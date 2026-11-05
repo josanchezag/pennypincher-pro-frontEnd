@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pennypincher_pro/core/l10n/l10n.dart';
+import 'package:pennypincher_pro/core/utils/money.dart';
+import 'package:pennypincher_pro/core/widgets/money_field.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-/// Small dialog that edits one optional value of the budget as text. It
-/// resolves to the trimmed text when saved (empty clears the value), or to
-/// `null` when cancelled.
-class BudgetValueDialog extends StatefulWidget {
-  const BudgetValueDialog({
+/// What a [BudgetValueDialog] resolves to when saved: the new [value], or
+/// `null` when the field was emptied to clear it.
+typedef BudgetValueResult<T> = ({T? value});
+
+/// Small dialog that edits one optional value of the budget. It resolves to
+/// the saved value (`null` inside when emptied, which clears it), or to
+/// `null` when cancelled. [BudgetValueDialog.text] edits it as plain text,
+/// [BudgetValueDialog.money] as an amount formatted as it is typed.
+class BudgetValueDialog<T extends Object> extends StatefulWidget {
+  const BudgetValueDialog._({
     required this.label,
-    required this.initialText,
+    required this.initialValue,
     required this.isValid,
     required this.errorMessage,
-    required this.allowedCharacters,
+    required Widget Function(_BudgetValueDialogState<T> state) fieldBuilder,
     super.key,
-  });
+  }) : _fieldBuilder = fieldBuilder;
 
   static const String field = 'value';
   static const String invalidError = 'invalid';
@@ -25,14 +32,15 @@ class BudgetValueDialog extends StatefulWidget {
   static const int maxMessageLines = 2;
 
   final String label;
-  final String initialText;
+  final T? initialValue;
 
-  /// Whether a non-empty text is acceptable.
-  final bool Function(String text) isValid;
+  /// Whether a value is acceptable; an empty field always is.
+  final bool Function(T value) isValid;
   final String errorMessage;
-  final TextInputFormatter allowedCharacters;
+  final Widget Function(_BudgetValueDialogState<T> state) _fieldBuilder;
 
-  static Future<String?> show(
+  /// Edits text keeping only [allowedCharacters]; empty text clears it.
+  static Future<BudgetValueResult<String>?> text(
     BuildContext context, {
     required String label,
     required String initialText,
@@ -40,25 +48,55 @@ class BudgetValueDialog extends StatefulWidget {
     required String errorMessage,
     required TextInputFormatter allowedCharacters,
   }) =>
-      showDialog<String>(
-        context: context,
-        builder: (_) => BudgetValueDialog(
+      _show(
+        context,
+        BudgetValueDialog<String>._(
           label: label,
-          initialText: initialText,
-          isValid: isValid,
+          initialValue: initialText.isEmpty ? null : initialText,
+          isValid: (text) => text.trim().isEmpty || isValid(text.trim()),
           errorMessage: errorMessage,
-          allowedCharacters: allowedCharacters,
+          fieldBuilder: (state) => state._textField(allowedCharacters),
         ),
       );
 
+  /// Edits the TRM, an amount in pesos with cents (see
+  /// [MoneyField.exchangeRate]).
+  static Future<BudgetValueResult<Money>?> exchangeRate(
+    BuildContext context, {
+    required String label,
+    required Money? initialValue,
+    required bool Function(Money rate) isValid,
+    required String errorMessage,
+  }) =>
+      _show(
+        context,
+        BudgetValueDialog<Money>._(
+          label: label,
+          initialValue: initialValue,
+          isValid: isValid,
+          errorMessage: errorMessage,
+          fieldBuilder: (state) => state._moneyField(),
+        ),
+      );
+
+  static Future<BudgetValueResult<V>?> _show<V extends Object>(
+    BuildContext context,
+    BudgetValueDialog<V> dialog,
+  ) =>
+      showDialog<BudgetValueResult<V>>(
+        context: context,
+        builder: (_) => dialog,
+      );
+
   @override
-  State<BudgetValueDialog> createState() => _BudgetValueDialogState();
+  State<BudgetValueDialog<T>> createState() => _BudgetValueDialogState<T>();
 }
 
-class _BudgetValueDialogState extends State<BudgetValueDialog> {
+class _BudgetValueDialogState<T extends Object>
+    extends State<BudgetValueDialog<T>> {
   late final FormGroup _form = FormGroup({
-    BudgetValueDialog.field: FormControl<String>(
-      value: widget.initialText,
+    BudgetValueDialog.field: FormControl<T>(
+      value: widget.initialValue,
       validators: [Validators.delegate(_validate)],
     ),
   });
@@ -70,8 +108,8 @@ class _BudgetValueDialogState extends State<BudgetValueDialog> {
   }
 
   Map<String, dynamic>? _validate(AbstractControl<dynamic> control) {
-    final text = (control.value as String? ?? '').trim();
-    return text.isEmpty || widget.isValid(text)
+    final value = control.value;
+    return value is! T || widget.isValid(value)
         ? null
         : {BudgetValueDialog.invalidError: true};
   }
@@ -81,15 +119,18 @@ class _BudgetValueDialogState extends State<BudgetValueDialog> {
       _form.markAllAsTouched();
       return;
     }
-    final text = _form.control(BudgetValueDialog.field).value as String?;
-    Navigator.of(context).pop((text ?? '').trim());
+    final value = _form.control(BudgetValueDialog.field).value as T?;
+    final cleared = value is String && value.trim().isEmpty;
+    final saved = value is String ? value.trim() as T : value;
+    Navigator.of(context).pop((value: cleared ? null : saved));
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(context.l10n.budgetEditValue(widget.label)),
-      content: ReactiveForm(formGroup: _form, child: _field()),
+      content:
+          ReactiveForm(formGroup: _form, child: widget._fieldBuilder(this)),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
@@ -104,12 +145,17 @@ class _BudgetValueDialogState extends State<BudgetValueDialog> {
     );
   }
 
-  Widget _field() => ReactiveTextField<String>(
+  Map<String, ValidationMessageFunction> get _messages => {
+        BudgetValueDialog.invalidError: (_) => widget.errorMessage,
+      };
+
+  Widget _textField(TextInputFormatter allowedCharacters) =>
+      ReactiveTextField<T>(
         key: BudgetValueDialog.fieldKey,
         formControlName: BudgetValueDialog.field,
         autofocus: true,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        inputFormatters: [widget.allowedCharacters],
+        keyboardType: TextInputType.number,
+        inputFormatters: [allowedCharacters],
         onSubmitted: (_) => _save(),
         decoration: InputDecoration(
           labelText: widget.label,
@@ -117,8 +163,18 @@ class _BudgetValueDialogState extends State<BudgetValueDialog> {
           helperMaxLines: BudgetValueDialog.maxMessageLines,
           errorMaxLines: BudgetValueDialog.maxMessageLines,
         ),
-        validationMessages: {
-          BudgetValueDialog.invalidError: (_) => widget.errorMessage,
-        },
+        validationMessages: _messages,
+      );
+
+  Widget _moneyField() => MoneyField(
+        fieldKey: BudgetValueDialog.fieldKey,
+        formControlName: BudgetValueDialog.field,
+        label: widget.label,
+        exchangeRate: true,
+        autofocus: true,
+        onSubmitted: _save,
+        helperText: context.l10n.budgetClearHint,
+        messageMaxLines: BudgetValueDialog.maxMessageLines,
+        validationMessages: _messages,
       );
 }

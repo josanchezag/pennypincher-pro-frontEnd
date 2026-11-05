@@ -32,46 +32,25 @@ void main() {
     expect(Money.fromOptionalJson(1500.5), const Money.fromCents(150050));
   });
 
-  group('Money.tryParseInput', () {
-    test('reads Colombian grouping and decimal comma', () {
-      expect(
-        Money.tryParseInput('1.500.000'),
-        const Money.fromUnits(1500000),
-      );
-      expect(Money.tryParseInput(' 1.500.000,50 ')?.cents, 150000050);
-      expect(Money.tryParseInput('1500000,5')?.cents, 150000050);
-      expect(Money.tryParseInput('1.500')?.cents, 150000);
-      expect(Money.tryParseInput('0')?.cents, 0);
+  group('Money.tryFromDigits', () {
+    test('builds the exact amount from whole digits and decimals', () {
+      expect(Money.tryFromDigits('1500000'), const Money.fromUnits(1500000));
+      expect(Money.tryFromDigits('1500000', '5')?.cents, 150000050);
+      expect(Money.tryFromDigits('1500000', '50')?.cents, 150000050);
+      expect(Money.tryFromDigits('0', '05')?.cents, 5);
+      expect(Money.tryFromDigits('', '5')?.cents, 50);
+      expect(Money.tryFromDigits('0007')?.cents, 700);
+      expect(Money.tryFromDigits('0')?.cents, 0);
     });
 
-    test('reads a dot followed by one or two digits as decimals', () {
-      expect(Money.tryParseInput('10.25')?.cents, 1025);
-      expect(Money.tryParseInput('1500000.5')?.cents, 150000050);
-    });
-
-    test('reads the cents of dollars and euros typed either way', () {
-      for (final text in ['1234.56', '1234,56', '1.234,56', '0.5', '0,05']) {
-        expect(Money.tryParseInput(text), isNotNull, reason: text);
-      }
-      expect(Money.tryParseInput('1234.56')?.cents, 123456);
-      expect(Money.tryParseInput('1234,56')?.cents, 123456);
-      expect(Money.tryParseInput('0,05')?.cents, 5);
-    });
-
-    test('rejects malformed, negative and oversized amounts', () {
-      expect(Money.tryParseInput('1.50.000'), isNull);
-      expect(Money.tryParseInput('1,500,000'), isNull);
-      expect(Money.tryParseInput('1,234.56'), isNull);
-      expect(Money.tryParseInput('1.234,567'), isNull);
-      expect(Money.tryParseInput('-3'), isNull);
-      expect(Money.tryParseInput(''), isNull);
-      expect(Money.tryParseInput('1e5'), isNull);
-      expect(Money.tryParseInput('12345678901234567890123'), isNull);
-      expect(Money.tryParseInput('10.000.000.000.000'), isNull);
-      expect(
-        Money.tryParseInput('9.999.999.999.999,99')?.cents,
-        Money.maxCents,
-      );
+    test('rejects anything but digits, extra decimals and oversized amounts',
+        () {
+      expect(Money.tryFromDigits(''), isNull);
+      expect(Money.tryFromDigits('1.500'), isNull);
+      expect(Money.tryFromDigits('-3'), isNull);
+      expect(Money.tryFromDigits('1', '505'), isNull);
+      expect(Money.tryFromDigits('10000000000000'), isNull);
+      expect(Money.tryFromDigits('9999999999999', '99')?.cents, Money.maxCents);
     });
   });
 
@@ -97,8 +76,6 @@ void main() {
       expect(const Money.fromUnits(1500000).toJson(), isA<int>());
       expect(const Money.fromCents(150000050).toJson(), 1500000.5);
       expect(const Money.fromCents(-150).toJson(), -1.5);
-      expect(const Money.fromCents(150000050).toInputString(), '1500000,50');
-      expect(const Money.fromUnits(7).toInputString(), '7');
     });
 
     test('keeps every cent of the largest amount in JSON', () {

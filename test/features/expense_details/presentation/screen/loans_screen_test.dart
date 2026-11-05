@@ -104,11 +104,11 @@ void main() {
 
     await tester.tap(find.byKey(CrudScreen.addButtonKey));
     await tester.pumpAndSettle();
-    expect(find.text(l10n.crudOptionalAmountHelper), findsOneWidget);
+    expect(find.text(testOptionalAmountHelper), findsOneWidget);
     await fillAndSave(tester, {
       l10n.crudNameLabel: 'Davivienda 7141',
       l10n.monthlyInstallment: '2.080.231',
-      l10n.remainingBalance: '45.500.000,25',
+      l10n.remainingBalance: '45,500,000',
     });
 
     verify(
@@ -117,7 +117,7 @@ void main() {
           BalanceDraft(
             name: 'Davivienda 7141',
             monthlyAmount: Money.fromUnits(2080231),
-            balance: Money.fromCents(4550000025),
+            balance: Money.fromUnits(45500000),
           ),
         ),
       ),
@@ -125,8 +125,8 @@ void main() {
   });
 
   for (final (typed, original) in [
-    ('5,5', const Money.fromCents(550)),
-    (' ', null),
+    ('5,500', const Money.fromUnits(5500)),
+    ('', null),
   ]) {
     testWidgets('edits the original amount of a loan to "$typed"',
         (tester) async {
@@ -135,7 +135,7 @@ void main() {
       await tester.tap(find.text('Prestamo carro'));
       await tester.pumpAndSettle();
       expect(find.text('Edit loan'), findsOneWidget);
-      expect(find.text('50000000'), findsOneWidget);
+      expect(find.text('50,000,000'), findsOneWidget);
       await fillAndSave(tester, {l10n.originalAmount: typed});
 
       verify(
@@ -154,19 +154,19 @@ void main() {
     });
   }
 
-  testWidgets('rejects an invalid original amount', (tester) async {
+  testWidgets('keeps letters out of the amounts', (tester) async {
     final bloc = await pumpLoans(tester, const CrudLoaded([]));
 
     await tester.tap(find.byKey(CrudScreen.addButtonKey));
     await tester.pumpAndSettle();
     await fillAndSave(tester, {
       l10n.crudNameLabel: 'Familia',
-      l10n.monthlyInstallment: '0',
+      l10n.monthlyInstallment: 'abc',
       l10n.remainingBalance: '1',
-      l10n.originalAmount: '1,500',
+      l10n.originalAmount: 'x',
     });
 
-    expect(find.text(l10n.crudAmountInvalid), findsOneWidget);
+    expect(find.text(l10n.crudAmountRequired), findsOneWidget);
     verifyNever(
       () => bloc.add(any(that: isA<CrudSaveRequested<BalanceDraft>>())),
     );

@@ -161,7 +161,7 @@ void main() {
     ).called(1);
 
     await failSave(tester, states, _loaded.items);
-    expect(find.text('21.000.000'), findsOneWidget);
+    expect(find.text('21,000,000'), findsOneWidget);
   });
 
   testWidgets('refreshes the totals after a change', (tester) async {

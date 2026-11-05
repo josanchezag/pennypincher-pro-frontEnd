@@ -27,8 +27,8 @@ class BudgetDetailsCard extends StatelessWidget {
   static const Key exchangeRateEditKey = Key('edit-exchange-rate');
   static const Key workDaysEditKey = Key('edit-work-days');
 
-  static final TextInputFormatter _rateCharacters =
-      FilteringTextInputFormatter.allow(RegExp('[0-9.,]'));
+  /// Example rate of the error message.
+  static const Money _exampleRate = Money.fromCents(395025);
 
   final BudgetSettings settings;
   final bool enabled;
@@ -60,21 +60,21 @@ class BudgetDetailsCard extends StatelessWidget {
   }
 
   Future<void> _editExchangeRate(BuildContext context) async {
-    final text = await BudgetValueDialog.show(
+    final example = context.money.formatExchangeRate(_exampleRate);
+    final result = await BudgetValueDialog.exchangeRate(
       context,
       label: context.l10n.budgetExchangeRate,
-      initialText: settings.exchangeRate?.toInputString() ?? '',
-      isValid: (text) => _parseRate(text) != null,
-      errorMessage: context.l10n.budgetExchangeRateInvalid,
-      allowedCharacters: _rateCharacters,
+      initialValue: settings.exchangeRate,
+      isValid: (rate) => !rate.isZero,
+      errorMessage: context.l10n.budgetExchangeRateInvalid(example),
     );
-    if (text != null) {
-      onChanged(settings.copyWith(exchangeRate: _parseRate(text)));
+    if (result != null) {
+      onChanged(settings.copyWith(exchangeRate: result.value));
     }
   }
 
   Future<void> _editWorkDays(BuildContext context) async {
-    final text = await BudgetValueDialog.show(
+    final result = await BudgetValueDialog.text(
       context,
       label: context.l10n.budgetWorkDays,
       initialText: settings.workDays?.toString() ?? '',
@@ -83,15 +83,12 @@ class BudgetDetailsCard extends StatelessWidget {
           context.l10n.budgetWorkDaysInvalid(BudgetLimits.maxWorkDays),
       allowedCharacters: FilteringTextInputFormatter.digitsOnly,
     );
-    if (text != null) {
-      onChanged(settings.copyWith(workDays: _parseDays(text)));
+    if (result != null) {
+      final text = result.value;
+      onChanged(
+        settings.copyWith(workDays: text == null ? null : _parseDays(text)),
+      );
     }
-  }
-
-  /// A rate greater than zero, or `null` for anything else.
-  static Money? _parseRate(String text) {
-    final rate = Money.tryParseInput(text);
-    return rate == null || rate.isZero ? null : rate;
   }
 
   /// Work days from 0 to [BudgetLimits.maxWorkDays], or `null`.

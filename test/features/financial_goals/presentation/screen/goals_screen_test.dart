@@ -263,7 +263,7 @@ void main() {
       await tester.tap(find.text('Seguridad Financiera'));
       await tester.pumpAndSettle();
       expect(find.text(l10n.goalsEditGoal), findsOneWidget);
-      expect(find.text('1470000'), findsOneWidget);
+      expect(find.text('1,470,000'), findsOneWidget);
       expect(find.text('11'), findsOneWidget);
       expect(find.text('16'), findsOneWidget);
       await fillAndSave(tester, {

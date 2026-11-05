@@ -289,7 +289,7 @@ lib/
 │   ├── network/     # Clientes dio (con y sin AuthInterceptor), sobre de la API
 │   ├── router/      # AppRoute, AppDestination, AppRouter (go_router) y AuthGuard
 │   ├── theme/       # AppColors, AppTypography, AppSpacing, AppBreakpoints, AppTheme
-│   ├── utils/       # Money, AppCurrency, MoneyFormatter, PercentFormatter
+│   ├── utils/       # Money, AppCurrency, MoneyFormatter, MoneyInputFormatter, PercentFormatter
 │   └── widgets/     # Widgets reutilizables (placeholder, mensajes de estado, MoneyFormatScope)
 ├── features/
 │   └── <feature>/{data,domain,presentation}
@@ -349,9 +349,17 @@ idioma, porque en español de Colombia `$` es el peso y en inglés es el dólar:
 Los ejes de las gráficas usan `173M` / `850.000` con los separadores del idioma, y los porcentajes
 también siguen al idioma (`42,7 %` / `42.7%`). La TRM del presupuesto es siempre pesos por dólar, así
 que se escribe como pesos con centavos en cualquier moneda (`$ 3.950,25` / `COP 3,950.25`); para
-`EUR` se oculta (no aplica) y se conserva sin cambios. Los campos de monto aceptan `1.500.000,50`,
-`1500000,5` o `1500000.5` en ambos idiomas; el formato inglés con comas (`1,500.50`) todavía se
-rechaza con un mensaje de error en vez de adivinarse.
+`EUR` se oculta (no aplica) y se conserva sin cambios.
+
+Todos los campos de monto son `MoneyField` (`lib/core/widgets/money_field.dart`), que guarda el
+`Money` exacto en su `FormControl<Money>` y escribe el monto mientras se teclea con
+`MoneyInputFormatter`: separadores de miles automáticos y decimales según el idioma (`1.500.000,50`
+/ `1,500,000.50`), sin decimales en pesos y con dos en dólares, euros y la TRM, y el símbolo como
+prefijo o sufijo del campo. El separador decimal del idioma inicia los decimales; el de miles,
+tecleado al final, se lee por lo que sigue (uno o dos dígitos: decimales, `1500.5` → `1.500.5`, que
+al salir del campo queda `1.500,50`; un tercero: miles, `1,500` → 1500 en inglés). Lo pegado se lee
+en cualquier convención (`1.500.000,50`, `$ 1,500,000.50`, `1500000.5`). Un monto en pesos guardado
+con centavos los conserva al editarse, y un cambio de idioma o moneda reescribe el campo abierto.
 
 Los mensajes de error del backend están en inglés y son para desarrolladores: la app nunca los
 muestra. `ErrorMessages.forBackendCode` traduce cada `error.code` a un texto de los ARB, y las

@@ -251,8 +251,15 @@ void main() {
     await openEditor(tester, BudgetDetailsCard.exchangeRateEditKey);
     expect(find.text('Edit ${l10n.budgetExchangeRate}'), findsOneWidget);
     await saveValue(tester, '0');
-    expect(find.text(l10n.budgetExchangeRateInvalid), findsOneWidget);
-    await saveValue(tester, '3.950,25');
+    expect(
+      find.text(
+        l10n.budgetExchangeRateInvalid(
+          testMoney.formatExchangeRate(const Money.fromCents(395025)),
+        ),
+      ),
+      findsOneWidget,
+    );
+    await saveValue(tester, '3,950.25');
 
     verify(
       () => bloc.add(
@@ -262,6 +269,49 @@ void main() {
       ),
     ).called(1);
     expect(find.byType(BudgetValueDialog), findsNothing);
+  });
+
+  testWidgets('types the TRM of a dollar account as pesos with cents',
+      (tester) async {
+    final bloc = await pumpOverview(tester, _loaded, currency: AppCurrency.usd);
+
+    await openEditor(tester, BudgetDetailsCard.exchangeRateEditKey);
+    final field = find.byKey(BudgetValueDialog.fieldKey);
+    expect(
+      find.descendant(of: field, matching: find.text('3,300')),
+      findsOneWidget,
+    );
+    expect(
+      tester
+          .widget<TextField>(
+            find.descendant(of: field, matching: find.byType(TextField)),
+          )
+          .decoration!
+          .prefixText,
+      'COP\u00A0',
+    );
+    await saveValue(tester, '3950.5');
+
+    verify(
+      () => bloc.add(
+        const MonthlyBudgetSettingsChanged(
+          BudgetSettings(exchangeRate: Money.fromCents(395050), workDays: 22),
+        ),
+      ),
+    ).called(1);
+  });
+
+  testWidgets('clears the exchange rate', (tester) async {
+    final bloc = await pumpOverview(tester, _loaded);
+
+    await openEditor(tester, BudgetDetailsCard.exchangeRateEditKey);
+    await saveValue(tester, '');
+
+    verify(
+      () => bloc.add(
+        const MonthlyBudgetSettingsChanged(BudgetSettings(workDays: 22)),
+      ),
+    ).called(1);
   });
 
   testWidgets('edits and clears the work days', (tester) async {

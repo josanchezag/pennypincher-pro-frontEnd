@@ -176,7 +176,7 @@ void main() {
     await tester.tap(find.text('Arriendo'));
     await tester.pumpAndSettle();
     expect(find.text('Edit fixed expense'), findsOneWidget);
-    expect(find.text('3200000,50'), findsOneWidget);
+    expect(find.text('3,200,000.50'), findsOneWidget);
     Navigator.of(
       tester.element(find.byType(ItemFormSheet<FixedExpense, _Draft>)),
     ).pop();

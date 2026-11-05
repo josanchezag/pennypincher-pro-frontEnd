@@ -44,43 +44,29 @@ final class Money extends Equatable implements Comparable<Money> {
   static const int maxCents = 999999999999999;
   static const int _maxDigits = 15;
 
-  static const String _groupSeparator = '.';
-  static const String _decimalComma = ',';
   static const String _decimalPoint = '.';
 
   /// API text: `1500000` or `1500000.5`.
   static final RegExp _plain = RegExp(r'^(-?)(\d+)(?:\.(\d{1,2}))?$');
-
-  /// Colombian input: optional dot thousands in groups of three and a comma
-  /// before up to two decimals, such as `1.500.000,50` or `1500000,5`.
-  static final RegExp _colombian =
-      RegExp(r'^(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d{1,2}))?$');
-
-  /// A dot followed by one or two digits can only be a decimal point.
-  static final RegExp _dotDecimal = RegExp(r'^(\d+)\.(\d{1,2})$');
+  static final RegExp _digits = RegExp(r'^\d*$');
 
   final int cents;
 
-  /// Parses an amount typed by the user, whatever the interface language.
-  /// Dots group thousands and a comma starts the decimals (`1.500.000,50`);
-  /// a dot followed by one or two digits is read as a decimal point
-  /// (`1500000.5`), so cents of dollars and euros can be typed either way.
-  /// English grouping (`1,500,000.50`) is rejected rather than guessed,
-  /// since `1,500` is one and a half in Spanish. Returns `null` for
-  /// anything else, negative amounts or more than [maxCents].
-  static Money? tryParseInput(String text) {
-    final trimmed = text.trim();
-    final colombian = _colombian.firstMatch(trimmed);
-    if (colombian != null) {
-      return _fromParts(
-        colombian.group(1)!.replaceAll(_groupSeparator, ''),
-        colombian.group(2),
-      );
+  /// Exact amount from the digits of its [whole] units and up to two
+  /// [decimals], as an amount field holds them: `('1500000', '5')` is
+  /// 1500000.50. Returns `null` when either is not plain digits, there are
+  /// more than two decimals, both are empty or the amount exceeds
+  /// [maxCents].
+  static Money? tryFromDigits(String whole, [String decimals = '']) {
+    final valid = _digits.hasMatch(whole) &&
+        _digits.hasMatch(decimals) &&
+        decimals.length <= _decimalDigits &&
+        (whole.isNotEmpty || decimals.isNotEmpty);
+    if (!valid) {
+      return null;
     }
-    final dotted = _dotDecimal.firstMatch(trimmed);
-    return dotted == null
-        ? null
-        : _fromParts(dotted.group(1)!, dotted.group(2));
+    final units = whole.replaceFirst(RegExp('^0+(?=.)'), '');
+    return _fromParts(units.isEmpty ? '0' : units, decimals);
   }
 
   static Money _parseText(String text) {
@@ -131,12 +117,6 @@ final class Money extends Equatable implements Comparable<Money> {
   num toJson() => cents % centsPerUnit == 0
       ? cents ~/ centsPerUnit
       : double.parse(_decimalText(_decimalPoint));
-
-  /// Text to prefill an input, in the format [tryParseInput] reads:
-  /// `1500000` or `1500000,5`.
-  String toInputString() => cents % centsPerUnit == 0
-      ? '${cents ~/ centsPerUnit}'
-      : _decimalText(_decimalComma);
 
   String _decimalText(String separator) {
     final whole = cents.abs() ~/ centsPerUnit;

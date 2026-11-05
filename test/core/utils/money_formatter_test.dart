@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pennypincher_pro/core/utils/app_currency.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/utils/money_formatter.dart';
+import 'package:pennypincher_pro/core/utils/money_input_format.dart';
 
 /// The formats put a no-break space between symbol and number.
 String _plain(String text) => text.replaceAll(' ', ' ');
@@ -119,12 +120,47 @@ void main() {
     expect(english.formatCompact(1234.5), '1,235');
   });
 
-  test('gives the symbol shown before an amount field', () {
-    expect(_formatter(AppCurrency.cop, 'es').inputPrefix, r'$');
-    expect(_formatter(AppCurrency.cop, 'en').inputPrefix, 'COP');
-    expect(_formatter(AppCurrency.usd, 'es').inputPrefix, r'US$');
-    expect(_formatter(AppCurrency.usd, 'en').inputPrefix, r'$');
-    expect(_formatter(AppCurrency.eur, 'es').inputPrefix, '€');
+  test('gives amount fields the separators, decimals and symbol', () {
+    String decoration(MoneyInputFormat format) =>
+        '${format.prefix}1${format.groupSeparator}000'
+        '${format.decimalSeparator}${format.maxDecimals}${format.suffix}';
+
+    expect(
+      decoration(_formatter(AppCurrency.cop, 'es').inputFormat),
+      '\$\u00A01.000,0',
+    );
+    expect(
+      decoration(_formatter(AppCurrency.cop, 'en').inputFormat),
+      'COP\u00A01,000.0',
+    );
+    expect(
+      decoration(_formatter(AppCurrency.usd, 'es').inputFormat),
+      'US\$\u00A01.000,2',
+    );
+    expect(
+      decoration(_formatter(AppCurrency.usd, 'en').inputFormat),
+      '\$1,000.2',
+    );
+    expect(
+      decoration(_formatter(AppCurrency.eur, 'es').inputFormat),
+      '1.000,2\u00A0€',
+    );
+    expect(
+      decoration(_formatter(AppCurrency.eur, 'en').inputFormat),
+      '€1,000.2',
+    );
+  });
+
+  test('gives the TRM field pesos with two decimals', () {
+    final spanish = _formatter(AppCurrency.usd, 'es').exchangeRateInputFormat;
+    final english = _formatter(AppCurrency.eur, 'en').exchangeRateInputFormat;
+
+    expect(spanish.maxDecimals, 2);
+    expect(spanish.prefix, '\$\u00A0');
+    expect(spanish.decimalSeparator, ',');
+    expect(english.maxDecimals, 2);
+    expect(english.prefix, 'COP\u00A0');
+    expect(english.decimalSeparator, '.');
   });
 
   test('shares one formatter per currency and language', () {

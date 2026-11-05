@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:pennypincher_pro/core/utils/app_currency.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
+import 'package:pennypincher_pro/core/utils/money_input_format.dart';
 
 /// Formats amounts for display in the user's [currency], with the digit
 /// separators of the interface language: Spanish groups with dots and
@@ -32,6 +33,18 @@ final class MoneyFormatter {
     );
     _millions = NumberFormat('#,##0.#', locale);
     _whole = NumberFormat('#,##0', locale);
+    final symbols = _whole.symbols;
+    inputFormat = _style.inputFormat(
+      symbols.GROUP_SEP,
+      symbols.DECIMAL_SEP,
+      currency.decimalDigits,
+    );
+    exchangeRateInputFormat =
+        _CurrencyStyle.of(AppCurrency.cop, languageCode).inputFormat(
+      symbols.GROUP_SEP,
+      symbols.DECIMAL_SEP,
+      exchangeRateDigits,
+    );
   }
 
   /// The formatter of [currency] in the interface language [languageCode]
@@ -71,8 +84,12 @@ final class MoneyFormatter {
   late final NumberFormat _millions;
   late final NumberFormat _whole;
 
-  /// Symbol or code shown before an amount field, such as `$` or `€`.
-  String get inputPrefix => _style.symbol;
+  /// How amount fields write amounts in [currency]: `1.500.000,50`
+  /// after `US$ `, or `1,500,000` after `COP `.
+  late final MoneyInputFormat inputFormat;
+
+  /// How the TRM field writes the rate, as pesos with cents.
+  late final MoneyInputFormat exchangeRateInputFormat;
 
   /// An amount in [currency]: `$ 1.500.000` or `$1,500,000.00`.
   String format(Money amount) => _amount.format(amount.units);
@@ -142,6 +159,22 @@ final class _CurrencyStyle {
 
   static _CurrencyStyle of(AppCurrency currency, String languageCode) =>
       _styles[(currency, languageCode)]!;
+
+  /// Field format with this symbol and the given separators.
+  MoneyInputFormat inputFormat(
+    String groupSeparator,
+    String decimalSeparator,
+    int maxDecimals,
+  ) {
+    final gap = spaced ? _space : '';
+    return MoneyInputFormat(
+      groupSeparator: groupSeparator,
+      decimalSeparator: decimalSeparator,
+      maxDecimals: maxDecimals,
+      prefix: after ? '' : '$symbol$gap',
+      suffix: after ? '$gap$symbol' : '',
+    );
+  }
 
   /// Intl pattern with [decimalDigits] decimals, such as `¤ #,##0`.
   String pattern(int decimalDigits) {

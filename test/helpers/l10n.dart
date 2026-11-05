@@ -3,6 +3,7 @@ import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/l10n/locale_store.dart';
 import 'package:pennypincher_pro/core/theme/app_theme.dart';
 import 'package:pennypincher_pro/core/utils/app_currency.dart';
+import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/utils/money_formatter.dart';
 
 /// Language the tests run in by default.
@@ -18,6 +19,15 @@ final AppLocalizations l10nEs = lookupAppLocalizations(AppLocales.spanish);
 /// currency, in [testLocale].
 final MoneyFormatter testMoney =
     MoneyFormatter.of(AppCurrency.fallback, testLocale.languageCode);
+
+/// Hint under a required amount field in the tests.
+String get testAmountHelper =>
+    l10n.crudAmountHelper(testMoney.format(const Money.fromUnits(1500000)));
+
+/// Hint under an optional amount field in the tests.
+String get testOptionalAmountHelper => l10n.crudOptionalAmountHelper(
+      testMoney.format(const Money.fromUnits(1500000)),
+    );
 
 /// A [MaterialApp] with the app theme and localizations around [home].
 Widget localizedApp({required Widget home, Locale locale = testLocale}) =>

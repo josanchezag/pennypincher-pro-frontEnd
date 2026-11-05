@@ -168,11 +168,10 @@ void main() {
     await tester.pumpAndSettle();
     await fillAndSave(tester, {
       l10n.crudNameLabel: 'Visa',
-      l10n.monthlyPayment: '1,500',
+      l10n.monthlyPayment: '-',
     });
 
-    expect(find.text(l10n.crudAmountInvalid), findsOneWidget);
-    expect(find.text(l10n.crudAmountRequired), findsOneWidget);
+    expect(find.text(l10n.crudAmountRequired), findsNWidgets(2));
     verifyNever(
       () => bloc.add(any(that: isA<CrudSaveRequested<BalanceDraft>>())),
     );
@@ -187,7 +186,7 @@ void main() {
     await tester.tap(find.text('Visa Bancolombia'));
     await tester.pumpAndSettle();
     expect(find.text('Edit credit card'), findsOneWidget);
-    expect(find.text('1250000,50'), findsOneWidget);
+    expect(find.text('1,250,000.50'), findsOneWidget);
     await fillAndSave(tester, {l10n.totalBalance: '28.000.000'});
     verify(
       () => bloc.add(
@@ -203,7 +202,7 @@ void main() {
     ).called(1);
 
     await failSave(tester, states, _loaded.items);
-    expect(find.text('28.000.000'), findsOneWidget);
+    expect(find.text('28,000,000'), findsOneWidget);
   });
 
   testWidgets('deletes a card after confirming from the button',

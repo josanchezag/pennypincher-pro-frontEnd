@@ -159,10 +159,24 @@
     }
   },
   "crudAmountRequired": "Enter an amount.",
-  "crudAmountInvalid": "Enter an amount like 1.500.000 or 1.500.000,50, up to 13 digits.",
   "crudAmountNotPositive": "Enter an amount greater than 0.",
-  "crudAmountHelper": "Example: 1.500.000 or 1.500.000,50",
-  "crudOptionalAmountHelper": "Optional. Example: 1.500.000 or 1.500.000,50",
+  "crudAmountHelper": "Example: {example}",
+  "@crudAmountHelper": {
+    "description": "Hint under an amount field; example is an amount in the user's currency, such as $1,500,000.50.",
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
+  "crudOptionalAmountHelper": "Optional. Example: {example}",
+  "@crudOptionalAmountHelper": {
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
   "crudPaidShare": "{percent} paid",
   "@crudPaidShare": {
     "placeholders": {
@@ -534,7 +548,14 @@
     }
   },
   "budgetClearHint": "Leave empty to clear it.",
-  "budgetExchangeRateInvalid": "Enter a rate greater than zero, like 3.950 or 3.950,25.",
+  "budgetExchangeRateInvalid": "Enter a rate greater than zero, like {example}.",
+  "@budgetExchangeRateInvalid": {
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
   "budgetWorkDaysInvalid": "Enter a whole number from 0 to {max}.",
   "@budgetWorkDaysInvalid": {
     "placeholders": {
