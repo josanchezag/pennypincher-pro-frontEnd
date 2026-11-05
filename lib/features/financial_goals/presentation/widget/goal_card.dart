@@ -3,6 +3,7 @@ import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
+import 'package:pennypincher_pro/features/financial_goals/presentation/goal_styles.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_figures.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_level_badge.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/halfway_celebration.dart';
@@ -89,7 +90,10 @@ class _Header extends StatelessWidget {
         const SizedBox(height: AppSpacing.xs),
         GoalLevelBadge(level: goal.level),
         const SizedBox(height: AppSpacing.xxs),
-        Text(goal.levelDescription, style: AppTypography.bodySmall),
+        Text(
+          goal.level.description(context.l10n),
+          style: AppTypography.bodySmall,
+        ),
       ],
     );
   }

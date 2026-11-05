@@ -6,6 +6,7 @@ import 'package:pennypincher_pro/features/financial_goals/data/repository/financ
 
 import '../../../helpers/fake_http_adapter.dart';
 import '../../../helpers/goal_fixtures.dart';
+import '../../../helpers/l10n.dart';
 
 void main() {
   late FakeHttpAdapter adapter;
@@ -58,7 +59,10 @@ void main() {
     final result = await repository.getAll();
 
     expect(result, isA<Left<Failure, Object>>());
-    expect(result.fold((failure) => failure.message, (_) => ''), 'Boom');
+    expect(
+      result.fold((failure) => failure.message, (_) => ''),
+      l10n.errorUnexpected,
+    );
   });
 
   test('fails the whole load when both requests fail', () async {

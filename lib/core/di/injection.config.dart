@@ -201,6 +201,18 @@ import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_
     as _i697;
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_report_bloc.dart'
     as _i352;
+import 'package:pennypincher_pro/features/settings/data/datasource/preferences_remote_datasource.dart'
+    as _i709;
+import 'package:pennypincher_pro/features/settings/data/repository/preferences_repository_impl.dart'
+    as _i988;
+import 'package:pennypincher_pro/features/settings/di/settings_module.dart'
+    as _i5;
+import 'package:pennypincher_pro/features/settings/domain/repository/preferences_repository.dart'
+    as _i685;
+import 'package:pennypincher_pro/features/settings/domain/usecase/preferences_use_cases.dart'
+    as _i1041;
+import 'package:pennypincher_pro/features/settings/presentation/cubit/preferences_cubit.dart'
+    as _i746;
 
 extension GetItInjectableX on _i174.GetIt {
 // initializes the registration of main-scope dependencies inside of GetIt
@@ -220,6 +232,7 @@ extension GetItInjectableX on _i174.GetIt {
     final expenseDetailsModule = _$ExpenseDetailsModule();
     final financialGoalsModule = _$FinancialGoalsModule();
     final netWorthModule = _$NetWorthModule();
+    final settingsModule = _$SettingsModule();
     final dashboardModule = _$DashboardModule();
     gh.singleton<_i504.AppConfig>(() => configModule.config);
     gh.lazySingleton<_i449.PkceGenerator>(() => _i449.PkceGenerator());
@@ -308,6 +321,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i464.NetWorthRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i542.MonthlyBudgetRemoteDataSource>(
         () => _i542.MonthlyBudgetRemoteDataSource(gh<_i361.Dio>()));
+    gh.lazySingleton<_i709.PreferencesRemoteDataSource>(
+        () => _i709.PreferencesRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i19.DashboardRemoteDataSource>(
         () => _i19.DashboardRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i446.AppRouter>(() => _i446.AppRouter(
@@ -456,6 +471,9 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i51.GetMonthlyComparison>(),
           gh<_i656.Clock>(),
         ));
+    gh.lazySingleton<_i685.PreferencesRepository>(() =>
+        _i988.PreferencesRepositoryImpl(
+            gh<_i709.PreferencesRemoteDataSource>()));
     gh.factory<_i1044.GetExpenseSummary>(() => expenseDetailsModule
         .getExpenseSummary(gh<_i436.ExpenseSummaryRepository>()));
     gh.factory<_i978.FixedExpenseBloc>(() => _i978.FixedExpenseBloc(
@@ -492,6 +510,10 @@ extension GetItInjectableX on _i174.GetIt {
             _i678.DeleteItem<_i941.Liability,
                 _i953.CategorizedDraft<_i941.LiabilityCategory>>>(
         () => netWorthModule.deleteLiability(gh<_i90.LiabilityRepository>()));
+    gh.factory<_i1041.GetPreferences>(
+        () => settingsModule.getPreferences(gh<_i685.PreferencesRepository>()));
+    gh.factory<_i1041.SavePreferences>(() =>
+        settingsModule.savePreferences(gh<_i685.PreferencesRepository>()));
     gh.factory<_i84.ExpensesHubBloc>(
         () => _i84.ExpensesHubBloc(gh<_i1044.GetExpenseSummary>()));
     gh.factory<_i678.GetItems<_i891.Loan, _i642.BalanceDraft>>(
@@ -577,6 +599,12 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i678.SaveItem<_i891.Loan, _i642.BalanceDraft>>(),
           gh<_i678.DeleteItem<_i891.Loan, _i642.BalanceDraft>>(),
         ));
+    gh.lazySingleton<_i746.PreferencesCubit>(() => _i746.PreferencesCubit(
+          gh<_i1041.GetPreferences>(),
+          gh<_i1041.SavePreferences>(),
+          gh<_i132.LocaleCubit>(),
+          gh<_i84.LocaleStore>(),
+        ));
     gh.factory<_i584.DashboardBloc>(() => _i584.DashboardBloc(
           gh<_i77.GetDashboardSummary>(),
           gh<_i77.RecordNetWorthSnapshot>(),
@@ -599,5 +627,7 @@ class _$ExpenseDetailsModule extends _i539.ExpenseDetailsModule {}
 class _$FinancialGoalsModule extends _i72.FinancialGoalsModule {}
 
 class _$NetWorthModule extends _i125.NetWorthModule {}
+
+class _$SettingsModule extends _i5.SettingsModule {}
 
 class _$DashboardModule extends _i917.DashboardModule {}

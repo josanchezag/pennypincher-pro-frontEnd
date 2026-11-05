@@ -16,6 +16,7 @@ import 'package:pennypincher_pro/features/dashboard/presentation/dashboard_pages
 import 'package:pennypincher_pro/features/expense_details/presentation/expense_details_pages.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/financial_goals_pages.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_pages.dart';
+import 'package:pennypincher_pro/features/settings/presentation/settings_pages.dart';
 
 /// go_router configuration with a named route for every screen, protected
 /// by [AuthGuard] and re-evaluated on every session change.
@@ -81,6 +82,7 @@ class AppRouter {
     ...BudgetPages.builders,
     ...ExpenseDetailsPages.builders,
     ...FinancialGoalsPages.builders,
+    ...SettingsPages.builders,
   };
 
   /// Section roots that open one of their screens.

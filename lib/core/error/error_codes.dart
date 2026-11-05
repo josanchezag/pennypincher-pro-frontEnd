@@ -17,14 +17,49 @@ abstract final class ErrorCodes {
 
   /// Backend (403): a new account tried to sign in while sign-ups are closed.
   static const String registrationDisabled = 'REGISTRATION_DISABLED';
+
+  // Other backend codes, which the interface explains in its own words.
+  static const String validationFailed = 'VALIDATION_FAILED';
+  static const String unauthorized = 'UNAUTHORIZED';
+  static const String forbidden = 'FORBIDDEN';
+  static const String forbiddenOrigin = 'FORBIDDEN_ORIGIN';
+  static const String notFound = 'NOT_FOUND';
+  static const String conflict = 'CONFLICT';
+  static const String rateLimited = 'RATE_LIMITED';
+  static const String googleAuthFailed = 'GOOGLE_AUTH_FAILED';
+  static const String identityProviderUnavailable =
+      'IDENTITY_PROVIDER_UNAVAILABLE';
 }
 
-/// User-facing messages for errors without a backend message, in the
-/// current interface language.
+/// User-facing error messages in the current interface language. The
+/// backend writes its messages in English for developers, so the interface
+/// never shows them: it explains each backend error code in its own words.
 abstract final class ErrorMessages {
   static String get network => CurrentL10n.texts.errorNetwork;
 
   static String get invalidResponse => CurrentL10n.texts.errorInvalidResponse;
 
   static String get unexpected => CurrentL10n.texts.errorUnexpected;
+
+  /// What the interface says for the backend error [code]; codes without
+  /// a message of their own get [unexpected].
+  static String forBackendCode(String code) {
+    final texts = CurrentL10n.texts;
+    return switch (code) {
+      ErrorCodes.validationFailed => texts.errorValidationFailed,
+      ErrorCodes.unauthorized => texts.errorSessionExpired,
+      ErrorCodes.forbidden ||
+      ErrorCodes.forbiddenOrigin =>
+        texts.errorForbidden,
+      ErrorCodes.notFound => texts.errorNotFound,
+      ErrorCodes.conflict => texts.errorConflict,
+      ErrorCodes.rateLimited => texts.errorRateLimited,
+      ErrorCodes.accountNotAllowed => texts.signInAccountNotAllowed,
+      ErrorCodes.registrationDisabled => texts.signInRegistrationDisabled,
+      ErrorCodes.googleAuthFailed => texts.signInFailed,
+      ErrorCodes.identityProviderUnavailable =>
+        texts.errorIdentityProviderUnavailable,
+      _ => texts.errorUnexpected,
+    };
+  }
 }

@@ -4,9 +4,20 @@
   "shellBackToDashboard": "Back to dashboard",
   "accountMenuTooltip": "Account",
   "accountMenuSignOut": "Sign out",
-  "accountMenuLanguage": "Language",
+  "accountMenuSettingsHint": "Language and other settings",
+  "@accountMenuSettingsHint": {
+    "description": "Second line of the account menu entry that opens the settings screen."
+  },
   "languageSpanish": "Español",
   "languageEnglish": "English",
+  "settingsIntro": "These settings are saved in your account, so they follow you on any device.",
+  "settingsLanguageTitle": "Language",
+  "settingsLanguageDescription": "Language of the menus, messages, dates and charts.",
+  "settingsLanguageSaveFailed": "We couldn't save the language. Check your connection and try again.",
+  "@settingsLanguageSaveFailed": {
+    "description": "Snack bar shown when saving the language fails; the previous language is restored."
+  },
+  "settingsLoadFailed": "We couldn't load the settings saved in your account, so the ones of this device are shown.",
   "routeLogin": "Sign in",
   "routeDashboard": "Dashboard",
   "routeNetWorth": "Net Worth",
@@ -54,6 +65,16 @@
   "errorNetwork": "Could not reach the server. Check your connection and try again.",
   "errorInvalidResponse": "The server sent an unexpected response.",
   "errorUnexpected": "Something went wrong. Please try again.",
+  "errorValidationFailed": "Some of the values were not accepted. Check them and try again.",
+  "@errorValidationFailed": {
+    "description": "The backend rejected the values sent (VALIDATION_FAILED)."
+  },
+  "errorNotFound": "This item no longer exists. Reload the page to see the latest data.",
+  "errorConflict": "This change conflicts with data you already have. Reload the page and try again.",
+  "errorSessionExpired": "Your session has ended. Sign in again.",
+  "errorForbidden": "You don't have access to this.",
+  "errorRateLimited": "Too many requests in a short time. Wait a minute and try again.",
+  "errorIdentityProviderUnavailable": "Google isn't responding right now. Try again in a few minutes.",
   "crudAdd": "Add {item}",
   "@crudAdd": {
     "placeholders": {
@@ -706,5 +727,9 @@
   "goalLevelFinancialSecurity": "Financial security",
   "goalLevelFinancialIndependence": "Financial independence",
   "goalLevelFinancialFreedom": "Financial freedom",
-  "goalLevelAbsoluteFreedom": "Absolute freedom"
+  "goalLevelAbsoluteFreedom": "Absolute freedom",
+  "goalLevelFinancialSecurityDescription": "Expenses covered for 6 months without income",
+  "goalLevelFinancialIndependenceDescription": "Passive income covers all basic expenses",
+  "goalLevelFinancialFreedomDescription": "Passive income covers desired lifestyle",
+  "goalLevelAbsoluteFreedomDescription": "Unlimited financial choices"
 }

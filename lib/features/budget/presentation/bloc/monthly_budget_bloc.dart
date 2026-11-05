@@ -2,9 +2,9 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
-import 'package:pennypincher_pro/core/constants/app_constants.dart';
 import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
 import 'package:pennypincher_pro/core/crud/domain/usecase/crud_use_cases.dart';
+import 'package:pennypincher_pro/core/error/error_codes.dart';
 import 'package:pennypincher_pro/core/error/failure.dart';
 import 'package:pennypincher_pro/core/time/calendar_month.dart';
 import 'package:pennypincher_pro/core/time/clock.dart';
@@ -143,7 +143,7 @@ class MonthlyBudgetBloc extends Bloc<MonthlyBudgetEvent, MonthlyBudgetState> {
       (budget: budget, alreadyExisted: false);
 
   static bool _isConflict(Failure failure) =>
-      failure is ServerFailure && failure.code == ApiErrorCodes.conflict;
+      failure is ServerFailure && failure.code == ErrorCodes.conflict;
 
   Future<void> _onSettingsChanged(
     MonthlyBudgetSettingsChanged event,

@@ -33,7 +33,11 @@ class AppShell extends StatelessWidget {
     final current = AppDestination.forLocation(location);
     final accountMenu = Padding(
       padding: const EdgeInsets.only(right: AppSpacing.xs),
-      child: AccountMenu(account: account, onSignOut: onSignOut),
+      child: AccountMenu(
+        account: account,
+        onOpenSettings: () => _goTo(context, AppDestination.settings),
+        onSignOut: onSignOut,
+      ),
     );
     return LayoutBuilder(
       builder: (context, constraints) {

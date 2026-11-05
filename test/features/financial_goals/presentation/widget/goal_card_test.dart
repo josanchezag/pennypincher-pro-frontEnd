@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/progress_band.dart';
 import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
@@ -121,6 +122,29 @@ void main() {
     expect(find.text(_cop(1470000)), findsOneWidget);
     expect(find.text(PercentFormatter.format(11)), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('describes the level in the interface language, not the API',
+      (tester) async {
+    await tester.pumpWidget(
+      localizedApp(
+        locale: AppLocales.spanish,
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: GoalCard(
+              goal: security.copyWith(levelDescription: 'Sent by the API'),
+              onTap: null,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      find.text(l10nEs.goalLevelFinancialSecurityDescription),
+      findsOneWidget,
+    );
+    expect(find.text('Sent by the API'), findsNothing);
   });
 
   testWidgets('says when a goal is not reachable within 50 years',

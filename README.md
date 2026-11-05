@@ -16,7 +16,7 @@ el backend.
 | **Presupuesto mensual** | `/budget` | Ingresos y gastos por categoría, % real vs. % ideal, flujo de caja. |
 | **Detalles de gastos** | `/expenses` | Tarjetas de crédito, préstamos, gastos fijos, variables y ahorros. |
 | **Metas financieras** | `/goals` | Seguridad, Independencia, Libertad y Libertad Absoluta, con proyección. |
-| **Configuración** | `/settings` | Perfil del usuario. |
+| **Preferencias** | `/settings` | Idioma de la interfaz, guardado en la cuenta (y, más adelante, la moneda). |
 
 ## Stack
 
@@ -283,7 +283,7 @@ lib/
 │   ├── constants/   # AppConstants, EnvKeys, EnvDefaults
 │   ├── di/          # get_it + injectable (injection.dart y su .config.dart generado)
 │   ├── error/       # Failure (sealed) y AppException
-│   ├── l10n/        # AppLocales, LocaleCubit (idioma elegido) y su LocaleStore
+│   ├── l10n/        # AppLocales, LocaleCubit (idioma aplicado) y su LocaleStore
 │   ├── layout/      # AppShell responsive (barra inferior / rail / rail expandido) y menú de cuenta
 │   ├── network/     # Clientes dio (con y sin AuthInterceptor), sobre de la API
 │   ├── router/      # AppRoute, AppDestination, AppRouter (go_router) y AuthGuard
@@ -315,8 +315,18 @@ dart run build_runner build --delete-conflicting-outputs
 
 ### Idiomas
 
-La interfaz está en español (por defecto) e inglés; el idioma se cambia en el menú de cuenta
-y se recuerda en el navegador (solo el código `es`/`en`). Los textos viven en
+La interfaz está en español (por defecto) e inglés. El idioma se elige en **Preferencias**
+(`/settings`, también desde el menú de cuenta) y se guarda en la cuenta con
+`PUT /users/me/preferences`, así que sigue al usuario en cualquier navegador. `PreferencesCubit`
+lo carga después de cada inicio de sesión (`GET /users/me/preferences`) y lo aplica. El navegador
+recuerda además el último idioma (solo el código `es`/`en`, en `localStorage`): es el que se usa
+antes de iniciar sesión y cuando el backend no responde. Si el usuario nunca guardó un idioma, se
+conserva el de este navegador y se guarda en su cuenta. Si guardar falla, vuelve el idioma
+anterior y un *snack bar* lo avisa. El `lang` de la página sigue al idioma elegido.
+
+Los mensajes de error del backend están en inglés y son para desarrolladores: la app nunca los
+muestra. `ErrorMessages.forBackendCode` traduce cada `error.code` a un texto de los ARB, y las
+descripciones de los niveles de las metas también salen de los ARB. Los textos viven en
 `lib/l10n/app_en.arb` (plantilla) y `lib/l10n/app_es.arb`. Las clases `AppLocalizations`
 **no se versionan**: `flutter pub get`, `flutter test` y `flutter build` las generan (gen-l10n,
 `l10n.yaml`). Un texto nuevo va en los dos ARB con la misma clave; en el código se lee con

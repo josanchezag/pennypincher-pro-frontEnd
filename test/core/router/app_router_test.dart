@@ -33,6 +33,8 @@ import 'package:pennypincher_pro/features/net_worth/presentation/net_worth_pages
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/assets_screen.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/liabilities_screen.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/screen/net_worth_screen.dart';
+import 'package:pennypincher_pro/features/settings/presentation/screen/settings_screen.dart';
+import 'package:pennypincher_pro/features/settings/presentation/settings_pages.dart';
 
 import '../../helpers/budget_mocks.dart';
 import '../../helpers/expense_mocks.dart';
@@ -130,7 +132,8 @@ void main() {
           !BudgetPages.builders.containsKey(route) &&
           !DashboardPages.builders.containsKey(route) &&
           !ExpenseDetailsPages.builders.containsKey(route) &&
-          !FinancialGoalsPages.builders.containsKey(route),
+          !FinancialGoalsPages.builders.containsKey(route) &&
+          !SettingsPages.builders.containsKey(route),
     );
     for (final route in placeholders) {
       testWidgets('renders ${route.path} inside the shell', (tester) async {
@@ -291,7 +294,7 @@ void main() {
 
       expect(
         find.descendant(
-          of: find.byType(PlaceholderScreen),
+          of: find.byType(SettingsScreen),
           matching: find.text(AppRoute.settings.title(l10n)),
         ),
         findsOneWidget,

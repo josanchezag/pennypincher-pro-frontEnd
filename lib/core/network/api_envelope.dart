@@ -59,7 +59,9 @@ abstract final class ApiEnvelope {
   }
 
   /// Converts a dio failure into an [AppException] carrying the backend
-  /// error code and message when the envelope has them.
+  /// error code, with the message the interface gives that code. The
+  /// backend message is English text meant for developers, so it is never
+  /// shown.
   static AppException exceptionFrom(DioException exception) {
     final response = exception.response;
     if (response == null) {
@@ -71,32 +73,13 @@ abstract final class ApiEnvelope {
     final body = response.data;
     final error = body is Map ? body[ApiEnvelopeKeys.error] : null;
     final code = error is Map ? error[ApiEnvelopeKeys.code] : null;
-    final message = error is Map ? error[ApiEnvelopeKeys.message] : null;
     return AppException(
       code: code is String ? code : ErrorCodes.unknown,
-      message: message is String
-          ? _withDetails(message, error is Map ? error : null)
+      message: code is String
+          ? ErrorMessages.forBackendCode(code)
           : ErrorMessages.unexpected,
       statusCode: response.statusCode,
     );
-  }
-
-  /// Appends the field errors of a validation failure, such as
-  /// `Validation failed for 1 field(s): snapshotDate must not be in the
-  /// future`.
-  static String _withDetails(String message, Map<dynamic, dynamic>? error) {
-    final details = error?[ApiEnvelopeKeys.details];
-    if (details is! List) {
-      return message;
-    }
-    final fields = [
-      for (final detail in details.whereType<Map<dynamic, dynamic>>())
-        if (detail[ApiEnvelopeKeys.message] is String)
-          [detail[ApiEnvelopeKeys.field], detail[ApiEnvelopeKeys.message]]
-              .whereType<String>()
-              .join(' '),
-    ];
-    return fields.isEmpty ? message : '$message: ${fields.join('; ')}';
   }
 
   static AppException _invalidResponse() => AppException(
