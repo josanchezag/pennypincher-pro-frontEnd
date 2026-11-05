@@ -61,6 +61,10 @@ class MonthlyBudget with _$MonthlyBudget {
     required Money totalExpenses,
     required Money monthlyCashFlow,
     required List<BudgetComponent> components,
+
+    /// Ant expenses the budget's cuts took, already included in the
+    /// monthly expenses component and in [totalExpenses].
+    @Default(Money.zero) Money antExpenseTotal,
   }) = _MonthlyBudget;
 }
 

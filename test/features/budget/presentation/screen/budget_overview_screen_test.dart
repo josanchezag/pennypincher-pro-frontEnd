@@ -493,6 +493,53 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('shows the ant expenses within the monthly expenses',
+      (tester) async {
+    await pumpOverview(
+      tester,
+      _loaded.copyWith(
+        budget: () => octoberBudget.copyWith(
+          antExpenseTotal: const Money.fromUnits(58500),
+        ),
+      ),
+      size: TestViewports.desktop,
+    );
+
+    final line = find.byKey(BudgetBreakdownCard.antExpensesKey);
+    final amount = testMoney.format(const Money.fromUnits(58500));
+    expect(
+      find.descendant(of: line, matching: find.text(amount)),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsLabel(
+        '${l10n.budgetAntExpenses}, $amount, ${l10n.budgetAntExpensesIncluded}',
+      ),
+      findsOneWidget,
+    );
+    final rows = find.byType(ExpensePercentageRow);
+    expect(
+      tester.getTopLeft(line).dy,
+      allOf(
+        greaterThanOrEqualTo(tester.getBottomLeft(rows.at(2)).dy),
+        lessThan(tester.getTopLeft(rows.at(3)).dy),
+      ),
+    );
+  });
+
+  testWidgets('shows zero ant expenses for a budget calculated before them',
+      (tester) async {
+    await pumpOverview(tester, _loaded, size: TestViewports.desktop);
+
+    expect(
+      find.descendant(
+        of: find.byKey(BudgetBreakdownCard.antExpensesKey),
+        matching: find.text(testMoney.format(Money.zero)),
+      ),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('recalculates only after confirmation', (tester) async {
     final bloc = await pumpOverview(tester, _loaded);
     final button = find.byKey(BudgetIncomeCard.recalculateKey);
@@ -501,6 +548,13 @@ void main() {
     await tester.tap(button);
     await tester.pumpAndSettle();
     expect(find.text('Recalculate October 2026?'), findsOneWidget);
+    expect(
+      find.text(
+        '${l10n.budgetRecalculateMessage}\n\n'
+        '${l10n.budgetRecalculateAntExpenses('October 2026')}',
+      ),
+      findsOneWidget,
+    );
     await tester.tap(find.text(l10n.commonCancel));
     await tester.pumpAndSettle();
     verifyNever(() => bloc.add(const MonthlyBudgetRecalculateRequested()));

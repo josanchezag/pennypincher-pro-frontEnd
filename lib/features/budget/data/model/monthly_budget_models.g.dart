@@ -28,6 +28,7 @@ MonthlyBudgetModel _$MonthlyBudgetModelFromJson(Map<String, dynamic> json) =>
           .toList(),
       exchangeRate: Money.fromOptionalJson(json['exchangeRate']),
       workDays: (json['workDays'] as num?)?.toInt(),
+      antExpenseTotal: Money.fromOptionalJson(json['antExpenseTotal']),
     );
 
 Map<String, dynamic> _$CreateBudgetRequestModelToJson(
