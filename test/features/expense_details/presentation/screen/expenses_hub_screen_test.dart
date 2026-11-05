@@ -5,6 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
+import 'package:pennypincher_pro/features/ant_expenses/presentation/screen/ant_expenses_screen.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart';
 import 'package:pennypincher_pro/features/budget/presentation/screen/budget_overview_screen.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/expense_summary_entity.dart';
@@ -13,6 +14,8 @@ import 'package:pennypincher_pro/features/expense_details/presentation/screen/cr
 import 'package:pennypincher_pro/features/expense_details/presentation/screen/expenses_hub_screen.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/widget/expense_summary_card.dart';
 
+import '../../../../helpers/ant_fixtures.dart';
+import '../../../../helpers/ant_mocks.dart';
 import '../../../../helpers/budget_mocks.dart';
 import '../../../../helpers/expense_fixtures.dart';
 import '../../../../helpers/expense_mocks.dart';
@@ -35,6 +38,7 @@ const List<AppRoute> _routes = [
   AppRoute.expensesFixed,
   AppRoute.expensesVariable,
   AppRoute.expensesSavings,
+  AppRoute.expensesAnt,
 ];
 
 Finder _card(String title) => find.ancestor(
@@ -66,12 +70,12 @@ void main() {
     final bloc = await pumpHub(tester, const ExpensesHubState());
 
     verify(() => bloc.add(const ExpensesHubStarted())).called(1);
-    expect(find.byType(ExpenseSummaryCard), findsNWidgets(5));
-    expect(find.byType(SkeletonBox), findsNWidgets(15));
+    expect(find.byType(ExpenseSummaryCard), findsNWidgets(6));
+    expect(find.byType(SkeletonBox), findsNWidgets(18));
   });
 
   for (final size in TestViewports.expenseWidths) {
-    testWidgets('shows the five lists with their totals at ${size.width}',
+    testWidgets('shows the six lists with their totals at ${size.width}',
         (tester) async {
       await pumpHub(tester, _loaded, size: size);
 
@@ -100,6 +104,43 @@ void main() {
       _inCard(AppRoute.expensesFixed, find.text('1 expense')),
       findsOneWidget,
     );
+  });
+
+  testWidgets('shows the current period of the ant expenses', (tester) async {
+    await pumpHub(tester, _loaded);
+
+    final title = find.text(AppRoute.expensesAnt.title(l10n));
+    await tester.scrollUntilVisible(title, 100);
+    for (final text in [
+      find.text(l10n.antCurrentPeriod.toUpperCase()),
+      find.text(testMoney.format(cardsSummary.monthlyTotal)),
+      find.text('2 expenses'),
+    ]) {
+      expect(_inCard(AppRoute.expensesAnt, text), findsOneWidget);
+    }
+    expect(
+      _inCard(
+        AppRoute.expensesAnt,
+        find.textContaining(
+          testMoney.format(cardsSummary.balanceTotal!),
+          findRichText: true,
+        ),
+      ),
+      findsNothing,
+    );
+  });
+
+  testWidgets('opens the ant expenses from their card', (tester) async {
+    await pumpHub(tester, _loaded);
+    registerAntExpenseBloc(const CrudLoaded([]));
+    registerAntInsightsCubit(antInsightsLoaded);
+
+    final title = find.text(AppRoute.expensesAnt.title(l10n));
+    await tester.scrollUntilVisible(title, 100);
+    await tester.tap(title);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AntExpensesScreen), findsOneWidget);
   });
 
   testWidgets('announces each card as a button, not a heading', (tester) async {

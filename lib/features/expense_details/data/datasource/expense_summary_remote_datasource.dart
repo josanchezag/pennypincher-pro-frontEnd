@@ -29,6 +29,7 @@ abstract final class ExpenseSummaryJsonKeys {
   static const String totalMonthlyAmount = 'totalMonthlyAmount';
   static const String totalMonthlyContributions = 'totalMonthlyContributions';
   static const String totalCurrentBalance = 'totalCurrentBalance';
+  static const String total = 'total';
 }
 
 /// `GET <list>/summary` of every expense list, called with the
@@ -60,6 +61,10 @@ class ExpenseSummaryRemoteDataSource {
       path: ApiPaths.savingsAccounts,
       monthlyKey: ExpenseSummaryJsonKeys.totalMonthlyContributions,
       balanceKey: ExpenseSummaryJsonKeys.totalCurrentBalance,
+    ),
+    ExpenseKind.antExpenses: ExpenseSummaryEndpoint(
+      path: ApiPaths.antExpenses,
+      monthlyKey: ExpenseSummaryJsonKeys.total,
     ),
   };
 

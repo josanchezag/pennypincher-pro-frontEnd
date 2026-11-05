@@ -81,6 +81,29 @@ void main() {
     expect(savings.balanceTotal, const Money.fromUnits(25000000));
   });
 
+  test('reads the current period of the ant expenses', () async {
+    answer({
+      'total': 58500.00,
+      'count': 9,
+      'periodStart': '2026-11-01',
+      'days': 5,
+      'dailyAverage': 11700.00,
+      'topCategory': 'COFFEE_AND_DRINKS',
+      'byCategory': <Object?>[],
+      'lastCut': null,
+      'daysSinceLastCut': null,
+      'limit': null,
+    });
+
+    final summary = await dataSource.getSummary(ExpenseKind.antExpenses);
+
+    expect(adapter.requests.single.path, '/ant-expenses/summary');
+    expect(
+      summary,
+      const ExpenseSummary(monthlyTotal: Money.fromUnits(58500), count: 9),
+    );
+  });
+
   test('surfaces the backend error and an unexpected shape', () async {
     adapter.handler = (_) async =>
         FakeResponse(503, errorEnvelope('UNAVAILABLE', 'Try again later'));

@@ -59,5 +59,11 @@ class ExpenseKindView {
       balanceLabel: (l10n) => l10n.totalSavingsBalance,
       count: (l10n, count) => l10n.expenseAccountCount(count),
     ),
+    ExpenseKind.antExpenses: ExpenseKindView(
+      route: AppRoute.expensesAnt,
+      icon: Icons.local_cafe_outlined,
+      monthlyLabel: (l10n) => l10n.antCurrentPeriod,
+      count: (l10n, count) => l10n.expenseItemCount(count),
+    ),
   };
 }
