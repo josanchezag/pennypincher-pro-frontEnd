@@ -17,8 +17,8 @@ class ProjectionScale {
 
   factory ProjectionScale.of(GoalProjection projection) {
     final values = [
-      for (final point in projection.dataPoints) point.projectedValue.pesos,
-      projection.targetAmount.pesos,
+      for (final point in projection.dataPoints) point.projectedValue.units,
+      projection.targetAmount.units,
     ];
     final low = math.min(0, values.reduce(math.min)).toDouble();
     final high = values.reduce(math.max);

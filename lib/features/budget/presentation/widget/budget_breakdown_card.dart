@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
+import 'package:pennypincher_pro/core/widgets/money_format_scope.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_budget_entity.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_section_card.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/expense_percentage_row.dart';
@@ -35,7 +35,7 @@ class BudgetBreakdownCard extends StatelessWidget {
         for (final component in components) ...[
           ExpensePercentageRow(
             label: componentLabel(context.l10n, component.type),
-            amount: CurrencyFormatter.format(component.amount),
+            amount: context.money.format(component.amount),
             percentage: component.percentage,
             idealPercentage: component.idealPercentage,
             direction: component.type.direction,

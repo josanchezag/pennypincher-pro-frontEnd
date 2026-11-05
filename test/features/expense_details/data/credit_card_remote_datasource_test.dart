@@ -10,7 +10,7 @@ import '../../../helpers/fake_http_adapter.dart';
 const BalanceDraft _draft = BalanceDraft(
   name: 'Visa Bancolombia',
   monthlyAmount: Money.fromCents(125000050),
-  balance: Money.fromPesos(30549222),
+  balance: Money.fromUnits(30549222),
 );
 
 void main() {

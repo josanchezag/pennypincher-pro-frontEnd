@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart';
 import 'package:pennypincher_pro/features/budget/presentation/screen/budget_overview_screen.dart';
@@ -88,10 +87,10 @@ void main() {
       (tester) async {
     await pumpHub(tester, _loaded);
 
-    final balance = CurrencyFormatter.format(cardsSummary.balanceTotal!);
+    final balance = testMoney.format(cardsSummary.balanceTotal!);
     for (final text in [
       find.text(l10n.totalMonthlyPayments.toUpperCase()),
-      find.text(CurrencyFormatter.format(cardsSummary.monthlyTotal)),
+      find.text(testMoney.format(cardsSummary.monthlyTotal)),
       find.text('2 cards'),
       find.textContaining(balance, findRichText: true),
     ]) {

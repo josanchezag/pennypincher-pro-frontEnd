@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
+import 'package:pennypincher_pro/core/utils/money_formatter.dart';
+import 'package:pennypincher_pro/core/widgets/money_format_scope.dart';
 import 'package:pennypincher_pro/core/widgets/report_table.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_trend_entity.dart';
 
@@ -32,28 +33,32 @@ class NetWorthReportTable extends StatelessWidget {
           ReportRow(
             highlight:
                 identical(point, best) ? context.l10n.netWorthBest : null,
-            cells: _cells(point),
+            cells: _cells(context.money, point),
           ),
       ],
     );
   }
 
-  static List<ReportCell> _cells(NetWorthTrendPoint point) => [
+  static List<ReportCell> _cells(
+    MoneyFormatter money,
+    NetWorthTrendPoint point,
+  ) =>
+      [
         ReportCell(MonthFormat.short.format(point.month)),
-        ReportCell(CurrencyFormatter.format(point.totalAssets)),
-        ReportCell(CurrencyFormatter.format(point.totalLiabilities)),
-        ReportCell(CurrencyFormatter.format(point.netWorth)),
-        deltaCell(point.delta),
+        ReportCell(money.format(point.totalAssets)),
+        ReportCell(money.format(point.totalLiabilities)),
+        ReportCell(money.format(point.netWorth)),
+        deltaCell(money, point.delta),
       ];
 
   /// Signed change, green when up, red when down, plain when unchanged,
   /// and a dash for the first month.
-  static ReportCell deltaCell(Money? delta) {
+  static ReportCell deltaCell(MoneyFormatter money, Money? delta) {
     if (delta == null) {
       return const ReportCell(ReportTable.noValue);
     }
     return ReportCell(
-      CurrencyFormatter.formatSigned(delta),
+      money.formatSigned(delta),
       color: delta.isZero
           ? null
           : delta.isNegative

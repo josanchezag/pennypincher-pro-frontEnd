@@ -6,10 +6,11 @@ import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
+import 'package:pennypincher_pro/core/utils/money_formatter.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/chart_style.dart';
+import 'package:pennypincher_pro/core/widgets/money_format_scope.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_comparison_entity.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_comparison_scale.dart';
 
@@ -60,6 +61,7 @@ class BudgetComparisonChart extends StatelessWidget {
                   child: BarChart(
                     ComparisonBars(
                       context.l10n,
+                      context.money,
                       months,
                       scale,
                       groupWidth: groupWidthOf(constraints.maxWidth),
@@ -90,6 +92,7 @@ class BudgetComparisonChart extends StatelessWidget {
 class ComparisonBars {
   const ComparisonBars(
     this.l10n,
+    this.money,
     this.months,
     this.scale, {
     required this.groupWidth,
@@ -112,6 +115,7 @@ class ComparisonBars {
   static const String detailSeparator = ' · ';
 
   final AppLocalizations l10n;
+  final MoneyFormatter money;
   final List<MonthComparison> months;
   final BudgetComparisonScale scale;
 
@@ -153,7 +157,7 @@ class ComparisonBars {
 
   /// A full-height faded bar when there is no [amount].
   BarChartRodData _rod(Money? amount, Color color) => BarChartRodData(
-        toY: amount?.pesos ?? 0,
+        toY: amount?.units ?? 0,
         color: amount == null ? Colors.transparent : color,
         width: rodWidth,
         borderRadius: BorderRadius.zero,
@@ -171,12 +175,13 @@ class ComparisonBars {
         fitInsideVertically: true,
         maxContentWidth: BudgetComparisonChart.tooltipWidth,
         getTooltipItem: (group, groupIndex, rod, rodIndex) =>
-            tooltipOf(l10n, months[groupIndex]),
+            tooltipOf(l10n, money, months[groupIndex]),
       );
 
   /// Month and figures of [month], or `No budget`.
   static BarTooltipItem tooltipOf(
     AppLocalizations l10n,
+    MoneyFormatter money,
     MonthComparison month,
   ) {
     final figures = month.figures;
@@ -189,17 +194,17 @@ class ComparisonBars {
           ? [_line(l10n.noBudget)]
           : [
               _line(
-                '${l10n.labelValue(l10n.income, CurrencyFormatter.format(figures.totalIncome))}\n',
+                '${l10n.labelValue(l10n.income, money.format(figures.totalIncome))}\n',
               ),
               _line(
-                '${l10n.labelValue(l10n.expenses, CurrencyFormatter.format(figures.totalExpenses))}\n',
+                '${l10n.labelValue(l10n.expenses, money.format(figures.totalExpenses))}\n',
               ),
               _line(
                 l10n.labelValue(
                   l10n.cashFlow,
                   percentage == null
-                      ? CurrencyFormatter.format(figures.cashFlow)
-                      : '${CurrencyFormatter.format(figures.cashFlow)}'
+                      ? money.format(figures.cashFlow)
+                      : '${money.format(figures.cashFlow)}'
                           '$detailSeparator'
                           '${PercentFormatter.format(percentage)}',
                 ),
@@ -219,7 +224,7 @@ class ComparisonBars {
             showTitles: true,
             reservedSize: BudgetComparisonChart.axisWidth,
             interval: scale.interval,
-            getTitlesWidget: ChartStyle.millionsLabel,
+            getTitlesWidget: ChartStyle.amountLabel(money),
           ),
         ),
         bottomTitles: AxisTitles(
@@ -294,7 +299,7 @@ class ComparisonLine {
   List<FlSpot> spots() => [
         for (final (index, month) in months.indexed)
           if (month.figures case final figures?)
-            FlSpot(index.toDouble(), figures.cashFlow.pesos)
+            FlSpot(index.toDouble(), figures.cashFlow.units)
           else
             FlSpot.nullSpot,
       ];

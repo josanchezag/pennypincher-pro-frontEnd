@@ -5,7 +5,8 @@ import 'package:pennypincher_pro/core/crud/presentation/layout/item_layout.dart'
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_tile.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
+import 'package:pennypincher_pro/core/utils/money.dart';
+import 'package:pennypincher_pro/core/widgets/money_format_scope.dart';
 
 /// Slivers of list items: a list (one column) or a grid of tiles, and the
 /// same grouped by category under subheaders with their subtotals.
@@ -22,7 +23,7 @@ abstract final class ItemSections {
           SliverToBoxAdapter(
             child: _GroupHeader(
               label: labelOf(group.category),
-              subtotal: CurrencyFormatter.format(group.subtotal),
+              subtotal: group.subtotal,
             ),
           ),
           tiles(group.items, columns, tileHeight, tileBuilder),
@@ -77,10 +78,11 @@ class _GroupHeader extends StatelessWidget {
   const _GroupHeader({required this.label, required this.subtotal});
 
   final String label;
-  final String subtotal;
+  final Money subtotal;
 
   @override
   Widget build(BuildContext context) {
+    final subtotal = context.money.format(this.subtotal);
     return Semantics(
       header: true,
       label: '$label, $subtotal',

@@ -22,7 +22,7 @@ void main() {
     final expense = await dataSource.create(
       const CategorizedDraft(
         name: 'Empleada',
-        amount: Money.fromPesos(1800000),
+        amount: Money.fromUnits(1800000),
         category: VariableExpenseCategory.householdStaff,
       ),
     );

@@ -7,6 +7,7 @@ abstract interface class PreferencesRepository {
   /// The stored settings, or the defaults when the user never saved any.
   Future<Either<Failure, UserPreferences>> get();
 
-  /// Replaces every setting with [preferences] and returns them as stored.
-  Future<Either<Failure, UserPreferences>> save(UserPreferences preferences);
+  /// Saves the settings of [change], keeps the others, and returns all of
+  /// them as stored.
+  Future<Either<Failure, UserPreferences>> save(PreferencesChange change);
 }

@@ -6,7 +6,6 @@ import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/crud/presentation/crud_screen.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_sheet.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/variable_expense_entity.dart';
@@ -52,7 +51,7 @@ void main() {
 
       expect(
         tester.widget<StatCard>(find.byType(StatCard)).value,
-        CurrencyFormatter.format(const Money.fromPesos(2444900)),
+        testMoney.format(const Money.fromUnits(2444900)),
       );
       expect(find.byType(ChoiceChip), findsNWidgets(8));
       expect(
@@ -95,7 +94,7 @@ void main() {
         const CrudSaveRequested(
           CategorizedDraft(
             name: 'Empleada',
-            amount: Money.fromPesos(1900000),
+            amount: Money.fromUnits(1900000),
             category: VariableExpenseCategory.householdStaff,
           ),
           id: 'v2',

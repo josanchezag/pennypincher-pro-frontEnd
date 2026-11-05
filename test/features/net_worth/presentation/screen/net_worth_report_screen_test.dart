@@ -6,7 +6,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/time/time_range.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
@@ -134,7 +133,7 @@ void main() {
       final latest = _card(tester, l10n.netWorthLatest);
       expect(
         latest.value,
-        CurrencyFormatter.format(const Money.fromPesos(130000000)),
+        testMoney.format(const Money.fromUnits(130000000)),
       );
       expect(latest.delta?.isPositive, isFalse);
       expect(latest.delta?.text, endsWith('vs Sep 2026'));
@@ -147,7 +146,7 @@ void main() {
       expect(best.label, endsWith('Sep 2026'));
       expect(
         best.value,
-        CurrencyFormatter.format(const Money.fromPesos(160000000)),
+        testMoney.format(const Money.fromUnits(160000000)),
       );
       expect(best.valueColor, AppColors.accentGold);
     });
@@ -159,7 +158,7 @@ void main() {
       final change = _card(tester, l10n.netWorthChangeInRange);
       expect(
         change.value,
-        CurrencyFormatter.formatSigned(const Money.fromPesos(30000000)),
+        testMoney.formatSigned(const Money.fromUnits(30000000)),
       );
       expect(change.valueColor, AppColors.success);
       expect(
@@ -256,16 +255,24 @@ void main() {
 
   group('table', () {
     test('colors the change, with a dash for the first month', () {
-      expect(NetWorthReportTable.deltaCell(null).text, ReportTable.noValue);
       expect(
-        NetWorthReportTable.deltaCell(const Money.fromPesos(5)).color,
+        NetWorthReportTable.deltaCell(testMoney, null).text,
+        ReportTable.noValue,
+      );
+      expect(
+        NetWorthReportTable.deltaCell(testMoney, const Money.fromUnits(5))
+            .color,
         AppColors.success,
       );
       expect(
-        NetWorthReportTable.deltaCell(const Money.fromPesos(-5)).color,
+        NetWorthReportTable.deltaCell(testMoney, const Money.fromUnits(-5))
+            .color,
         AppColors.error,
       );
-      expect(NetWorthReportTable.deltaCell(Money.zero).color, isNull);
+      expect(
+        NetWorthReportTable.deltaCell(testMoney, Money.zero).color,
+        isNull,
+      );
     });
 
     testWidgets('lists the months newest first with the best one marked',
@@ -324,7 +331,7 @@ void main() {
 
       expect(tester.takeException(), isNull);
       final delta = find.text(
-        CurrencyFormatter.formatSigned(const Money.fromPesos(-1000000)),
+        testMoney.formatSigned(const Money.fromUnits(-1000000)),
       );
       expect(tester.getRect(delta.first).right, lessThanOrEqualTo(size.width));
     });

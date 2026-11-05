@@ -13,14 +13,14 @@ const IncomeSource avenueCode = IncomeSource(
 const IncomeSource remoti = IncomeSource(
   id: 'i2',
   name: 'Remoti',
-  amount: Money.fromPesos(9000000),
+  amount: Money.fromUnits(9000000),
   category: IncomeCategory.employment,
 );
 
 const IncomeSource arriendoMadera = IncomeSource(
   id: 'i3',
   name: 'Arriendo Madera',
-  amount: Money.fromPesos(4000000),
+  amount: Money.fromUnits(4000000),
   category: IncomeCategory.rental,
 );
 
@@ -38,7 +38,7 @@ final MonthlyBudget octoberBudget = MonthlyBudget(
   id: 'b-2026-10',
   month: DateTime(2026, 10),
   settings: const BudgetSettings(
-    exchangeRate: Money.fromPesos(3300),
+    exchangeRate: Money.fromUnits(3300),
     workDays: 22,
   ),
   totalIncome: const Money.fromCents(3715292236),
@@ -53,7 +53,7 @@ final MonthlyBudget octoberBudget = MonthlyBudget(
     ),
     BudgetComponent(
       type: BudgetComponentType.loans,
-      amount: Money.fromPesos(3280231),
+      amount: Money.fromUnits(3280231),
       percentage: 8.83,
     ),
     BudgetComponent(
@@ -81,7 +81,7 @@ final MonthlyBudget novemberDeficit = octoberBudget.copyWith(
   id: 'b-2026-11',
   month: DateTime(2026, 11),
   settings: const BudgetSettings(),
-  totalExpenses: const Money.fromPesos(40000000),
+  totalExpenses: const Money.fromUnits(40000000),
   monthlyCashFlow: const Money.fromCents(-284707764),
 );
 
@@ -165,9 +165,9 @@ MonthComparison comparisonOf(
       figures: income == null || expenses == null
           ? null
           : ComparisonFigures(
-              totalIncome: Money.fromPesos(income),
-              totalExpenses: Money.fromPesos(expenses),
-              cashFlow: Money.fromPesos(income - expenses),
+              totalIncome: Money.fromUnits(income),
+              totalExpenses: Money.fromUnits(expenses),
+              cashFlow: Money.fromUnits(income - expenses),
               cashFlowPercentage: percentage,
             ),
     );

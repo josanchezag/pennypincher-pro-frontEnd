@@ -6,6 +6,7 @@ import 'package:pennypincher_pro/core/crud/presentation/widget/item_tile.dart';
 import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_breakpoints.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
+import 'package:pennypincher_pro/core/widgets/money_format_scope.dart';
 import 'package:pennypincher_pro/core/widgets/screen_title_row.dart';
 import 'package:pennypincher_pro/core/widgets/status_message.dart';
 
@@ -50,13 +51,13 @@ class CrudListView<T extends CrudItem, D> extends StatelessWidget {
             ),
             sliver: SliverMainAxisGroup(
               slivers: [
-                SliverToBoxAdapter(child: _header(l10n)),
+                SliverToBoxAdapter(child: _header(context, l10n)),
                 ..._content(l10n, _columnsFor(constraints.maxWidth)),
                 if (_layout.summaryAtBottom)
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.only(top: AppSpacing.lg),
-                      child: _layout.summary(l10n, items),
+                      child: _layout.summary(l10n, context.money, items),
                     ),
                   ),
               ],
@@ -70,7 +71,7 @@ class CrudListView<T extends CrudItem, D> extends StatelessWidget {
   static int _columnsFor(double width) =>
       ScreenSize.fromWidth(width) == ScreenSize.mobile ? 1 : wideColumns;
 
-  Widget _header(AppLocalizations l10n) => Column(
+  Widget _header(BuildContext context, AppLocalizations l10n) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ScreenTitleRow(
@@ -80,7 +81,7 @@ class CrudListView<T extends CrudItem, D> extends StatelessWidget {
           ),
           if (!_layout.summaryAtBottom) ...[
             const SizedBox(height: AppSpacing.md),
-            _layout.summary(l10n, items),
+            _layout.summary(l10n, context.money, items),
           ],
           SizedBox(
             height: AppSpacing.xxs,
@@ -112,7 +113,7 @@ class CrudListView<T extends CrudItem, D> extends StatelessWidget {
   Widget _tile(BuildContext context, T item) => ItemTile(
         dismissKey: ValueKey(item.id),
         name: item.name,
-        content: _layout.tileContent(context.l10n, item),
+        content: _layout.tileContent(context.l10n, context.money, item),
         height: _layout.tileHeight,
         deleteTooltip: config.deleteTooltip(context.l10n, item.name),
         onTap: busy ? null : () => onEdit(item),

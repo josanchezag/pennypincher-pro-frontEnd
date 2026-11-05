@@ -21,7 +21,7 @@ class ChartScale {
   factory ChartScale.of(List<NetWorthSnapshot> history) => ChartScale.span(
         firstMonth: history.first.snapshotDate,
         lastMonth: history.last.snapshotDate,
-        values: [for (final snapshot in history) snapshot.netWorth.pesos],
+        values: [for (final snapshot in history) snapshot.netWorth.units],
       );
 
   /// Scale from [firstMonth] to [lastMonth] whose y range covers every one

@@ -23,7 +23,7 @@ class _MockDelete extends Mock
 
 const CategorizedDraft<IncomeCategory> _draft = CategorizedDraft(
   name: 'Remoti',
-  amount: Money.fromPesos(9500000),
+  amount: Money.fromUnits(9500000),
   category: IncomeCategory.employment,
 );
 
@@ -79,7 +79,7 @@ void main() {
     const raised = IncomeSource(
       id: 'i2',
       name: 'Remoti',
-      amount: Money.fromPesos(9500000),
+      amount: Money.fromUnits(9500000),
       category: IncomeCategory.employment,
     );
 

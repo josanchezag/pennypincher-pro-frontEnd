@@ -6,7 +6,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
 import 'package:pennypincher_pro/core/widgets/report_table.dart';
@@ -149,8 +148,10 @@ void main() {
     });
 
     test('tells a missing month apart in its tooltip', () {
-      final missing = ComparisonBars.tooltipOf(l10n, comparisonOf(7));
-      final october = ComparisonBars.tooltipOf(l10n, sixMonthComparison.last);
+      final missing =
+          ComparisonBars.tooltipOf(l10n, testMoney, comparisonOf(7));
+      final october =
+          ComparisonBars.tooltipOf(l10n, testMoney, sixMonthComparison.last);
 
       expect(missing.text, 'July 2026\n');
       expect(missing.children?.single.text, l10n.noBudget);
@@ -202,6 +203,7 @@ void main() {
       final scale = BudgetComparisonScale.of(sixMonthComparison);
       double rodWidthAt(double groupWidth) => ComparisonBars(
             l10n,
+            testMoney,
             sixMonthComparison,
             scale,
             groupWidth: groupWidth,
@@ -283,7 +285,7 @@ void main() {
     }
 
     test('shows dashes for a month without a budget', () {
-      final cells = BudgetComparisonTable.cellsOf(comparisonOf(7));
+      final cells = BudgetComparisonTable.cellsOf(testMoney, comparisonOf(7));
 
       expect(cells.first.text, 'Jul 2026');
       expect(
@@ -294,7 +296,8 @@ void main() {
     });
 
     test('shows a negative cash flow in red', () {
-      final cells = BudgetComparisonTable.cellsOf(sixMonthComparison[4]);
+      final cells =
+          BudgetComparisonTable.cellsOf(testMoney, sixMonthComparison[4]);
 
       expect(cells[3].color, AppColors.error);
       expect(cells[4].color, AppColors.error);
@@ -312,7 +315,7 @@ void main() {
       );
       expect(
         find.text(
-          CurrencyFormatter.format(
+          testMoney.format(
             sixMonthComparison.last.figures!.cashFlow,
           ),
         ),

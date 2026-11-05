@@ -245,8 +245,8 @@ void main() {
             GoalDraft(
               name: 'Libertad Absoluta',
               level: GoalLevel.absoluteFreedom,
-              targetAmount: Money.fromPesos(4366000000),
-              monthlyInvestment: Money.fromPesos(15850000),
+              targetAmount: Money.fromUnits(4366000000),
+              monthlyInvestment: Money.fromUnits(15850000),
               expectedAnnualReturn: 0.115,
             ),
           ),
@@ -277,8 +277,8 @@ void main() {
             GoalDraft(
               name: 'Seguridad Financiera',
               level: GoalLevel.financialSecurity,
-              targetAmount: Money.fromPesos(605000000),
-              monthlyInvestment: Money.fromPesos(2000000),
+              targetAmount: Money.fromUnits(605000000),
+              monthlyInvestment: Money.fromUnits(2000000),
               expectedAnnualReturn: 0.11,
             ),
             id: 'g1',

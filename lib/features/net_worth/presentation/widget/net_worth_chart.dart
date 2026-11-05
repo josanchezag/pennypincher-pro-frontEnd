@@ -7,8 +7,9 @@ import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
+import 'package:pennypincher_pro/core/utils/money_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/chart_style.dart';
+import 'package:pennypincher_pro/core/widgets/money_format_scope.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_snapshot_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/widget/chart_scale.dart';
 
@@ -43,15 +44,19 @@ class NetWorthChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scale = ChartScale.of(history);
+    final money = context.money;
     return Semantics(
       container: true,
-      label: _description(context.l10n),
+      label: _description(context.l10n, money),
       child: ExcludeSemantics(
         child: SizedBox(
           height: height,
           child: Row(
             children: [
-              SizedBox(width: axisWidth, child: LineChart(_axisData(scale))),
+              SizedBox(
+                width: axisWidth,
+                child: LineChart(_axisData(scale, money)),
+              ),
               Expanded(child: _ScrollingChart(history: history, scale: scale)),
             ],
           ),
@@ -60,19 +65,20 @@ class NetWorthChart extends StatelessWidget {
     );
   }
 
-  String _description(AppLocalizations l10n) {
+  String _description(AppLocalizations l10n, MoneyFormatter money) {
     final last = history.last;
     return l10n.netWorthChartDescription(
       history.length,
       MonthFormat.long.format(history.first.snapshotDate),
       MonthFormat.long.format(last.snapshotDate),
-      CurrencyFormatter.format(last.netWorth),
+      money.format(last.netWorth),
     );
   }
 
   /// Chart without data that only draws the y axis labels, aligned with
   /// the scrolling chart because both share the same scale and insets.
-  static LineChartData _axisData(ChartScale scale) => LineChartData(
+  static LineChartData _axisData(ChartScale scale, MoneyFormatter money) =>
+      LineChartData(
         minX: 0,
         maxX: 1,
         minY: scale.minY,
@@ -95,7 +101,7 @@ class NetWorthChart extends StatelessWidget {
               showTitles: true,
               reservedSize: axisLabelWidth,
               interval: scale.interval,
-              getTitlesWidget: ChartStyle.millionsLabel,
+              getTitlesWidget: ChartStyle.amountLabel(money),
             ),
           ),
         ),
@@ -130,6 +136,7 @@ class _ScrollingChart extends StatelessWidget {
               _ChartData(
                 history,
                 scale,
+                context.money,
                 labelEvery: monthWidth < NetWorthChart.minLabelWidth
                     ? NetWorthChart.sparseLabelStep
                     : 1,
@@ -144,10 +151,16 @@ class _ScrollingChart extends StatelessWidget {
 
 /// fl_chart configuration of the data chart.
 class _ChartData {
-  const _ChartData(this.history, this.scale, {required this.labelEvery});
+  const _ChartData(
+    this.history,
+    this.scale,
+    this.money, {
+    required this.labelEvery,
+  });
 
   final List<NetWorthSnapshot> history;
   final ChartScale scale;
+  final MoneyFormatter money;
 
   /// Months between two x labels, counted back from the latest month.
   final int labelEvery;
@@ -179,7 +192,7 @@ class _ChartData {
   LineChartBarData _line() => LineChartBarData(
         spots: [
           for (final snapshot in history)
-            FlSpot(scale.xOf(snapshot.snapshotDate), snapshot.netWorth.pesos),
+            FlSpot(scale.xOf(snapshot.snapshotDate), snapshot.netWorth.units),
         ],
         color: AppColors.chartLinePositive,
         barWidth: NetWorthChart.lineWidth,
@@ -211,7 +224,7 @@ class _ChartData {
   LineTooltipItem _tooltipItem(LineBarSpot spot) {
     final snapshot = history[spot.spotIndex];
     return LineTooltipItem(
-      '${CurrencyFormatter.format(snapshot.netWorth)}\n',
+      '${money.format(snapshot.netWorth)}\n',
       AppTypography.monoMedium,
       children: [
         TextSpan(

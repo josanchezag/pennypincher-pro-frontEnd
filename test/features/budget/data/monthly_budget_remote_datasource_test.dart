@@ -89,7 +89,7 @@ void main() {
     expect(budget.components, const [
       BudgetComponent(
         type: BudgetComponentType.loans,
-        amount: Money.fromPesos(3280231),
+        amount: Money.fromUnits(3280231),
         percentage: 108,
       ),
     ]);

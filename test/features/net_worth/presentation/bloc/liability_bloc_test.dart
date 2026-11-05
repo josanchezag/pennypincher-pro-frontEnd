@@ -23,14 +23,14 @@ class _MockDeleteLiability extends Mock
 
 const CategorizedDraft<LiabilityCategory> _draft = CategorizedDraft(
   name: 'Tarjeta Nu Bank',
-  amount: Money.fromPesos(2900000),
+  amount: Money.fromUnits(2900000),
   category: LiabilityCategory.creditCard,
 );
 
 const Liability _paidDown = Liability(
   id: 'l1',
   name: 'Tarjeta Nu Bank',
-  currentBalance: Money.fromPesos(2900000),
+  currentBalance: Money.fromUnits(2900000),
   category: LiabilityCategory.creditCard,
 );
 

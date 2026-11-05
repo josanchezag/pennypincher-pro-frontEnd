@@ -36,7 +36,7 @@ void main() {
     test('reads Colombian grouping and decimal comma', () {
       expect(
         Money.tryParseInput('1.500.000'),
-        const Money.fromPesos(1500000),
+        const Money.fromUnits(1500000),
       );
       expect(Money.tryParseInput(' 1.500.000,50 ')?.cents, 150000050);
       expect(Money.tryParseInput('1500000,5')?.cents, 150000050);
@@ -49,9 +49,19 @@ void main() {
       expect(Money.tryParseInput('1500000.5')?.cents, 150000050);
     });
 
+    test('reads the cents of dollars and euros typed either way', () {
+      for (final text in ['1234.56', '1234,56', '1.234,56', '0.5', '0,05']) {
+        expect(Money.tryParseInput(text), isNotNull, reason: text);
+      }
+      expect(Money.tryParseInput('1234.56')?.cents, 123456);
+      expect(Money.tryParseInput('1234,56')?.cents, 123456);
+      expect(Money.tryParseInput('0,05')?.cents, 5);
+    });
+
     test('rejects malformed, negative and oversized amounts', () {
       expect(Money.tryParseInput('1.50.000'), isNull);
       expect(Money.tryParseInput('1,500,000'), isNull);
+      expect(Money.tryParseInput('1,234.56'), isNull);
       expect(Money.tryParseInput('1.234,567'), isNull);
       expect(Money.tryParseInput('-3'), isNull);
       expect(Money.tryParseInput(''), isNull);
@@ -77,18 +87,18 @@ void main() {
 
     test('sums a collection', () {
       expect(
-        sumMoney([1, 2, 3], Money.fromPesos),
-        const Money.fromPesos(6),
+        sumMoney([1, 2, 3], Money.fromUnits),
+        const Money.fromUnits(6),
       );
     });
 
     test('writes integers when there are no cents', () {
-      expect(const Money.fromPesos(1500000).toJson(), 1500000);
-      expect(const Money.fromPesos(1500000).toJson(), isA<int>());
+      expect(const Money.fromUnits(1500000).toJson(), 1500000);
+      expect(const Money.fromUnits(1500000).toJson(), isA<int>());
       expect(const Money.fromCents(150000050).toJson(), 1500000.5);
       expect(const Money.fromCents(-150).toJson(), -1.5);
       expect(const Money.fromCents(150000050).toInputString(), '1500000,50');
-      expect(const Money.fromPesos(7).toInputString(), '7');
+      expect(const Money.fromUnits(7).toInputString(), '7');
     });
 
     test('keeps every cent of the largest amount in JSON', () {
@@ -103,11 +113,11 @@ void main() {
 
     test('compares by amount', () {
       expect(
-        const Money.fromPesos(2).compareTo(const Money.fromPesos(1)),
+        const Money.fromUnits(2).compareTo(const Money.fromUnits(1)),
         greaterThan(0),
       );
-      expect(const Money.fromCents(150).pesos, 1.5);
-      expect(const Money.fromPesos(1).toString(), 'Money(100)');
+      expect(const Money.fromCents(150).units, 1.5);
+      expect(const Money.fromUnits(1).toString(), 'Money(100)');
     });
   });
 }

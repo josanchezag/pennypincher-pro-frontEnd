@@ -4,7 +4,7 @@
   "shellBackToDashboard": "Back to dashboard",
   "accountMenuTooltip": "Account",
   "accountMenuSignOut": "Sign out",
-  "accountMenuSettingsHint": "Language and other settings",
+  "accountMenuSettingsHint": "Language, currency and other settings",
   "@accountMenuSettingsHint": {
     "description": "Second line of the account menu entry that opens the settings screen."
   },
@@ -16,6 +16,28 @@
   "settingsLanguageSaveFailed": "We couldn't save the language. Check your connection and try again.",
   "@settingsLanguageSaveFailed": {
     "description": "Snack bar shown when saving the language fails; the previous language is restored."
+  },
+  "settingsCurrencyTitle": "Currency",
+  "settingsCurrencyDescription": "Currency your amounts are in. Changing it does not convert the saved amounts: they are only shown with its symbol and decimals.",
+  "@settingsCurrencyDescription": {
+    "description": "Explains under the currency setting that switching currency only relabels the stored amounts, without converting them."
+  },
+  "settingsCurrencySaveFailed": "We couldn't save the currency. Check your connection and try again.",
+  "@settingsCurrencySaveFailed": {
+    "description": "Snack bar shown when saving the currency fails; the previous currency is restored."
+  },
+  "currencyCop": "COP – Colombian peso",
+  "currencyUsd": "USD – US dollar",
+  "currencyEur": "EUR – Euro",
+  "settingsCurrencyExample": "For example, {amount}",
+  "@settingsCurrencyExample": {
+    "description": "Second line of each currency option: how an amount looks in that currency.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$1,234,567.50"
+      }
+    }
   },
   "settingsLoadFailed": "We couldn't load the settings saved in your account, so the ones of this device are shown.",
   "routeLogin": "Sign in",

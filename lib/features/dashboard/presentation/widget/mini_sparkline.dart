@@ -4,7 +4,8 @@ import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
+import 'package:pennypincher_pro/core/utils/money_formatter.dart';
+import 'package:pennypincher_pro/core/widgets/money_format_scope.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/dashboard_summary_entity.dart';
 
 /// Small line of the net worth of [points] (at least two, from the oldest
@@ -17,7 +18,7 @@ class MiniSparkline extends StatelessWidget {
   static const double fillOpacity = 0.2;
   static const int monthsPerYear = 12;
 
-  /// Vertical room around a flat line, in pesos.
+  /// Vertical room around a flat line, in whole units of the currency.
   static const double flatPadding = 1;
 
   final List<NetWorthPoint> points;
@@ -31,26 +32,26 @@ class MiniSparkline extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       container: true,
-      label: _description(context.l10n),
+      label: _description(context.l10n, context.money),
       child: ExcludeSemantics(
         child: SizedBox(height: height, child: LineChart(_data())),
       ),
     );
   }
 
-  String _description(AppLocalizations l10n) {
+  String _description(AppLocalizations l10n, MoneyFormatter money) {
     final first = points.first;
     final last = points.last;
     return l10n.dashboardSparklineLabel(
-      CurrencyFormatter.format(first.netWorth),
+      money.format(first.netWorth),
       MonthFormat.short.format(first.date),
-      CurrencyFormatter.format(last.netWorth),
+      money.format(last.netWorth),
       MonthFormat.short.format(last.date),
     );
   }
 
   LineChartData _data() {
-    final values = [for (final point in points) point.netWorth.pesos];
+    final values = [for (final point in points) point.netWorth.units];
     final low = values.reduce((a, b) => a < b ? a : b);
     final high = values.reduce((a, b) => a > b ? a : b);
     final flat = low == high;
@@ -68,7 +69,7 @@ class MiniSparkline extends StatelessWidget {
   LineChartBarData _line() => LineChartBarData(
         spots: [
           for (final point in points)
-            FlSpot(_monthIndex(point.date), point.netWorth.pesos),
+            FlSpot(_monthIndex(point.date), point.netWorth.units),
         ],
         color: color,
         dotData: const FlDotData(show: false),

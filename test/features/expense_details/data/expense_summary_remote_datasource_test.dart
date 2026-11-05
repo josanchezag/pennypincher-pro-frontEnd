@@ -33,7 +33,7 @@ void main() {
       summary,
       const ExpenseSummary(
         monthlyTotal: Money.fromCents(125000050),
-        balanceTotal: Money.fromPesos(42956922),
+        balanceTotal: Money.fromUnits(42956922),
         count: 3,
       ),
     );
@@ -55,7 +55,7 @@ void main() {
     expect(adapter.requests.last.path, '/variable-expenses/summary');
     expect(
       fixed,
-      const ExpenseSummary(monthlyTotal: Money.fromPesos(2347709), count: 2),
+      const ExpenseSummary(monthlyTotal: Money.fromUnits(2347709), count: 2),
     );
     expect(variable, fixed);
   });
@@ -76,9 +76,9 @@ void main() {
 
     expect(adapter.requests.first.path, '/loans/summary');
     expect(adapter.requests.last.path, '/savings-accounts/summary');
-    expect(loans.balanceTotal, const Money.fromPesos(98000000));
-    expect(savings.monthlyTotal, const Money.fromPesos(1500000));
-    expect(savings.balanceTotal, const Money.fromPesos(25000000));
+    expect(loans.balanceTotal, const Money.fromUnits(98000000));
+    expect(savings.monthlyTotal, const Money.fromUnits(1500000));
+    expect(savings.balanceTotal, const Money.fromUnits(25000000));
   });
 
   test('surfaces the backend error and an unexpected shape', () async {

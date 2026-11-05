@@ -9,7 +9,7 @@ import '../../../helpers/net_worth_fixtures.dart';
 
 const CategorizedDraft<LiabilityCategory> _draft = CategorizedDraft(
   name: 'Tarjeta Nu Bank',
-  amount: Money.fromPesos(3200000),
+  amount: Money.fromUnits(3200000),
   category: LiabilityCategory.creditCard,
 );
 

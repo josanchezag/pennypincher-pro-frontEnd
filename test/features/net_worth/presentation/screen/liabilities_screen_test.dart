@@ -59,7 +59,7 @@ void main() {
     final total = tester.widget<StatCard>(find.byType(StatCard));
     expect(total.label, 'Total liabilities');
     expect(total.valueColor, AppColors.error);
-    expect(total.value, contains('48.700.000'));
+    expect(total.value, contains('48,700,000'));
     expect(find.text('CREDIT CARD'), findsNWidgets(2));
     expect(find.text('BANK LOAN'), findsNWidgets(2));
     expect(tester.takeException(), isNull);
@@ -103,7 +103,7 @@ void main() {
         const CrudSaveRequested(
           CategorizedDraft(
             name: 'Préstamo tío',
-            amount: Money.fromPesos(5000000),
+            amount: Money.fromUnits(5000000),
             category: LiabilityCategory.familyDebt,
           ),
         ),

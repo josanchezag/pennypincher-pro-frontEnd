@@ -9,7 +9,7 @@ void main() {
   const house = Asset(
     id: 'a4',
     name: 'casa finca',
-    value: Money.fromPesos(100000000),
+    value: Money.fromUnits(100000000),
     category: AssetCategory.realEstate,
   );
 
@@ -25,7 +25,7 @@ void main() {
       AssetCategory.cash,
     ]);
     expect(groups.first.items, [apartment, house]);
-    expect(groups.first.subtotal, const Money.fromPesos(450000000));
+    expect(groups.first.subtotal, const Money.fromUnits(450000000));
     expect(groups.last.subtotal, const Money.fromCents(15000050));
     expect(
       groups.first,

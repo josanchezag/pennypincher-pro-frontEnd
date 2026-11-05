@@ -11,7 +11,8 @@ import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_pro
 class ProjectionSummary extends StatelessWidget {
   const ProjectionSummary({required this.projection, super.key});
 
-  static final NumberFormat _years = NumberFormat('#,##0.##', 'es_CO');
+  /// Years with up to two decimals, in the interface language.
+  static NumberFormat get _years => NumberFormat('#,##0.##');
 
   final GoalProjection projection;
 

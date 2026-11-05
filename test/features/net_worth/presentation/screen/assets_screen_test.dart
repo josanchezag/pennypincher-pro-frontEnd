@@ -93,7 +93,7 @@ void main() {
 
     final total = tester.widget<StatCard>(find.byType(StatCard));
     expect(total.label, 'Total assets');
-    expect(total.value, contains('412.150.001'));
+    expect(total.value, contains('412,150,001'));
     expect(find.text('REAL ESTATE'), findsNWidgets(2));
     expect(find.text('VEHICLE'), findsNWidgets(2));
     expect(find.text('Apto Madera'), findsOneWidget);
@@ -258,7 +258,7 @@ void main() {
         const CrudSaveRequested(
           CategorizedDraft(
             name: 'Carro Mazda',
-            amount: Money.fromPesos(58000000),
+            amount: Money.fromUnits(58000000),
             category: AssetCategory.vehicle,
           ),
           id: 'a2',

@@ -1,5 +1,5 @@
 import 'package:injectable/injectable.dart';
-import 'package:pennypincher_pro/core/l10n/locale_storage.dart';
+import 'package:pennypincher_pro/core/storage/browser_storage.dart';
 
 /// Remembers the interface language chosen by the user.
 abstract interface class LocaleStore {
@@ -9,12 +9,14 @@ abstract interface class LocaleStore {
   void write(String languageCode);
 }
 
-/// Keeps the language code in the browser's local storage.
+/// Keeps the language code (`es` or `en`) in the browser's local storage.
 @LazySingleton(as: LocaleStore)
 class BrowserLocaleStore implements LocaleStore {
-  @override
-  String? read() => readStoredLanguageCode();
+  static const String key = 'pennypincher.locale';
 
   @override
-  void write(String languageCode) => writeStoredLanguageCode(languageCode);
+  String? read() => readStoredValue(key);
+
+  @override
+  void write(String languageCode) => writeStoredValue(key, languageCode);
 }

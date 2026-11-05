@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/progress_band.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_level.dart';
@@ -28,7 +27,7 @@ Future<void> _pump(WidgetTester tester, Widget child, {double width = 360}) =>
       ),
     );
 
-String _cop(int pesos) => CurrencyFormatter.format(Money.fromPesos(pesos));
+String _cop(int pesos) => testMoney.format(Money.fromUnits(pesos));
 
 /// WCAG contrast ratio between two colors.
 double _contrast(Color a, Color b) {

@@ -4,6 +4,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/error/app_exception.dart';
 import 'package:pennypincher_pro/core/error/error_codes.dart';
 import 'package:pennypincher_pro/core/error/failure.dart';
+import 'package:pennypincher_pro/core/utils/app_currency.dart';
 import 'package:pennypincher_pro/features/settings/data/datasource/preferences_remote_datasource.dart';
 import 'package:pennypincher_pro/features/settings/data/repository/preferences_repository_impl.dart';
 import 'package:pennypincher_pro/features/settings/domain/entity/user_preferences_entity.dart';
@@ -19,7 +20,7 @@ void main() {
   final saved = savedPreferences('en');
 
   setUpAll(
-    () => registerFallbackValue(const UserPreferences(languageCode: 'es')),
+    () => registerFallbackValue(const PreferencesChange.language('es')),
   );
 
   setUp(() {
@@ -34,7 +35,7 @@ void main() {
   });
 
   test('saves the preferences and returns them as stored', () async {
-    const draft = UserPreferences(languageCode: 'en');
+    const draft = PreferencesChange.language('en');
     when(() => remote.save(draft)).thenAnswer((_) async => saved);
 
     expect(
@@ -48,8 +49,8 @@ void main() {
       const AppException(code: ErrorCodes.networkError, message: 'Offline'),
     );
 
-    final result =
-        await repository.save(const UserPreferences(languageCode: 'es'));
+    final result = await repository
+        .save(const PreferencesChange.currency(AppCurrency.usd));
 
     final failure = result.fold((failure) => failure, (_) => null);
     expect(failure, isA<NetworkFailure>());

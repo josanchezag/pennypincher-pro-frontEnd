@@ -12,11 +12,11 @@ void main() {
     first: nuCard,
     second: visaCard,
     created: amexCard,
-    updated: visaCard.copyWith(totalBalance: const Money.fromPesos(28000000)),
+    updated: visaCard.copyWith(totalBalance: const Money.fromUnits(28000000)),
     draft: const BalanceDraft(
       name: 'Visa Bancolombia',
       monthlyAmount: Money.fromCents(125000050),
-      balance: Money.fromPesos(28000000),
+      balance: Money.fromUnits(28000000),
     ),
   );
 }

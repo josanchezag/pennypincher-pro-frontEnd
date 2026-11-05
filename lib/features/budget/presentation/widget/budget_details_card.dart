@@ -2,15 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
+import 'package:pennypincher_pro/core/utils/app_currency.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
+import 'package:pennypincher_pro/core/widgets/money_format_scope.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_budget_entity.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_section_card.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_value_dialog.dart';
 
 /// Exchange rate (TRM) and work days of the month, each with a pencil
 /// button that edits it in a small dialog. [onChanged] receives both
-/// values, since the backend replaces them together.
+/// values, since the backend replaces them together. The TRM is in
+/// Colombian pesos per US dollar whatever the user's currency, so it is
+/// always written as pesos, and it is hidden for currencies it does not
+/// concern ([AppCurrency.hasExchangeRate]); a hidden TRM is still sent
+/// back unchanged.
 class BudgetDetailsCard extends StatelessWidget {
   const BudgetDetailsCard({
     required this.settings,
@@ -33,15 +38,17 @@ class BudgetDetailsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final rate = settings.exchangeRate;
     final days = settings.workDays;
+    final money = context.money;
     return BudgetSectionCard(
       title: context.l10n.budgetDetailsTitle,
       children: [
-        _EditableValue(
-          editKey: exchangeRateEditKey,
-          label: context.l10n.budgetExchangeRate,
-          value: rate == null ? null : CurrencyFormatter.formatWithCents(rate),
-          onEdit: enabled ? () => _editExchangeRate(context) : null,
-        ),
+        if (money.currency.hasExchangeRate)
+          _EditableValue(
+            editKey: exchangeRateEditKey,
+            label: context.l10n.budgetExchangeRate,
+            value: rate == null ? null : money.formatExchangeRate(rate),
+            onEdit: enabled ? () => _editExchangeRate(context) : null,
+          ),
         _EditableValue(
           editKey: workDaysEditKey,
           label: context.l10n.budgetWorkDays,

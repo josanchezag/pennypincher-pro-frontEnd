@@ -28,8 +28,8 @@ const Failure _offline = NetworkFailure('Offline');
 const GoalDraft _draft = GoalDraft(
   name: 'Seguridad Financiera',
   level: GoalLevel.financialSecurity,
-  targetAmount: Money.fromPesos(605000000),
-  monthlyInvestment: Money.fromPesos(2000000),
+  targetAmount: Money.fromUnits(605000000),
+  monthlyInvestment: Money.fromUnits(2000000),
   expectedAnnualReturn: 0.11,
   targetYears: 16,
 );
@@ -54,11 +54,11 @@ void main() {
 
   /// [security] as saved, before its projection is reloaded.
   final saved = security.copyWith(
-    monthlyInvestment: const Money.fromPesos(2000000),
+    monthlyInvestment: const Money.fromUnits(2000000),
     projection: null,
   );
   final reloaded = security.copyWith(
-    monthlyInvestment: const Money.fromPesos(2000000),
+    monthlyInvestment: const Money.fromUnits(2000000),
     projection: security.projection!.copyWith(
       projectedMonthsToGoal: 30,
       projectedAchievementDate: DateTime(2029, 4),

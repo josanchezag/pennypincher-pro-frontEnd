@@ -12,12 +12,12 @@ class GetPreferences {
   Future<Either<Failure, UserPreferences>> call() => _repository.get();
 }
 
-/// Saves the settings of the signed-in user.
+/// Saves some settings of the signed-in user.
 class SavePreferences {
   const SavePreferences(this._repository);
 
   final PreferencesRepository _repository;
 
-  Future<Either<Failure, UserPreferences>> call(UserPreferences preferences) =>
-      _repository.save(preferences);
+  Future<Either<Failure, UserPreferences>> call(PreferencesChange change) =>
+      _repository.save(change);
 }

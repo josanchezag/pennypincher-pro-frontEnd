@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
 import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
+import 'package:pennypincher_pro/core/widgets/money_format_scope.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 /// Controls and fields the item forms are made of, with the same limits as
@@ -170,7 +170,7 @@ class _AmountField extends StatelessWidget {
       inputFormatters: [ItemFormFields.amountCharacters],
       decoration: InputDecoration(
         labelText: label,
-        prefixText: '${CurrencyFormatter.symbol} ',
+        prefixText: '${context.money.inputPrefix} ',
         helperText: optional
             ? context.l10n.crudOptionalAmountHelper
             : context.l10n.crudAmountHelper,

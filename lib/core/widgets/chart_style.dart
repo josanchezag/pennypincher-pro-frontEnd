@@ -2,7 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
+import 'package:pennypincher_pro/core/utils/money_formatter.dart';
 
 /// Look shared by the money charts: grid, tooltip and axis labels.
 abstract final class ChartStyle {
@@ -23,12 +23,14 @@ abstract final class ChartStyle {
   /// Background of every tooltip, whatever was touched.
   static Color tooltipColor(Object? touched) => AppColors.backgroundModal;
 
-  /// Amount of the y axis, in millions from one million up.
-  static Widget millionsLabel(double value, TitleMeta meta) => SideTitleWidget(
-        axisSide: meta.axisSide,
-        child: Text(
-          CurrencyFormatter.formatCompact(value),
-          style: AppTypography.monoSmall,
-        ),
-      );
+  /// Labels of the y axis, with the separators of [money]'s language and
+  /// in millions from one million up.
+  static GetTitleWidgetFunction amountLabel(MoneyFormatter money) =>
+      (value, meta) => SideTitleWidget(
+            axisSide: meta.axisSide,
+            child: Text(
+              money.formatCompact(value),
+              style: AppTypography.monoSmall,
+            ),
+          );
 }

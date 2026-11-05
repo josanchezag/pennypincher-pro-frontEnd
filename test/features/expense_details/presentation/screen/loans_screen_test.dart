@@ -6,7 +6,6 @@ import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/crud/presentation/crud_screen.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_tile.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
@@ -57,7 +56,7 @@ void main() {
       await pumpLoans(tester, _loaded, size: size);
 
       expect(
-        find.text(CurrencyFormatter.format(carLoan.totalBalance)),
+        find.text(testMoney.format(carLoan.totalBalance)),
         findsOneWidget,
       );
       expect(
@@ -117,7 +116,7 @@ void main() {
         const CrudSaveRequested(
           BalanceDraft(
             name: 'Davivienda 7141',
-            monthlyAmount: Money.fromPesos(2080231),
+            monthlyAmount: Money.fromUnits(2080231),
             balance: Money.fromCents(4550000025),
           ),
         ),
@@ -144,8 +143,8 @@ void main() {
           CrudSaveRequested(
             BalanceDraft(
               name: 'Prestamo carro',
-              monthlyAmount: const Money.fromPesos(1200000),
-              balance: const Money.fromPesos(30000000),
+              monthlyAmount: const Money.fromUnits(1200000),
+              balance: const Money.fromUnits(30000000),
               originalAmount: original,
             ),
             id: 'l1',

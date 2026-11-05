@@ -30,7 +30,7 @@ void main() {
     final created = await dataSource.create(
       const CategorizedDraft(
         name: 'Colegio Ana',
-        amount: Money.fromPesos(1347709),
+        amount: Money.fromUnits(1347709),
         category: FixedExpenseCategory.education,
       ),
     );

@@ -25,6 +25,7 @@ import 'package:pennypincher_pro/core/l10n/locale_store.dart' as _i84;
 import 'package:pennypincher_pro/core/network/auth_interceptor.dart' as _i93;
 import 'package:pennypincher_pro/core/network/network_module.dart' as _i683;
 import 'package:pennypincher_pro/core/router/app_router.dart' as _i446;
+import 'package:pennypincher_pro/core/storage/currency_store.dart' as _i130;
 import 'package:pennypincher_pro/core/time/clock.dart' as _i656;
 import 'package:pennypincher_pro/features/auth/data/datasource/auth_remote_datasource.dart'
     as _i113;
@@ -243,6 +244,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i361.HttpClientAdapter>(
         () => networkModule.httpClientAdapter);
     gh.lazySingleton<_i656.Clock>(() => _i656.SystemClock());
+    gh.lazySingleton<_i130.CurrencyStore>(() => _i130.BrowserCurrencyStore());
     gh.lazySingleton<_i361.Dio>(
       () => networkModule.plainDio(
         gh<_i504.AppConfig>(),
@@ -553,6 +555,13 @@ extension GetItInjectableX on _i174.GetIt {
                   _i953.CategorizedDraft<_i161.IncomeCategory>>>(),
           gh<_i656.Clock>(),
         ));
+    gh.lazySingleton<_i746.PreferencesCubit>(() => _i746.PreferencesCubit(
+          gh<_i1041.GetPreferences>(),
+          gh<_i1041.SavePreferences>(),
+          gh<_i132.LocaleCubit>(),
+          gh<_i84.LocaleStore>(),
+          gh<_i130.CurrencyStore>(),
+        ));
     gh.factory<_i876.VariableExpenseBloc>(() => _i876.VariableExpenseBloc(
           gh<
               _i678.GetItems<_i107.VariableExpense,
@@ -598,12 +607,6 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i678.GetItems<_i891.Loan, _i642.BalanceDraft>>(),
           gh<_i678.SaveItem<_i891.Loan, _i642.BalanceDraft>>(),
           gh<_i678.DeleteItem<_i891.Loan, _i642.BalanceDraft>>(),
-        ));
-    gh.lazySingleton<_i746.PreferencesCubit>(() => _i746.PreferencesCubit(
-          gh<_i1041.GetPreferences>(),
-          gh<_i1041.SavePreferences>(),
-          gh<_i132.LocaleCubit>(),
-          gh<_i84.LocaleStore>(),
         ));
     gh.factory<_i584.DashboardBloc>(() => _i584.DashboardBloc(
           gh<_i77.GetDashboardSummary>(),

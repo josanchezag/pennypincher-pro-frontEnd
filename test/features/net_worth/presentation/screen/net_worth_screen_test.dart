@@ -92,8 +92,8 @@ void main() {
     final netWorth = _card(tester, l10n.netWorth);
     expect(netWorth.valueColor, AppColors.success);
     expect(netWorth.delta?.isPositive, isTrue);
-    expect(netWorth.delta?.text, startsWith(r'+$'));
-    expect(netWorth.delta?.text, contains('2.450.000 vs Sep 2026'));
+    expect(netWorth.delta?.text, startsWith('+COP\u00A0'));
+    expect(netWorth.delta?.text, contains('2,450,000 vs Sep 2026'));
     expect(tester.takeException(), isNull);
   });
 
@@ -102,9 +102,9 @@ void main() {
       tester,
       _loaded(
         current: const NetWorthSummary(
-          totalAssets: Money.fromPesos(1000000),
-          totalLiabilities: Money.fromPesos(4000000),
-          netWorth: Money.fromPesos(-3000000),
+          totalAssets: Money.fromUnits(1000000),
+          totalLiabilities: Money.fromUnits(4000000),
+          netWorth: Money.fromUnits(-3000000),
         ),
       ),
     );

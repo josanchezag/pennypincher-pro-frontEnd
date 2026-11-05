@@ -5,9 +5,9 @@ import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
+import 'package:pennypincher_pro/core/widgets/money_format_scope.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/dashboard_summary_entity.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/dashboard_action_card.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/dashboard_card.dart';
@@ -100,7 +100,7 @@ class _FigureRow extends StatelessWidget {
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
-                    CurrencyFormatter.format(amount),
+                    context.money.format(amount),
                     style: AppTypography.monoLarge.copyWith(color: color),
                   ),
                 ),
