@@ -141,7 +141,7 @@ class _AmountField extends StatelessWidget {
   Widget build(BuildContext context) {
     final money = context.money;
     final example = money.format(
-      money.inputFormat.allowsDecimals
+      money.currency.decimalDigits > 0
           ? ItemFormFields._exampleWithCents
           : ItemFormFields._example,
     );

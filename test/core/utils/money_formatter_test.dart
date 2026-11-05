@@ -127,11 +127,11 @@ void main() {
 
     expect(
       decoration(_formatter(AppCurrency.cop, 'es').inputFormat),
-      '\$\u00A01.000,0',
+      '\$\u00A01.000,2',
     );
     expect(
       decoration(_formatter(AppCurrency.cop, 'en').inputFormat),
-      'COP\u00A01,000.0',
+      'COP\u00A01,000.2',
     );
     expect(
       decoration(_formatter(AppCurrency.usd, 'es').inputFormat),

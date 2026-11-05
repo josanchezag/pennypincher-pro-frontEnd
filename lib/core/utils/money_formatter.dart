@@ -37,7 +37,7 @@ final class MoneyFormatter {
     inputFormat = _style.inputFormat(
       symbols.GROUP_SEP,
       symbols.DECIMAL_SEP,
-      currency.decimalDigits,
+      MoneyInputFormat.centsDigits,
     );
     exchangeRateInputFormat =
         _CurrencyStyle.of(AppCurrency.cop, languageCode).inputFormat(
@@ -85,7 +85,11 @@ final class MoneyFormatter {
   late final NumberFormat _whole;
 
   /// How amount fields write amounts in [currency]: `1.500.000,50`
-  /// after `US$ `, or `1,500,000` after `COP `.
+  /// after `US$ `, or `1,500,000` after `COP `. Every currency takes up to
+  /// two decimals there, pesos included, since amounts are stored with
+  /// cents and a decimal separator typed in pesos must never be dropped
+  /// (`8500000,5` is 8500000.50, not 85000005); whole amounts still show
+  /// none.
   late final MoneyInputFormat inputFormat;
 
   /// How the TRM field writes the rate, as pesos with cents.

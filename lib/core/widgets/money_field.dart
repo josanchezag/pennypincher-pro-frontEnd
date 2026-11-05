@@ -14,8 +14,8 @@ import 'package:reactive_forms/reactive_forms.dart';
 /// With [exchangeRate] the field takes the TRM instead: Colombian pesos with
 /// two decimals whatever the user's currency.
 ///
-/// A peso amount saved with cents keeps them when edited instead of being
-/// rounded. A change of currency or language while the field is open
+/// Every currency takes up to two decimals (whole amounts show none), so a
+/// peso amount keeps the cents it was saved with. A change of currency or language while the field is open
 /// rewrites its amount at once, and leaving the field tidies what was typed
 /// (`1500.5` becomes `1.500,50`).
 class MoneyField extends StatefulWidget {
@@ -56,7 +56,6 @@ class _MoneyFieldState extends State<MoneyField> {
   final _MoneyValueAccessor _accessor = _MoneyValueAccessor();
   MoneyInputFormat? _format;
   late MoneyInputFormatter _formatter;
-  bool _keepsCents = false;
 
   @override
   void initState() {
@@ -68,13 +67,8 @@ class _MoneyFieldState extends State<MoneyField> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final money = context.money;
-    final value = _control.value;
-    _keepsCents = _keepsCents ||
-        money.inputFormat.keepingCentsOf(value) != money.inputFormat;
-    final base =
-        widget.exchangeRate ? money.exchangeRateInputFormat : money.inputFormat;
     final format =
-        _keepsCents ? base.withMaxDecimals(MoneyInputFormat.centsDigits) : base;
+        widget.exchangeRate ? money.exchangeRateInputFormat : money.inputFormat;
     if (format == _format) {
       return;
     }
@@ -83,7 +77,7 @@ class _MoneyFieldState extends State<MoneyField> {
     _accessor.format = format;
     _formatter = MoneyInputFormatter(format);
     if (changed) {
-      _showValue(value);
+      _showValue(_control.value);
     }
   }
 

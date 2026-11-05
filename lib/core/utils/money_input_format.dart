@@ -28,9 +28,11 @@ enum MoneyCharKind {
 ///
 /// | | es | en |
 /// |---|---|---|
-/// | COP | `$ 1.234.568` | `COP 1,234,568` |
+/// | COP | `$ 1.234.567,50` | `COP 1,234,567.50` |
 /// | USD | `US$ 1.234.567,50` | `$1,234,567.50` |
 /// | EUR | `1.234.567,50 €` | `€1,234,567.50` |
+///
+/// A whole amount has no decimals in the field (`$ 1.500.000`).
 ///
 /// [format] and [parse] are exact: amounts are built from their digits,
 /// never through floating point.
@@ -56,7 +58,8 @@ final class MoneyInputFormat extends Equatable {
   final String groupSeparator;
   final String decimalSeparator;
 
-  /// 0 for Colombian pesos, 2 for dollars, euros and the TRM.
+  /// Decimals the field takes: 2 for amounts and the TRM; 0 makes a
+  /// whole-number field.
   final int maxDecimals;
 
   /// Text shown before the number, such as `$ ` or `€`; empty when the
@@ -67,23 +70,6 @@ final class MoneyInputFormat extends Equatable {
   final String suffix;
 
   bool get allowsDecimals => maxDecimals > 0;
-
-  /// The same format allowing [decimals] decimals.
-  MoneyInputFormat withMaxDecimals(int decimals) => MoneyInputFormat(
-        groupSeparator: groupSeparator,
-        decimalSeparator: decimalSeparator,
-        maxDecimals: decimals,
-        prefix: prefix,
-        suffix: suffix,
-      );
-
-  /// The same format, with room for the cents of [amount] when it has some
-  /// and the currency writes none: a peso amount with cents saved before
-  /// is kept exact instead of being rounded when edited.
-  MoneyInputFormat keepingCentsOf(Money? amount) =>
-      amount != null && _hasCents(amount) && maxDecimals < centsDigits
-          ? withMaxDecimals(centsDigits)
-          : this;
 
   /// Text of [amount] as the field shows it: grouped units, and the two
   /// decimals only when there are cents (`1.500.000`, `1.500.000,50`).

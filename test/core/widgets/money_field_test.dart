@@ -89,8 +89,31 @@ void main() {
     expect(_valueOf(form), const Money.fromUnits(1500000));
     final field = tester.widget<TextField>(_field);
     expect(field.decoration!.prefixText, '\$ ');
-    expect(field.keyboardType, const TextInputType.numberWithOptions());
+    expect(
+      field.keyboardType,
+      const TextInputType.numberWithOptions(decimal: true),
+    );
   });
+
+  for (final (language, typed, shown, tidy) in [
+    ('es', '8500000,5', '8.500.000,5', '8.500.000,50'),
+    ('en', '8500000.5', '8,500,000.5', '8,500,000.50'),
+  ]) {
+    testWidgets('takes the cents typed in pesos in "$language"',
+        (tester) async {
+      final form = _group();
+      addTearDown(form.dispose);
+      await tester.pumpWidget(_form(form, language: language));
+
+      await _type(tester, typed);
+      expect(_controller(tester).text, shown);
+      expect(_valueOf(form), const Money.fromCents(850000050));
+
+      await tester.tap(find.byKey(_otherField));
+      await tester.pump();
+      expect(_controller(tester).text, tidy);
+    });
+  }
 
   testWidgets('formats English dollars with their cents', (tester) async {
     final form = _group();

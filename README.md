@@ -354,7 +354,8 @@ que se escribe como pesos con centavos en cualquier moneda (`$ 3.950,25` / `COP 
 Todos los campos de monto son `MoneyField` (`lib/core/widgets/money_field.dart`), que guarda el
 `Money` exacto en su `FormControl<Money>` y escribe el monto mientras se teclea con
 `MoneyInputFormatter`: separadores de miles automáticos y decimales según el idioma (`1.500.000,50`
-/ `1,500,000.50`), sin decimales en pesos y con dos en dólares, euros y la TRM, y el símbolo como
+/ `1,500,000.50`), hasta dos decimales en todas las monedas (también pesos, para que una coma
+tecleada nunca se pierda: `8500000,5` es 8.500.000,50; un monto entero se ve sin decimales), y el símbolo como
 prefijo o sufijo del campo. El separador decimal del idioma inicia los decimales; el de miles,
 tecleado al final, se lee por lo que sigue (uno o dos dígitos: decimales, `1500.5` → `1.500.5`, que
 al salir del campo queda `1.500,50`; un tercero: miles, `1,500` → 1500 en inglés). Lo pegado se lee

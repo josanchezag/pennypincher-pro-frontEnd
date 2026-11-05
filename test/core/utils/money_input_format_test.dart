@@ -64,34 +64,34 @@ void main() {
     final dollars = _format(AppCurrency.usd, 'en');
 
     expect(pesos.parse(''), isNull);
-    expect(pesos.parse('1.500,5'), isNull);
+    expect(pesos.parse('1.500,505'), isNull);
     expect(dollars.parse('1.505'), isNull);
     expect(dollars.parse('10,000,000,000,000'), isNull);
   });
 
-  test('reads a peso thousands dot as grouping, never as decimals', () {
-    final pesos = _format(AppCurrency.cop, 'es');
+  test('reads typed peso cents, either way they were separated', () {
+    final spanish = _format(AppCurrency.cop, 'es');
+    final english = _format(AppCurrency.cop, 'en');
 
-    expect(pesos.parse('1.5'), const Money.fromUnits(15));
-    expect(pesos.classify('1.5'), [
+    expect(spanish.parse('8.500.000,5'), const Money.fromCents(850000050));
+    expect(spanish.parse('8.500.000.5'), const Money.fromCents(850000050));
+    expect(english.parse('8,500,000.5'), const Money.fromCents(850000050));
+    expect(english.parse('8,500,000,5'), const Money.fromCents(850000050));
+    expect(spanish.parse('8.500.000'), const Money.fromUnits(8500000));
+  });
+
+  test('reads a thousands dot as grouping in a format without decimals', () {
+    const whole = MoneyInputFormat(
+      groupSeparator: '.',
+      decimalSeparator: ',',
+      maxDecimals: 0,
+    );
+
+    expect(whole.parse('1.5'), const Money.fromUnits(15));
+    expect(whole.classify('1.5'), [
       MoneyCharKind.digit,
       MoneyCharKind.group,
       MoneyCharKind.digit,
     ]);
-  });
-
-  test('makes room for the cents of a peso amount saved with them', () {
-    final pesos = _format(AppCurrency.cop, 'es');
-
-    expect(pesos.keepingCentsOf(const Money.fromUnits(5)), pesos);
-    expect(pesos.keepingCentsOf(null), pesos);
-    expect(
-      pesos.keepingCentsOf(const Money.fromCents(150)).maxDecimals,
-      MoneyInputFormat.centsDigits,
-    );
-    expect(
-      _format(AppCurrency.usd, 'es').keepingCentsOf(Money.zero).maxDecimals,
-      2,
-    );
   });
 }

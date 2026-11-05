@@ -183,12 +183,22 @@ void main() {
       ]);
     });
 
-    test('takes no decimals and ignores other characters', () {
+    test('takes typed cents instead of dropping the separator', () {
       _check(formatter, [
-        ('', _keys('1500,50'), '150.050|'),
+        ('', _keys('8500000,5'), '8.500.000,5|'),
+        ('', _keys('8500000,50'), '8.500.000,50|'),
+        ('', _keys('8500000,505'), '8.500.000,50|'),
+        ('', _keys('8500000.5'), '8.500.000.5|'),
         ('', _keys('1.500.000'), '1.500.000|'),
+        ('1.234|', _keys(','), '1.234,|'),
+        ('', _keys(','), '0,|'),
+      ]);
+    });
+
+    test('ignores other characters', () {
+      _check(formatter, [
         ('', _keys('12a-b 3'), '123|'),
-        ('1.234|', _keys(','), '1.234|'),
+        ('1.234|', _keys('x'), '1.234|'),
       ]);
     });
 
@@ -231,12 +241,13 @@ void main() {
       ]);
     });
 
-    test('pastes amounts written either way, dropping the cents', () {
+    test('pastes amounts written either way, with their cents', () {
       _check(formatter, [
         ('', [const _Paste('1500000')], '1.500.000|'),
-        ('', [const _Paste('1.500.000,50')], '1.500.000|'),
-        ('', [const _Paste(r'$ 1,500.50')], '1.500|'),
-        ('', [const _Paste('1500000.5')], '1.500.000|'),
+        ('', [const _Paste('1.500.000,50')], '1.500.000,50|'),
+        ('', [const _Paste(r'$ 1,500.50')], '1.500,50|'),
+        ('', [const _Paste('1500000.5')], '1.500.000,5|'),
+        ('', [const _Paste('1.500.000,505')], '1.500.000,50|'),
         ('', [const _Paste('COP 2,450,000')], '2.450.000|'),
         ('[9.999]', [const _Paste('1.500')], '1.500|'),
         ('1|0', [const _Paste('23')], '1.23|0'),
@@ -249,6 +260,20 @@ void main() {
         ('', _keys('12345678901234'), '1.234.567.890.123|'),
         ('', [const _Paste('12345678901234')], '|'),
         ('', [const _Paste('9999999999999')], '9.999.999.999.999|'),
+      ]);
+    });
+  });
+
+  group('Colombian pesos in English', () {
+    final formatter = _formatterOf(AppCurrency.cop, 'en');
+
+    test('groups with commas and takes typed cents', () {
+      _check(formatter, [
+        ('', _keys('8500000'), '8,500,000|'),
+        ('', _keys('8500000.5'), '8,500,000.5|'),
+        ('', _keys('8500000,5'), '8,500,000,5|'),
+        ('', _keys('1,500,000'), '1,500,000|'),
+        ('', [const _Paste('1.500.000,50')], '1,500,000.50|'),
       ]);
     });
   });
@@ -391,14 +416,18 @@ void main() {
     expect(_marked(formatter.formatEditUpdate(old, set)), '1,234.5|');
   });
 
-  test('keeps cents when the format allows them for an old amount', () {
-    final format = MoneyFormatter.of(AppCurrency.cop, 'es')
-        .inputFormat
-        .withMaxDecimals(MoneyInputFormat.centsDigits);
+  test('writes whole numbers only in a format without decimals', () {
+    const whole = MoneyInputFormat(
+      groupSeparator: '.',
+      decimalSeparator: ',',
+      maxDecimals: 0,
+    );
 
-    _check(MoneyInputFormatter(format), [
-      ('1.500.000,5|', _keys('0'), '1.500.000,50|'),
-      ('1|.500.000,50', _keys('2'), '12|.500.000,50'),
+    _check(MoneyInputFormatter(whole), [
+      ('', _keys('1500,50'), '150.050|'),
+      ('1.234|', _keys(','), '1.234|'),
+      ('', _keys('1.5'), '15|'),
+      ('', [const _Paste('1.500.000,50')], '1.500.000|'),
     ]);
   });
 }

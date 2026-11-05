@@ -9,7 +9,8 @@ import 'package:pennypincher_pro/core/utils/money_input_format.dart';
 ///   shows `1.234.567`.
 /// - The language's decimal separator (`,` in Spanish, `.` in English)
 ///   starts the decimals; typed again, or once the decimals are full, it is
-///   ignored, as is any other character. Pesos take neither separator.
+///   ignored, as is any other character. Every currency takes them,
+///   pesos included, so no typed separator is ever silently dropped.
 /// - The thousands separator (`.` in Spanish, `,` in English) is not
 ///   needed, but typed at the end of the amount it is kept as typed, so
 ///   habits and keypads of either convention work: followed by one or two
@@ -23,7 +24,7 @@ import 'package:pennypincher_pro/core/utils/money_input_format.dart';
 ///   either convention: a separator followed by exactly three digits groups
 ///   thousands, otherwise the last separator starts the decimals. So
 ///   `1.500.000,50`, `$ 1,500,000.50` and `1500000.5` all paste as one and
-///   a half million; extra decimals are dropped (pesos keep none).
+///   a half million; extra decimals are dropped.
 /// - Leading zeros are dropped (`007` is `7`) and a lone decimal separator
 ///   becomes `0,`.
 /// - An edit that would leave more than [MoneyInputFormat.maxIntegerDigits]
