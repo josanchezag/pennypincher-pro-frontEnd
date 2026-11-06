@@ -16,6 +16,6 @@ class PreferencesRepositoryImpl implements PreferencesRepository {
   Future<Either<Failure, UserPreferences>> get() => guardFailures(_remote.get);
 
   @override
-  Future<Either<Failure, UserPreferences>> save(UserPreferences preferences) =>
-      guardFailures(() => _remote.save(preferences));
+  Future<Either<Failure, UserPreferences>> save(PreferencesChange change) =>
+      guardFailures(() => _remote.save(change));
 }

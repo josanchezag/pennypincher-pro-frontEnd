@@ -7,7 +7,7 @@ import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_fields.
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_sections.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_tile.dart';
 import 'package:pennypincher_pro/core/l10n/l10n.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
+import 'package:pennypincher_pro/core/utils/money_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
@@ -74,9 +74,14 @@ class CategorizedLayout<T extends CategorizedItem<C>, C extends Enum>
       );
 
   @override
-  Widget summary(AppLocalizations l10n, List<T> items) => StatCard(
+  Widget summary(
+    AppLocalizations l10n,
+    MoneyFormatter money,
+    List<T> items,
+  ) =>
+      StatCard(
         label: totalLabel(l10n),
-        value: CurrencyFormatter.format(totalOf(items)),
+        value: money.format(totalOf(items)),
         icon: totalIcon,
         valueColor: totalColor,
       );
@@ -85,9 +90,14 @@ class CategorizedLayout<T extends CategorizedItem<C>, C extends Enum>
   double get tileHeight => ItemTile.compactHeight;
 
   @override
-  ItemTileContent tileContent(AppLocalizations l10n, T item) => ItemTileContent(
+  ItemTileContent tileContent(
+    AppLocalizations l10n,
+    MoneyFormatter money,
+    T item,
+  ) =>
+      ItemTileContent(
         details: CategoryLabel(label: labelOf(l10n, item.category)),
-        amount: CurrencyFormatter.format(item.amount),
+        amount: money.format(item.amount),
         amountColor: totalColor,
       );
 

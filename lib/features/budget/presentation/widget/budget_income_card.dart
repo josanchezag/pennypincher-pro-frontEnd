@@ -6,9 +6,9 @@ import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/widgets/button_progress_icon.dart';
+import 'package:pennypincher_pro/core/widgets/money_format_scope.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/income_source_entity.dart';
 import 'package:pennypincher_pro/features/budget/presentation/screen/income_sources_screen.dart';
 import 'package:pennypincher_pro/features/budget/presentation/widget/budget_section_card.dart';
@@ -166,7 +166,7 @@ class _AmountLine extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.xs),
           Text(
-            CurrencyFormatter.format(amount),
+            context.money.format(amount),
             style: AppTypography.monoMedium,
           ),
         ],

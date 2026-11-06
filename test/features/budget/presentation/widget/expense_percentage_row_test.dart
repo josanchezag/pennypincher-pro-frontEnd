@@ -126,15 +126,15 @@ void main() {
 
       expect(barColor(tester), color, reason: '$actual vs $ideal');
     }
-    expect(textColor(tester, '42,7 %'), AppColors.neutral);
+    expect(textColor(tester, '42.7%'), AppColors.neutral);
   });
 
   testWidgets('shows the actual and ideal shares with one decimal',
       (tester) async {
     await pump(tester, 21.53, 20);
 
-    expect(find.text('21,5 %'), findsOneWidget);
-    expect(find.text('20,0 %'), findsOneWidget);
+    expect(find.text('21.5%'), findsOneWidget);
+    expect(find.text('20.0%'), findsOneWidget);
     expect(find.text('Credit cards'), findsOneWidget);
     expect(find.text(r'$ 8.000.000'), findsOneWidget);
   });
@@ -154,9 +154,9 @@ void main() {
     for (final width in [600.0, 311.0]) {
       await pump(tester, 25971.8, 20, width: width);
 
-      final text = find.text('25.971,8\u00A0%');
+      final text = find.text('25,971.8%');
       expect(text, findsOneWidget);
-      final line = tester.getSize(find.text('20,0\u00A0%')).height;
+      final line = tester.getSize(find.text('20.0%')).height;
       expect(tester.getSize(text).height, lessThanOrEqualTo(line));
       expect(
         tester.getRect(text).width,
@@ -195,8 +195,8 @@ void main() {
       'when narrow', (tester) async {
     await pump(tester, 12.5, 20);
     final bar = tester.getRect(find.byKey(ExpensePercentageRow.barKey));
-    final actual = tester.getRect(find.text('12,5 %'));
-    final ideal = tester.getRect(find.text('20,0 %'));
+    final actual = tester.getRect(find.text('12.5%'));
+    final ideal = tester.getRect(find.text('20.0%'));
     expect(bar.left, greaterThan(actual.right));
     expect(bar.right, lessThan(ideal.left));
 
@@ -204,7 +204,7 @@ void main() {
     final narrowBar = tester.getRect(find.byKey(ExpensePercentageRow.barKey));
     expect(
       narrowBar.top,
-      greaterThan(tester.getRect(find.text('12,5 %')).bottom),
+      greaterThan(tester.getRect(find.text('12.5%')).bottom),
     );
     expect(tester.takeException(), isNull);
   });
@@ -215,8 +215,8 @@ void main() {
 
     expect(
       find.bySemanticsLabel(
-        'Credit cards, \$ 8.000.000, 21,5 % of income, '
-        'ideal 20,0 %, slightly over target',
+        r'Credit cards, $ 8.000.000, 21.5% of income, ideal 20.0%, '
+        'slightly over target',
       ),
       findsOneWidget,
     );

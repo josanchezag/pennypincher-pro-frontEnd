@@ -21,12 +21,13 @@ class PreferencesRemoteDataSource {
     return ApiEnvelope.parseData(response.data, PreferencesJson.fromJson);
   }
 
-  /// `PUT /users/me/preferences` with every setting.
-  Future<UserPreferences> save(UserPreferences preferences) async {
+  /// `PUT /users/me/preferences` with the settings of [change] only; the
+  /// backend keeps the others.
+  Future<UserPreferences> save(PreferencesChange change) async {
     final response = await ApiEnvelope.send(
       () => _dio.put<Object?>(
         ApiPaths.myPreferences,
-        data: PreferencesJson.toJson(preferences),
+        data: PreferencesJson.toJson(change),
       ),
     );
     return ApiEnvelope.parseData(response.data, PreferencesJson.fromJson);

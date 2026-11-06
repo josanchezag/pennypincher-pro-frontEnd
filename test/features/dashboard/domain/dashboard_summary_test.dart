@@ -16,7 +16,7 @@ List<NetWorthPoint> _months(int count) => [
       for (var month = 1; month <= count; month++)
         NetWorthPoint(
           date: DateTime(2026, month),
-          netWorth: Money.fromPesos(month),
+          netWorth: Money.fromUnits(month),
         ),
     ];
 
@@ -80,7 +80,7 @@ void main() {
         newUserSummary
             .copyWith(
               netWorth: newUserSummary.netWorth.copyWith(
-                totalLiabilities: const Money.fromPesos(1),
+                totalLiabilities: const Money.fromUnits(1),
               ),
             )
             .isEmpty,

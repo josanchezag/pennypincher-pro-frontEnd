@@ -13,12 +13,12 @@ void main() {
     second: davivienda,
     created: familyLoan,
     updated:
-        davivienda.copyWith(originalAmount: const Money.fromPesos(90000000)),
+        davivienda.copyWith(originalAmount: const Money.fromUnits(90000000)),
     draft: const BalanceDraft(
       name: 'Davivienda 7141',
-      monthlyAmount: Money.fromPesos(2080231),
+      monthlyAmount: Money.fromUnits(2080231),
       balance: Money.fromCents(4550000025),
-      originalAmount: Money.fromPesos(90000000),
+      originalAmount: Money.fromUnits(90000000),
     ),
   );
 }

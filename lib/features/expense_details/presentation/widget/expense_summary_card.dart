@@ -5,8 +5,8 @@ import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
+import 'package:pennypincher_pro/core/widgets/money_format_scope.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/expense_summary_entity.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/expenses_hub_bloc.dart';
 import 'package:pennypincher_pro/features/expense_details/presentation/expense_kinds.dart';
@@ -114,7 +114,7 @@ class _Totals extends StatelessWidget {
           fit: BoxFit.scaleDown,
           alignment: Alignment.centerLeft,
           child: Text(
-            CurrencyFormatter.format(summary.monthlyTotal),
+            context.money.format(summary.monthlyTotal),
             style: AppTypography.monoLarge
                 .copyWith(fontSize: AppTypography.heading2Size),
           ),
@@ -123,7 +123,7 @@ class _Totals extends StatelessWidget {
         if (balanceLabel != null && balance != null)
           LabeledAmount(
             label: balanceLabel(context.l10n),
-            amount: CurrencyFormatter.format(balance),
+            amount: context.money.format(balance),
           ),
         Text(
           view.count(context.l10n, summary.count),

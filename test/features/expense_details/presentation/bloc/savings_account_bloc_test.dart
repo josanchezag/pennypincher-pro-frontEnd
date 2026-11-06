@@ -12,11 +12,11 @@ void main() {
     first: emergencyFund,
     second: cdt,
     created: vacations,
-    updated: cdt.copyWith(currentBalance: const Money.fromPesos(21000000)),
+    updated: cdt.copyWith(currentBalance: const Money.fromUnits(21000000)),
     draft: const BalanceDraft(
       name: 'CDT Bancolombia',
       monthlyAmount: Money.zero,
-      balance: Money.fromPesos(21000000),
+      balance: Money.fromUnits(21000000),
     ),
   );
 }

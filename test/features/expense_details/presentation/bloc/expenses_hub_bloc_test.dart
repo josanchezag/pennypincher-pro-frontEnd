@@ -53,6 +53,7 @@ void main() {
       isA<ExpensesHubState>(),
       isA<ExpensesHubState>(),
       isA<ExpensesHubState>(),
+      isA<ExpensesHubState>(),
       ExpensesHubState(
         statuses: {
           for (final kind in ExpenseKind.values)
@@ -62,7 +63,7 @@ void main() {
         },
       ),
     ],
-    verify: (_) => verify(() => getSummary(any())).called(5),
+    verify: (_) => verify(() => getSummary(any())).called(6),
   );
 
   blocTest<ExpensesHubBloc, ExpensesHubState>(
@@ -71,7 +72,7 @@ void main() {
         .thenAnswer((_) async => const Left(NetworkFailure('Offline'))),
     build: buildBloc,
     act: (bloc) => bloc.add(const ExpensesHubStarted()),
-    skip: 4,
+    skip: 5,
     expect: () => [
       isA<ExpensesHubState>()
           .having(

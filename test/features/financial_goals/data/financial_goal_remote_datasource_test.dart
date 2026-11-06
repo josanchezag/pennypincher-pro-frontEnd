@@ -89,7 +89,7 @@ void main() {
     expect(projection.goalId, 'g1');
     expect(projection.level, GoalLevel.financialSecurity);
     expect(projection.progressPercentage, 69.97);
-    expect(projection.remainingAmount, const Money.fromPesos(181717227));
+    expect(projection.remainingAmount, const Money.fromUnits(181717227));
     expect(projection.projectedMonthsToGoal, 38);
     expect(projection.projectedYearsToGoal, 3.17);
     expect(projection.projectedAchievementDate, DateTime(2029, 12));

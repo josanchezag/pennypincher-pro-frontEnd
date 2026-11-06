@@ -7,12 +7,13 @@ import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/widgets/app_snackbar.dart';
 import 'package:pennypincher_pro/features/settings/presentation/cubit/preferences_cubit.dart';
+import 'package:pennypincher_pro/features/settings/presentation/widget/currency_options.dart';
 import 'package:pennypincher_pro/features/settings/presentation/widget/language_options.dart';
 import 'package:pennypincher_pro/features/settings/presentation/widget/settings_section.dart';
 
 /// `/settings`: the preferences saved in the user's account, one
-/// [SettingsSection] per setting (the language today; the display currency
-/// goes below it). A failed save shows a snack bar and the previous value
+/// [SettingsSection] per setting: the language and, below it, the currency
+/// of the amounts. A failed save shows a snack bar and the previous value
 /// comes back. Expects a [PreferencesCubit] above it.
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -34,7 +35,7 @@ class SettingsScreen extends StatelessWidget {
         // the state while the screen still shows the one that failed.
         listener: (context, state) => AppSnackbar.showError(
           context,
-          lookupAppLocalizations(state.language).settingsLanguageSaveFailed,
+          _saveFailedText(lookupAppLocalizations(state.language), state),
         ),
         child: Align(
           alignment: Alignment.topCenter,
@@ -46,6 +47,8 @@ class SettingsScreen extends StatelessWidget {
                 _Title(),
                 _LoadNotice(),
                 _LanguageSection(),
+                SizedBox(height: AppSpacing.md),
+                _CurrencySection(),
               ],
             ),
           ),
@@ -54,6 +57,11 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 }
+
+String _saveFailedText(AppLocalizations l10n, PreferencesState state) =>
+    state.changedSetting == PreferenceSetting.currency
+        ? l10n.settingsCurrencySaveFailed
+        : l10n.settingsLanguageSaveFailed;
 
 class _Title extends StatelessWidget {
   const _Title();
@@ -142,10 +150,31 @@ class _LanguageSection extends StatelessWidget {
       icon: Icons.translate,
       title: l10n.settingsLanguageTitle,
       description: l10n.settingsLanguageDescription,
-      busy: state.saving,
+      busy: state.savingSetting(PreferenceSetting.language),
       child: LanguageOptions(
         selected: state.language,
         onSelected: state.saving ? null : cubit.changeLanguage,
+      ),
+    );
+  }
+}
+
+class _CurrencySection extends StatelessWidget {
+  const _CurrencySection();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final state = context.watch<PreferencesCubit>().state;
+    final cubit = context.read<PreferencesCubit>();
+    return SettingsSection(
+      icon: Icons.payments_outlined,
+      title: l10n.settingsCurrencyTitle,
+      description: l10n.settingsCurrencyDescription,
+      busy: state.savingSetting(PreferenceSetting.currency),
+      child: CurrencyOptions(
+        selected: state.currency,
+        onSelected: state.saving ? null : cubit.changeCurrency,
       ),
     );
   }

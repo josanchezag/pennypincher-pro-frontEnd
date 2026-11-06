@@ -17,10 +17,10 @@ void main() {
       first: schoolAna,
       second: rent,
       created: tithe,
-      updated: rent.copyWith(monthlyAmount: const Money.fromPesos(3300000)),
+      updated: rent.copyWith(monthlyAmount: const Money.fromUnits(3300000)),
       draft: const CategorizedDraft(
         name: 'Arriendo',
-        amount: Money.fromPesos(3300000),
+        amount: Money.fromUnits(3300000),
         category: FixedExpenseCategory.housing,
       ),
     );
@@ -33,10 +33,10 @@ void main() {
       first: netflix,
       second: nanny,
       created: restaurants,
-      updated: nanny.copyWith(monthlyAmount: const Money.fromPesos(1900000)),
+      updated: nanny.copyWith(monthlyAmount: const Money.fromUnits(1900000)),
       draft: const CategorizedDraft(
         name: 'Empleada',
-        amount: Money.fromPesos(1900000),
+        amount: Money.fromUnits(1900000),
         category: VariableExpenseCategory.householdStaff,
       ),
     );

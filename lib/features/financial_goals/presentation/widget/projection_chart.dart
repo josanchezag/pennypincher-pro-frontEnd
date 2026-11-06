@@ -7,8 +7,9 @@ import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
+import 'package:pennypincher_pro/core/utils/money_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/chart_style.dart';
+import 'package:pennypincher_pro/core/widgets/money_format_scope.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_projection_entity.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_figures.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/projection_scale.dart';
@@ -27,8 +28,8 @@ class ProjectionChart extends StatelessWidget {
   /// Room between a y label and the plot, besides the label itself.
   static const double axisLabelPadding = AppSpacing.md;
 
-  /// Wide enough for a value of 15 digits, such as `$ 1.021.304.980`, on
-  /// one line.
+  /// Wide enough for a value of 15 digits, such as `$ 1.021.304.980` or
+  /// `US$ 1.021.304.980,50`, on one line.
   static const double tooltipWidth = 240;
   static const double bottomAxisHeight = 28;
   static const double axisNameHeight = 20;
@@ -43,13 +44,17 @@ class ProjectionChart extends StatelessWidget {
       projection.reachable ? projection.projectedMonthsToGoal : null;
 
   /// Width the widest y label of [scale] needs, scaled with the text.
-  static double leftAxisWidthFor(ProjectionScale scale, TextScaler scaler) {
+  static double leftAxisWidthFor(
+    ProjectionScale scale,
+    MoneyFormatter money,
+    TextScaler scaler,
+  ) {
     var widest = 0.0;
     final labels = ((scale.maxY - scale.minY) / scale.yInterval).round();
     for (var step = 0; step <= labels; step++) {
       final painter = TextPainter(
         text: TextSpan(
-          text: CurrencyFormatter.formatCompact(
+          text: money.formatCompact(
             scale.minY + step * scale.yInterval,
           ),
           style: AppTypography.monoSmall,
@@ -67,7 +72,7 @@ class ProjectionChart extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       container: true,
-      label: _description(context.l10n),
+      label: _description(context.l10n, context.money),
       child: ExcludeSemantics(
         child: SizedBox(height: height, child: LineChart(_data(context))),
       ),
@@ -76,20 +81,23 @@ class ProjectionChart extends StatelessWidget {
 
   LineChartData _data(BuildContext context) {
     final scale = ProjectionScale.of(projection);
-    final axisWidth = leftAxisWidthFor(scale, MediaQuery.textScalerOf(context));
-    return _ProjectionChartData(context.l10n, this, scale, axisWidth).build();
+    final money = context.money;
+    final axisWidth =
+        leftAxisWidthFor(scale, money, MediaQuery.textScalerOf(context));
+    return _ProjectionChartData(context.l10n, money, this, scale, axisWidth)
+        .build();
   }
 
-  String _description(AppLocalizations l10n) {
+  String _description(AppLocalizations l10n, MoneyFormatter money) {
     final points = projection.dataPoints;
     final last = points.isEmpty ? null : points.last;
-    final target = GoalFormat.amount(projection.targetAmount);
+    final target = GoalFormat.amount(money, projection.targetAmount);
     return last == null
         ? l10n.goalsChartDescription(projection.name, target)
         : l10n.goalsChartDescriptionWithEnd(
             projection.name,
             target,
-            GoalFormat.amount(last.projectedValue),
+            GoalFormat.amount(money, last.projectedValue),
             MonthFormat.long.format(last.date),
           );
   }
@@ -99,12 +107,14 @@ class ProjectionChart extends StatelessWidget {
 class _ProjectionChartData {
   const _ProjectionChartData(
     this.l10n,
+    this.money,
     this.chart,
     this.scale,
     this.leftAxisWidth,
   );
 
   final AppLocalizations l10n;
+  final MoneyFormatter money;
   final ProjectionChart chart;
   final ProjectionScale scale;
   final double leftAxisWidth;
@@ -137,7 +147,7 @@ class _ProjectionChartData {
           for (final point in _projection.dataPoints)
             FlSpot(
               ProjectionScale.yearsOf(point.month),
-              point.projectedValue.pesos,
+              point.projectedValue.units,
             ),
         ],
         color: AppColors.brandPrimary,
@@ -165,7 +175,7 @@ class _ProjectionChartData {
   static const double _gradientOpacity = 0.2;
 
   HorizontalLine _targetLine() => HorizontalLine(
-        y: _projection.targetAmount.pesos,
+        y: _projection.targetAmount.units,
         color: AppColors.accentGold,
         dashArray: ProjectionChart.targetDash,
         label: HorizontalLineLabel(
@@ -201,7 +211,7 @@ class _ProjectionChartData {
   LineTooltipItem _tooltipItem(int index) {
     final point = _projection.dataPoints[index];
     return LineTooltipItem(
-      '${CurrencyFormatter.format(point.projectedValue)}\n',
+      '${money.format(point.projectedValue)}\n',
       AppTypography.monoMedium,
       children: [
         TextSpan(
@@ -220,7 +230,7 @@ class _ProjectionChartData {
             showTitles: true,
             reservedSize: leftAxisWidth,
             interval: scale.yInterval,
-            getTitlesWidget: ChartStyle.millionsLabel,
+            getTitlesWidget: ChartStyle.amountLabel(money),
           ),
         ),
         bottomTitles: AxisTitles(

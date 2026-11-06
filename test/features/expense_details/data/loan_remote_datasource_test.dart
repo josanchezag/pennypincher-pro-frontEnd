@@ -8,9 +8,9 @@ import '../../../helpers/fake_http_adapter.dart';
 
 const BalanceDraft _tracked = BalanceDraft(
   name: 'Prestamo carro',
-  monthlyAmount: Money.fromPesos(1200000),
-  balance: Money.fromPesos(30000000),
-  originalAmount: Money.fromPesos(50000000),
+  monthlyAmount: Money.fromUnits(1200000),
+  balance: Money.fromUnits(30000000),
+  originalAmount: Money.fromUnits(50000000),
 );
 
 void main() {
@@ -65,8 +65,8 @@ void main() {
       'l1',
       const BalanceDraft(
         name: 'Prestamo carro',
-        monthlyAmount: Money.fromPesos(1200000),
-        balance: Money.fromPesos(30000000),
+        monthlyAmount: Money.fromUnits(1200000),
+        balance: Money.fromUnits(30000000),
       ),
     );
 

@@ -107,13 +107,13 @@ const Map<String, Object?> newUserJson = {
 final DashboardSummary dashboardSummary = DashboardSummary(
   referenceMonth: DateTime(2026, 10),
   netWorth: NetWorthOverview(
-    current: const Money.fromPesos(423282773),
-    totalAssets: const Money.fromPesos(707363354),
-    totalLiabilities: const Money.fromPesos(284080581),
+    current: const Money.fromUnits(423282773),
+    totalAssets: const Money.fromUnits(707363354),
+    totalLiabilities: const Money.fromUnits(284080581),
     change: NetWorthChange(
-      previous: const Money.fromPesos(418000000),
+      previous: const Money.fromUnits(418000000),
       previousDate: DateTime(2026, 9),
-      delta: const Money.fromPesos(5282773),
+      delta: const Money.fromUnits(5282773),
       percentage: 1.26,
     ),
   ),
@@ -121,7 +121,7 @@ final DashboardSummary dashboardSummary = DashboardSummary(
     month: DateTime(2026, 10),
     figures: const BudgetFigures(
       totalIncome: Money.fromCents(3715292236),
-      totalExpenses: Money.fromPesos(19135201),
+      totalExpenses: Money.fromUnits(19135201),
       monthlyCashFlow: Money.fromCents(1801772136),
       cashFlowPercentage: 48.50,
     ),
@@ -136,11 +136,11 @@ final DashboardSummary dashboardSummary = DashboardSummary(
   recentSnapshots: [
     NetWorthPoint(
       date: DateTime(2026, 8),
-      netWorth: const Money.fromPesos(410000000),
+      netWorth: const Money.fromUnits(410000000),
     ),
     NetWorthPoint(
       date: DateTime(2026, 9),
-      netWorth: const Money.fromPesos(418000000),
+      netWorth: const Money.fromUnits(418000000),
     ),
   ],
   user: const UserProfile(

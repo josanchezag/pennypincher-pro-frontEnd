@@ -15,8 +15,9 @@ el backend.
 | **Fortuna neta** | `/net-worth` | Activos − Pasivos, histórico mensual y avance hacia la meta. |
 | **Presupuesto mensual** | `/budget` | Ingresos y gastos por categoría, % real vs. % ideal, flujo de caja. |
 | **Detalles de gastos** | `/expenses` | Tarjetas de crédito, préstamos, gastos fijos, variables y ahorros. |
+| **Gastos hormiga** | `/expenses/ant` | Registro rápido de gastos pequeños, límite mensual, tendencia y cortes por presupuesto. |
 | **Metas financieras** | `/goals` | Seguridad, Independencia, Libertad y Libertad Absoluta, con proyección. |
-| **Preferencias** | `/settings` | Idioma de la interfaz, guardado en la cuenta (y, más adelante, la moneda). |
+| **Preferencias** | `/settings` | Idioma de la interfaz y moneda de los montos, guardados en la cuenta. |
 
 ## Stack
 
@@ -284,11 +285,13 @@ lib/
 │   ├── di/          # get_it + injectable (injection.dart y su .config.dart generado)
 │   ├── error/       # Failure (sealed) y AppException
 │   ├── l10n/        # AppLocales, LocaleCubit (idioma aplicado) y su LocaleStore
+│   ├── storage/     # localStorage del navegador (idioma y moneda recordados)
 │   ├── layout/      # AppShell responsive (barra inferior / rail / rail expandido) y menú de cuenta
 │   ├── network/     # Clientes dio (con y sin AuthInterceptor), sobre de la API
 │   ├── router/      # AppRoute, AppDestination, AppRouter (go_router) y AuthGuard
 │   ├── theme/       # AppColors, AppTypography, AppSpacing, AppBreakpoints, AppTheme
-│   └── widgets/     # Widgets reutilizables (placeholder, mensajes de estado)
+│   ├── utils/       # Money, AppCurrency, MoneyFormatter, MoneyInputFormatter, PercentFormatter
+│   └── widgets/     # Widgets reutilizables (placeholder, mensajes de estado, MoneyFormatScope)
 ├── features/
 │   └── <feature>/{data,domain,presentation}
 ├── l10n/            # app_en.arb (plantilla) y app_es.arb
@@ -323,6 +326,42 @@ recuerda además el último idioma (solo el código `es`/`en`, en `localStorage`
 antes de iniciar sesión y cuando el backend no responde. Si el usuario nunca guardó un idioma, se
 conserva el de este navegador y se guarda en su cuenta. Si guardar falla, vuelve el idioma
 anterior y un *snack bar* lo avisa. El `lang` de la página sigue al idioma elegido.
+
+### Moneda y formato de los montos
+
+Cada usuario elige en **Preferencias** la moneda de sus montos: `COP` (por defecto, la de todos los
+usuarios existentes), `USD` o `EUR`. **No hay conversión**: los montos se guardan tal como se
+escribieron y la moneda solo cambia cómo se muestran. Cambiarla se aplica al instante en toda la app,
+guarda solo `{"currency": ...}` y, si falla, vuelve la anterior con un *snack bar*. El navegador
+recuerda la última moneda (`localStorage`), para no mostrar pesos un instante al recargar ni cuando
+la cuenta no responde.
+
+Todos los montos pasan por un único `MoneyFormatter` (`context.money`), que `MoneyFormatScope` pone
+encima de todas las pantallas según la moneda y el idioma. Los separadores siguen al idioma (datos
+de intl `es_CO` y `en_US`: `1.234.567,50` y `1,234,567.50`), y el símbolo, a la costumbre de cada
+idioma, porque en español de Colombia `$` es el peso y en inglés es el dólar:
+
+| 1234567,5 | Español | Inglés |
+|---|---|---|
+| COP (sin decimales) | `$ 1.234.568` | `COP 1,234,568` |
+| USD (2 decimales) | `US$ 1.234.567,50` | `$1,234,567.50` |
+| EUR (2 decimales) | `1.234.567,50 €` | `€1,234,567.50` |
+
+Los ejes de las gráficas usan `173M` / `850.000` con los separadores del idioma, y los porcentajes
+también siguen al idioma (`42,7 %` / `42.7%`). La TRM del presupuesto es siempre pesos por dólar, así
+que se escribe como pesos con centavos en cualquier moneda (`$ 3.950,25` / `COP 3,950.25`); para
+`EUR` se oculta (no aplica) y se conserva sin cambios.
+
+Todos los campos de monto son `MoneyField` (`lib/core/widgets/money_field.dart`), que guarda el
+`Money` exacto en su `FormControl<Money>` y escribe el monto mientras se teclea con
+`MoneyInputFormatter`: separadores de miles automáticos y decimales según el idioma (`1.500.000,50`
+/ `1,500,000.50`), hasta dos decimales en todas las monedas (también pesos, para que una coma
+tecleada nunca se pierda: `8500000,5` es 8.500.000,50; un monto entero se ve sin decimales), y el símbolo como
+prefijo o sufijo del campo. El separador decimal del idioma inicia los decimales; el de miles,
+tecleado al final, se lee por lo que sigue (uno o dos dígitos: decimales, `1500.5` → `1.500.5`, que
+al salir del campo queda `1.500,50`; un tercero: miles, `1,500` → 1500 en inglés). Lo pegado se lee
+en cualquier convención (`1.500.000,50`, `$ 1,500,000.50`, `1500000.5`). Un monto en pesos guardado
+con centavos los conserva al editarse, y un cambio de idioma o moneda reescribe el campo abierto.
 
 Los mensajes de error del backend están en inglés y son para desarrolladores: la app nunca los
 muestra. `ErrorMessages.forBackendCode` traduce cada `error.code` a un texto de los ARB, y las

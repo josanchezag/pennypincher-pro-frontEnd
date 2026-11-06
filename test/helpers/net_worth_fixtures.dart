@@ -8,14 +8,14 @@ import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_tren
 const Asset apartment = Asset(
   id: 'a1',
   name: 'Apto Madera',
-  value: Money.fromPesos(350000000),
+  value: Money.fromUnits(350000000),
   category: AssetCategory.realEstate,
 );
 
 const Asset car = Asset(
   id: 'a2',
   name: 'Carro Mazda',
-  value: Money.fromPesos(62000000),
+  value: Money.fromUnits(62000000),
   category: AssetCategory.vehicle,
 );
 
@@ -39,7 +39,7 @@ const Map<String, Object?> apartmentJson = {
 const Liability nuCard = Liability(
   id: 'l1',
   name: 'Tarjeta Nu Bank',
-  currentBalance: Money.fromPesos(3200000),
+  currentBalance: Money.fromUnits(3200000),
   category: LiabilityCategory.creditCard,
 );
 
@@ -61,18 +61,18 @@ NetWorthSnapshot snapshotOf(int year, int month, int netWorthPesos) =>
     NetWorthSnapshot(
       id: 's-$year-$month',
       snapshotDate: DateTime(year, month),
-      totalAssets: Money.fromPesos(netWorthPesos + 10000000),
-      totalLiabilities: const Money.fromPesos(10000000),
-      netWorth: Money.fromPesos(netWorthPesos),
+      totalAssets: Money.fromUnits(netWorthPesos + 10000000),
+      totalLiabilities: const Money.fromUnits(10000000),
+      netWorth: Money.fromUnits(netWorthPesos),
     );
 
 final NetWorthSnapshot august = snapshotOf(2026, 8, 165000000);
 final NetWorthSnapshot september = snapshotOf(2026, 9, 170550000);
 
 const NetWorthSummary currentSummary = NetWorthSummary(
-  totalAssets: Money.fromPesos(185000000),
-  totalLiabilities: Money.fromPesos(12000000),
-  netWorth: Money.fromPesos(173000000),
+  totalAssets: Money.fromUnits(185000000),
+  totalLiabilities: Money.fromUnits(12000000),
+  netWorth: Money.fromUnits(173000000),
 );
 
 const Map<String, Object?> septemberJson = {
@@ -108,10 +108,10 @@ NetWorthTrendPoint trendPointOf(
 }) =>
     NetWorthTrendPoint(
       month: DateTime(2026, month),
-      totalAssets: Money.fromPesos(assets),
-      totalLiabilities: Money.fromPesos(liabilities),
-      netWorth: Money.fromPesos(assets - liabilities),
-      delta: delta == null ? null : Money.fromPesos(delta),
+      totalAssets: Money.fromUnits(assets),
+      totalLiabilities: Money.fromUnits(liabilities),
+      netWorth: Money.fromUnits(assets - liabilities),
+      delta: delta == null ? null : Money.fromUnits(delta),
     );
 
 /// August to October 2026: net worth 100, 160 (the best) and 130 million.

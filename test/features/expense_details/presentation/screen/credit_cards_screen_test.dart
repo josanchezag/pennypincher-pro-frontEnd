@@ -8,7 +8,6 @@ import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/crud/presentation/crud_screen.dart';
 import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
@@ -73,7 +72,7 @@ void main() {
         lessThanOrEqualTo(topOf(tester, find.text('Visa Bancolombia'))),
       );
       expect(
-        find.text(CurrencyFormatter.format(nuCard.totalBalance)),
+        find.text(testMoney.format(nuCard.totalBalance)),
         findsOneWidget,
       );
       expect(labeledAmount(visaCard.monthlyPayment), findsOneWidget);
@@ -94,7 +93,7 @@ void main() {
       expectStat(
         tester,
         l10n.totalOutstandingBalance,
-        const Money.fromPesos(46956922),
+        const Money.fromUnits(46956922),
       );
       expectStat(
         tester,
@@ -155,7 +154,7 @@ void main() {
           BalanceDraft(
             name: 'Tarjeta Nu Bank',
             monthlyAmount: Money.zero,
-            balance: Money.fromPesos(12407700),
+            balance: Money.fromUnits(12407700),
           ),
         ),
       ),
@@ -169,11 +168,10 @@ void main() {
     await tester.pumpAndSettle();
     await fillAndSave(tester, {
       l10n.crudNameLabel: 'Visa',
-      l10n.monthlyPayment: '1,500',
+      l10n.monthlyPayment: '-',
     });
 
-    expect(find.text(l10n.crudAmountInvalid), findsOneWidget);
-    expect(find.text(l10n.crudAmountRequired), findsOneWidget);
+    expect(find.text(l10n.crudAmountRequired), findsNWidgets(2));
     verifyNever(
       () => bloc.add(any(that: isA<CrudSaveRequested<BalanceDraft>>())),
     );
@@ -188,7 +186,7 @@ void main() {
     await tester.tap(find.text('Visa Bancolombia'));
     await tester.pumpAndSettle();
     expect(find.text('Edit credit card'), findsOneWidget);
-    expect(find.text('1250000,50'), findsOneWidget);
+    expect(find.text('1,250,000.50'), findsOneWidget);
     await fillAndSave(tester, {l10n.totalBalance: '28.000.000'});
     verify(
       () => bloc.add(
@@ -196,7 +194,7 @@ void main() {
           BalanceDraft(
             name: 'Visa Bancolombia',
             monthlyAmount: Money.fromCents(125000050),
-            balance: Money.fromPesos(28000000),
+            balance: Money.fromUnits(28000000),
           ),
           id: 'c2',
         ),
@@ -204,7 +202,7 @@ void main() {
     ).called(1);
 
     await failSave(tester, states, _loaded.items);
-    expect(find.text('28.000.000'), findsOneWidget);
+    expect(find.text('28,000,000'), findsOneWidget);
   });
 
   testWidgets('deletes a card after confirming from the button',

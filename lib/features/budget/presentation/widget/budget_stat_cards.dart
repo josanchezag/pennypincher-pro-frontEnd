@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
+import 'package:pennypincher_pro/core/widgets/money_format_scope.dart';
 import 'package:pennypincher_pro/core/widgets/responsive_card_row.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_budget_entity.dart';
@@ -20,19 +20,19 @@ class BudgetStatCards extends StatelessWidget {
       children: [
         StatCard(
           label: context.l10n.totalIncome,
-          value: CurrencyFormatter.format(budget.totalIncome),
+          value: context.money.format(budget.totalIncome),
           icon: Icons.trending_up,
           valueColor: AppColors.success,
         ),
         StatCard(
           label: context.l10n.totalExpenses,
-          value: CurrencyFormatter.format(budget.totalExpenses),
+          value: context.money.format(budget.totalExpenses),
           icon: Icons.trending_down,
           valueColor: AppColors.error,
         ),
         StatCard(
           label: context.l10n.cashFlow,
-          value: CurrencyFormatter.format(cashFlow),
+          value: context.money.format(cashFlow),
           icon: Icons.account_balance_wallet_outlined,
           valueColor: cashFlow.isNegative ? AppColors.error : AppColors.success,
         ),

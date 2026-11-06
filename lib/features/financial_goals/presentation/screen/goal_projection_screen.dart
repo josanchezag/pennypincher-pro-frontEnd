@@ -5,8 +5,10 @@ import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_breakpoints.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
+import 'package:pennypincher_pro/core/utils/money_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/labeled_figure.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
+import 'package:pennypincher_pro/core/widgets/money_format_scope.dart';
 import 'package:pennypincher_pro/core/widgets/responsive_card_row.dart';
 import 'package:pennypincher_pro/core/widgets/screen_title_row.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
@@ -140,12 +142,12 @@ class _Figures extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) =>
           ScreenSize.fromWidth(constraints.maxWidth) == ScreenSize.mobile
-              ? _compact(context.l10n)
-              : _cards(context.l10n),
+              ? _compact(context.l10n, context.money)
+              : _cards(context.l10n, context.money),
     );
   }
 
-  Widget _compact(AppLocalizations l10n) => Card(
+  Widget _compact(AppLocalizations l10n, MoneyFormatter money) => Card(
         key: GoalProjectionScreen.compactFiguresKey,
         margin: EdgeInsets.zero,
         child: Padding(
@@ -158,14 +160,15 @@ class _Figures extends StatelessWidget {
                   Expanded(
                     child: LabeledFigure(
                       label: l10n.goalsTarget,
-                      value: GoalFormat.amount(projection.targetAmount),
+                      value: GoalFormat.amount(money, projection.targetAmount),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: LabeledFigure(
                       label: l10n.goalsCurrentNetWorth,
-                      value: GoalFormat.amount(projection.currentNetWorth),
+                      value:
+                          GoalFormat.amount(money, projection.currentNetWorth),
                     ),
                   ),
                 ],
@@ -179,16 +182,17 @@ class _Figures extends StatelessWidget {
         ),
       );
 
-  Widget _cards(AppLocalizations l10n) => ResponsiveCardRow(
+  Widget _cards(AppLocalizations l10n, MoneyFormatter money) =>
+      ResponsiveCardRow(
         children: [
           StatCard(
             label: l10n.goalsTarget,
-            value: GoalFormat.amount(projection.targetAmount),
+            value: GoalFormat.amount(money, projection.targetAmount),
             icon: Icons.flag_outlined,
           ),
           StatCard(
             label: l10n.goalsCurrentNetWorth,
-            value: GoalFormat.amount(projection.currentNetWorth),
+            value: GoalFormat.amount(money, projection.currentNetWorth),
             icon: Icons.account_balance_outlined,
           ),
           StatCard(

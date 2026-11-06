@@ -80,7 +80,7 @@ void main() {
       expectStat(
         tester,
         l10n.totalMonthlyContributions,
-        const Money.fromPesos(800000),
+        const Money.fromUnits(800000),
       );
       expect(tester.takeException(), isNull);
     });
@@ -129,8 +129,8 @@ void main() {
         const CrudSaveRequested(
           BalanceDraft(
             name: 'Vacaciones',
-            monthlyAmount: Money.fromPesos(300000),
-            balance: Money.fromPesos(1200000),
+            monthlyAmount: Money.fromUnits(300000),
+            balance: Money.fromUnits(1200000),
           ),
         ),
       ),
@@ -153,7 +153,7 @@ void main() {
           BalanceDraft(
             name: 'CDT Bancolombia',
             monthlyAmount: Money.zero,
-            balance: Money.fromPesos(21000000),
+            balance: Money.fromUnits(21000000),
           ),
           id: 's2',
         ),
@@ -161,7 +161,7 @@ void main() {
     ).called(1);
 
     await failSave(tester, states, _loaded.items);
-    expect(find.text('21.000.000'), findsOneWidget);
+    expect(find.text('21,000,000'), findsOneWidget);
   });
 
   testWidgets('refreshes the totals after a change', (tester) async {
@@ -175,7 +175,7 @@ void main() {
     expectStat(
       tester,
       l10n.totalSavingsBalance,
-      const Money.fromPesos(21200000),
+      const Money.fromUnits(21200000),
     );
   });
 

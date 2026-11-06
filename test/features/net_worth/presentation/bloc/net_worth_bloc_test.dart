@@ -101,7 +101,7 @@ void main() {
   group('NetWorthLoaded', () {
     test('measures the change against the previous month', () {
       expect(loaded.baseline, september);
-      expect(loaded.change, const Money.fromPesos(2450000));
+      expect(loaded.change, const Money.fromUnits(2450000));
     });
 
     test('has no change without an earlier snapshot', () {

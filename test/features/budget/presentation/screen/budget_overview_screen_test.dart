@@ -7,6 +7,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
+import 'package:pennypincher_pro/core/utils/app_currency.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
 import 'package:pennypincher_pro/core/widgets/month_selector.dart';
@@ -28,6 +29,7 @@ import '../../../../helpers/budget_mocks.dart';
 import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/pump_app.dart';
+import '../../../../helpers/settings_fakes.dart';
 
 const List<IncomeSource> _income = [avenueCode, remoti, arriendoMadera];
 final DateTime _october = DateTime(2026, 10);
@@ -57,12 +59,14 @@ void main() {
     Size size = TestViewports.mobile,
     Stream<MonthlyBudgetState> stream = const Stream.empty(),
     bool settle = true,
+    AppCurrency currency = AppCurrency.cop,
   }) async {
     final bloc = registerMonthlyBudgetBloc(state, stream: stream);
     await tester.pumpApp(
       location: AppRoute.budgetOverview.path,
       size: size,
       settle: settle,
+      preferences: FakePreferencesRepository(savedPreferences('en', currency)),
     );
     if (!settle) {
       await tester.pump();
@@ -152,14 +156,14 @@ void main() {
 
     expect(
       statCard(tester, l10n.totalIncome).value,
-      contains('37.152.922'),
+      contains('37,152,922'),
     );
     expect(
       statCard(tester, l10n.totalExpenses).value,
-      contains('19.135.201'),
+      contains('19,135,201'),
     );
     final cashFlow = statCard(tester, l10n.cashFlow);
-    expect(cashFlow.value, contains('18.017.721'));
+    expect(cashFlow.value, contains('18,017,721'));
     expect(cashFlow.valueColor, AppColors.success);
     expect(tester.takeException(), isNull);
   });
@@ -191,7 +195,7 @@ void main() {
     expect(rows[1].percentage, 8.83);
     expect(rows[1].idealPercentage, isNull);
     expect(rows[0].status, PercentageStatus.onTarget);
-    expect(find.text('42,7 %'), findsOneWidget);
+    expect(find.text('42.7%'), findsOneWidget);
     expect(find.text('—'), findsNWidgets(2));
   });
 
@@ -247,8 +251,15 @@ void main() {
     await openEditor(tester, BudgetDetailsCard.exchangeRateEditKey);
     expect(find.text('Edit ${l10n.budgetExchangeRate}'), findsOneWidget);
     await saveValue(tester, '0');
-    expect(find.text(l10n.budgetExchangeRateInvalid), findsOneWidget);
-    await saveValue(tester, '3.950,25');
+    expect(
+      find.text(
+        l10n.budgetExchangeRateInvalid(
+          testMoney.formatExchangeRate(const Money.fromCents(395025)),
+        ),
+      ),
+      findsOneWidget,
+    );
+    await saveValue(tester, '3,950.25');
 
     verify(
       () => bloc.add(
@@ -258,6 +269,49 @@ void main() {
       ),
     ).called(1);
     expect(find.byType(BudgetValueDialog), findsNothing);
+  });
+
+  testWidgets('types the TRM of a dollar account as pesos with cents',
+      (tester) async {
+    final bloc = await pumpOverview(tester, _loaded, currency: AppCurrency.usd);
+
+    await openEditor(tester, BudgetDetailsCard.exchangeRateEditKey);
+    final field = find.byKey(BudgetValueDialog.fieldKey);
+    expect(
+      find.descendant(of: field, matching: find.text('3,300')),
+      findsOneWidget,
+    );
+    expect(
+      tester
+          .widget<TextField>(
+            find.descendant(of: field, matching: find.byType(TextField)),
+          )
+          .decoration!
+          .prefixText,
+      'COP\u00A0',
+    );
+    await saveValue(tester, '3950.5');
+
+    verify(
+      () => bloc.add(
+        const MonthlyBudgetSettingsChanged(
+          BudgetSettings(exchangeRate: Money.fromCents(395050), workDays: 22),
+        ),
+      ),
+    ).called(1);
+  });
+
+  testWidgets('clears the exchange rate', (tester) async {
+    final bloc = await pumpOverview(tester, _loaded);
+
+    await openEditor(tester, BudgetDetailsCard.exchangeRateEditKey);
+    await saveValue(tester, '');
+
+    verify(
+      () => bloc.add(
+        const MonthlyBudgetSettingsChanged(BudgetSettings(workDays: 22)),
+      ),
+    ).called(1);
   });
 
   testWidgets('edits and clears the work days', (tester) async {
@@ -274,7 +328,7 @@ void main() {
     verify(
       () => bloc.add(
         const MonthlyBudgetSettingsChanged(
-          BudgetSettings(exchangeRate: Money.fromPesos(3300)),
+          BudgetSettings(exchangeRate: Money.fromUnits(3300)),
         ),
       ),
     ).called(1);
@@ -295,8 +349,47 @@ void main() {
       (tester) async {
     await pumpOverview(tester, _loaded, size: TestViewports.desktop);
 
-    expect(find.text('\$\u00A03.300,00'), findsOneWidget);
+    expect(find.text('COP\u00A03,300.00'), findsOneWidget);
     expect(find.text('22'), findsOneWidget);
+  });
+
+  testWidgets('writes the exchange rate as pesos for a dollar account',
+      (tester) async {
+    await pumpOverview(
+      tester,
+      _loaded,
+      size: TestViewports.desktop,
+      currency: AppCurrency.usd,
+    );
+
+    expect(find.text(l10n.budgetExchangeRate), findsOneWidget);
+    expect(find.text('COP\u00A03,300.00'), findsOneWidget);
+    expect(find.textContaining(r'$'), findsWidgets);
+  });
+
+  testWidgets('hides the exchange rate of a euro account and keeps it',
+      (tester) async {
+    final bloc = await pumpOverview(
+      tester,
+      _loaded,
+      size: TestViewports.desktop,
+      currency: AppCurrency.eur,
+    );
+
+    expect(find.text(l10n.budgetExchangeRate), findsNothing);
+    expect(find.byKey(BudgetDetailsCard.exchangeRateEditKey), findsNothing);
+    expect(find.text('22'), findsOneWidget);
+    expect(find.textContaining('€'), findsWidgets);
+
+    await openEditor(tester, BudgetDetailsCard.workDaysEditKey);
+    await tester.enterText(find.byType(TextField), '20');
+    await tester.tap(find.text(l10n.commonSave));
+    await tester.pumpAndSettle();
+
+    final saved = verify(() => bloc.add(captureAny())).captured.last
+        as MonthlyBudgetSettingsChanged;
+    expect(saved.settings.exchangeRate, const Money.fromUnits(3300));
+    expect(saved.settings.workDays, 20);
   });
 
   testWidgets('says when the settings are not set', (tester) async {
@@ -400,6 +493,53 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('shows the ant expenses within the monthly expenses',
+      (tester) async {
+    await pumpOverview(
+      tester,
+      _loaded.copyWith(
+        budget: () => octoberBudget.copyWith(
+          antExpenseTotal: const Money.fromUnits(58500),
+        ),
+      ),
+      size: TestViewports.desktop,
+    );
+
+    final line = find.byKey(BudgetBreakdownCard.antExpensesKey);
+    final amount = testMoney.format(const Money.fromUnits(58500));
+    expect(
+      find.descendant(of: line, matching: find.text(amount)),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsLabel(
+        '${l10n.budgetAntExpenses}, $amount, ${l10n.budgetAntExpensesIncluded}',
+      ),
+      findsOneWidget,
+    );
+    final rows = find.byType(ExpensePercentageRow);
+    expect(
+      tester.getTopLeft(line).dy,
+      allOf(
+        greaterThanOrEqualTo(tester.getBottomLeft(rows.at(2)).dy),
+        lessThan(tester.getTopLeft(rows.at(3)).dy),
+      ),
+    );
+  });
+
+  testWidgets('shows zero ant expenses for a budget calculated before them',
+      (tester) async {
+    await pumpOverview(tester, _loaded, size: TestViewports.desktop);
+
+    expect(
+      find.descendant(
+        of: find.byKey(BudgetBreakdownCard.antExpensesKey),
+        matching: find.text(testMoney.format(Money.zero)),
+      ),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('recalculates only after confirmation', (tester) async {
     final bloc = await pumpOverview(tester, _loaded);
     final button = find.byKey(BudgetIncomeCard.recalculateKey);
@@ -408,6 +548,13 @@ void main() {
     await tester.tap(button);
     await tester.pumpAndSettle();
     expect(find.text('Recalculate October 2026?'), findsOneWidget);
+    expect(
+      find.text(
+        '${l10n.budgetRecalculateMessage}\n\n'
+        '${l10n.budgetRecalculateAntExpenses('October 2026')}',
+      ),
+      findsOneWidget,
+    );
     await tester.tap(find.text(l10n.commonCancel));
     await tester.pumpAndSettle();
     verifyNever(() => bloc.add(const MonthlyBudgetRecalculateRequested()));

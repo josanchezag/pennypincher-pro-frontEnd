@@ -27,6 +27,19 @@ void main() {
     expect(budget.toEntity(), octoberBudget);
   });
 
+  test('reads the ant expenses its cuts took, zero when absent', () async {
+    final before = await dataSource.getByMonth(DateTime(2026, 10));
+    adapter.handler = (_) async => FakeResponse(
+          200,
+          envelope({...octoberBudgetJson, 'antExpenseTotal': 58500.50}),
+        );
+    final after = await dataSource.getByMonth(DateTime(2026, 10));
+
+    expect(before.toEntity().antExpenseTotal, Money.zero);
+    expect(after.toEntity().antExpenseTotal, const Money.fromCents(5850050));
+    expect(after.toEntity().components, octoberBudget.components);
+  });
+
   test('creates the budget of a month', () async {
     await dataSource.create(DateTime(2026, 10));
 
@@ -89,7 +102,7 @@ void main() {
     expect(budget.components, const [
       BudgetComponent(
         type: BudgetComponentType.loans,
-        amount: Money.fromPesos(3280231),
+        amount: Money.fromUnits(3280231),
         percentage: 108,
       ),
     ]);

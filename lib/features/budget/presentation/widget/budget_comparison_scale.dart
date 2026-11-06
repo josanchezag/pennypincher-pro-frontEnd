@@ -17,9 +17,9 @@ class BudgetComparisonScale {
       0.0,
       for (final month in months)
         if (month.figures case final figures?) ...[
-          figures.totalIncome.pesos,
-          figures.totalExpenses.pesos,
-          figures.cashFlow.pesos,
+          figures.totalIncome.units,
+          figures.totalExpenses.units,
+          figures.cashFlow.units,
         ],
     ];
     final low = values.reduce(math.min);

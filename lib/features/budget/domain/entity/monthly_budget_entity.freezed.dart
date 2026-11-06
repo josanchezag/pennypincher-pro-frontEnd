@@ -370,6 +370,10 @@ mixin _$MonthlyBudget {
   Money get monthlyCashFlow => throw _privateConstructorUsedError;
   List<BudgetComponent> get components => throw _privateConstructorUsedError;
 
+  /// Ant expenses the budget's cuts took, already included in the
+  /// monthly expenses component and in [totalExpenses].
+  Money get antExpenseTotal => throw _privateConstructorUsedError;
+
   /// Create a copy of MonthlyBudget
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -390,7 +394,8 @@ abstract class $MonthlyBudgetCopyWith<$Res> {
       Money totalIncome,
       Money totalExpenses,
       Money monthlyCashFlow,
-      List<BudgetComponent> components});
+      List<BudgetComponent> components,
+      Money antExpenseTotal});
 
   $BudgetSettingsCopyWith<$Res> get settings;
 }
@@ -417,6 +422,7 @@ class _$MonthlyBudgetCopyWithImpl<$Res, $Val extends MonthlyBudget>
     Object? totalExpenses = null,
     Object? monthlyCashFlow = null,
     Object? components = null,
+    Object? antExpenseTotal = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -447,6 +453,10 @@ class _$MonthlyBudgetCopyWithImpl<$Res, $Val extends MonthlyBudget>
           ? _value.components
           : components // ignore: cast_nullable_to_non_nullable
               as List<BudgetComponent>,
+      antExpenseTotal: null == antExpenseTotal
+          ? _value.antExpenseTotal
+          : antExpenseTotal // ignore: cast_nullable_to_non_nullable
+              as Money,
     ) as $Val);
   }
 
@@ -476,7 +486,8 @@ abstract class _$$MonthlyBudgetImplCopyWith<$Res>
       Money totalIncome,
       Money totalExpenses,
       Money monthlyCashFlow,
-      List<BudgetComponent> components});
+      List<BudgetComponent> components,
+      Money antExpenseTotal});
 
   @override
   $BudgetSettingsCopyWith<$Res> get settings;
@@ -502,6 +513,7 @@ class __$$MonthlyBudgetImplCopyWithImpl<$Res>
     Object? totalExpenses = null,
     Object? monthlyCashFlow = null,
     Object? components = null,
+    Object? antExpenseTotal = null,
   }) {
     return _then(_$MonthlyBudgetImpl(
       id: null == id
@@ -532,6 +544,10 @@ class __$$MonthlyBudgetImplCopyWithImpl<$Res>
           ? _value._components
           : components // ignore: cast_nullable_to_non_nullable
               as List<BudgetComponent>,
+      antExpenseTotal: null == antExpenseTotal
+          ? _value.antExpenseTotal
+          : antExpenseTotal // ignore: cast_nullable_to_non_nullable
+              as Money,
     ));
   }
 }
@@ -546,7 +562,8 @@ class _$MonthlyBudgetImpl implements _MonthlyBudget {
       required this.totalIncome,
       required this.totalExpenses,
       required this.monthlyCashFlow,
-      required final List<BudgetComponent> components})
+      required final List<BudgetComponent> components,
+      this.antExpenseTotal = Money.zero})
       : _components = components;
 
   @override
@@ -571,9 +588,15 @@ class _$MonthlyBudgetImpl implements _MonthlyBudget {
     return EqualUnmodifiableListView(_components);
   }
 
+  /// Ant expenses the budget's cuts took, already included in the
+  /// monthly expenses component and in [totalExpenses].
+  @override
+  @JsonKey()
+  final Money antExpenseTotal;
+
   @override
   String toString() {
-    return 'MonthlyBudget(id: $id, month: $month, settings: $settings, totalIncome: $totalIncome, totalExpenses: $totalExpenses, monthlyCashFlow: $monthlyCashFlow, components: $components)';
+    return 'MonthlyBudget(id: $id, month: $month, settings: $settings, totalIncome: $totalIncome, totalExpenses: $totalExpenses, monthlyCashFlow: $monthlyCashFlow, components: $components, antExpenseTotal: $antExpenseTotal)';
   }
 
   @override
@@ -592,7 +615,9 @@ class _$MonthlyBudgetImpl implements _MonthlyBudget {
             (identical(other.monthlyCashFlow, monthlyCashFlow) ||
                 other.monthlyCashFlow == monthlyCashFlow) &&
             const DeepCollectionEquality()
-                .equals(other._components, _components));
+                .equals(other._components, _components) &&
+            (identical(other.antExpenseTotal, antExpenseTotal) ||
+                other.antExpenseTotal == antExpenseTotal));
   }
 
   @override
@@ -604,7 +629,8 @@ class _$MonthlyBudgetImpl implements _MonthlyBudget {
       totalIncome,
       totalExpenses,
       monthlyCashFlow,
-      const DeepCollectionEquality().hash(_components));
+      const DeepCollectionEquality().hash(_components),
+      antExpenseTotal);
 
   /// Create a copy of MonthlyBudget
   /// with the given fields replaced by the non-null parameter values.
@@ -623,7 +649,8 @@ abstract class _MonthlyBudget implements MonthlyBudget {
       required final Money totalIncome,
       required final Money totalExpenses,
       required final Money monthlyCashFlow,
-      required final List<BudgetComponent> components}) = _$MonthlyBudgetImpl;
+      required final List<BudgetComponent> components,
+      final Money antExpenseTotal}) = _$MonthlyBudgetImpl;
 
   @override
   String get id;
@@ -641,6 +668,11 @@ abstract class _MonthlyBudget implements MonthlyBudget {
   Money get monthlyCashFlow;
   @override
   List<BudgetComponent> get components;
+
+  /// Ant expenses the budget's cuts took, already included in the
+  /// monthly expenses component and in [totalExpenses].
+  @override
+  Money get antExpenseTotal;
 
   /// Create a copy of MonthlyBudget
   /// with the given fields replaced by the non-null parameter values.

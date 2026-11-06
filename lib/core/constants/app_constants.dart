@@ -52,6 +52,11 @@ abstract final class ApiPaths {
   static const String fixedExpenses = '/fixed-expenses';
   static const String variableExpenses = '/variable-expenses';
   static const String savingsAccounts = '/savings-accounts';
+  static const String antExpenses = '/ant-expenses';
+  static const String antExpenseCuts = '/ant-expenses/cuts';
+  static const String antExpenseTrend = '/ant-expenses/trend';
+  static const String antExpenseLimit = '/ant-expenses/limit';
+  static const String itemsSuffix = '/items';
   static const String summarySuffix = '/summary';
   static const String financialGoals = '/financial-goals';
   static const String financialGoalDefaults = '/financial-goals/defaults';

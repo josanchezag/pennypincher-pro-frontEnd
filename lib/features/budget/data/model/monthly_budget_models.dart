@@ -49,7 +49,9 @@ class BudgetComponentModel {
 }
 
 /// JSON shape of a monthly budget. The per-category percentage fields
-/// repeat `components` and are not read.
+/// repeat `components` and are not read. `antExpenseTotal`, already part
+/// of the monthly expenses component, reads as zero when a backend
+/// without ant expenses leaves it out.
 @JsonSerializable(createToJson: false)
 class MonthlyBudgetModel {
   const MonthlyBudgetModel({
@@ -62,6 +64,7 @@ class MonthlyBudgetModel {
     required this.components,
     this.exchangeRate,
     this.workDays,
+    this.antExpenseTotal,
   });
 
   factory MonthlyBudgetModel.fromJson(Map<String, dynamic> json) =>
@@ -80,6 +83,8 @@ class MonthlyBudgetModel {
   @JsonKey(fromJson: _money)
   final Money monthlyCashFlow;
   final List<BudgetComponentModel> components;
+  @JsonKey(fromJson: Money.fromOptionalJson)
+  final Money? antExpenseTotal;
 
   MonthlyBudget toEntity() => MonthlyBudget(
         id: id,
@@ -89,6 +94,7 @@ class MonthlyBudgetModel {
         totalIncome: totalIncome,
         totalExpenses: totalExpenses,
         monthlyCashFlow: monthlyCashFlow,
+        antExpenseTotal: antExpenseTotal ?? Money.zero,
         components: [
           for (final component in components) component.toEntity(),
         ].nonNulls.toList(),

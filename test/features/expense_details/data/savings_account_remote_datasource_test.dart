@@ -8,7 +8,7 @@ import '../../../helpers/fake_http_adapter.dart';
 
 const BalanceDraft _draft = BalanceDraft(
   name: 'Fondo de emergencia',
-  monthlyAmount: Money.fromPesos(500000),
+  monthlyAmount: Money.fromUnits(500000),
   balance: Money.fromCents(850000050),
 );
 

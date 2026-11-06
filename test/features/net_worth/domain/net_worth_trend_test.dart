@@ -20,7 +20,7 @@ void main() {
     });
 
     test('measures the change from the first to the last month', () {
-      expect(threeMonthTrend.change, const Money.fromPesos(30000000));
+      expect(threeMonthTrend.change, const Money.fromUnits(30000000));
       expect(threeMonthTrend.changePercentage, closeTo(30, 1e-9));
     });
 
@@ -30,7 +30,7 @@ void main() {
         trendPointOf(9, assets: 0, liabilities: 100),
       ]);
 
-      expect(trend.change, const Money.fromPesos(100));
+      expect(trend.change, const Money.fromUnits(100));
       expect(trend.changePercentage, closeTo(50, 1e-9));
     });
 
@@ -40,7 +40,7 @@ void main() {
         trendPointOf(9, assets: 500, liabilities: 0),
       ]);
 
-      expect(trend.change, const Money.fromPesos(500));
+      expect(trend.change, const Money.fromUnits(500));
       expect(trend.changePercentage, isNull);
     });
 

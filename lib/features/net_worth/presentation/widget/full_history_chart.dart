@@ -6,9 +6,10 @@ import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
+import 'package:pennypincher_pro/core/utils/money_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/chart_style.dart';
+import 'package:pennypincher_pro/core/widgets/money_format_scope.dart';
 import 'package:pennypincher_pro/features/net_worth/domain/entity/net_worth_trend_entity.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/widget/chart_scale.dart';
 
@@ -44,9 +45,9 @@ class FullHistoryChart extends StatelessWidget {
         lastMonth: _points.last.month,
         values: [
           for (final point in _points) ...[
-            point.totalAssets.pesos,
-            point.totalLiabilities.pesos,
-            point.netWorth.pesos,
+            point.totalAssets.units,
+            point.totalLiabilities.units,
+            point.netWorth.units,
           ],
         ],
       );
@@ -63,7 +64,7 @@ class FullHistoryChart extends StatelessWidget {
     final chartScale = scale;
     return Semantics(
       container: true,
-      label: _description(context.l10n),
+      label: _description(context.l10n, context.money),
       child: ExcludeSemantics(
         child: SizedBox(
           height: height,
@@ -71,6 +72,7 @@ class FullHistoryChart extends StatelessWidget {
             builder: (context, constraints) => LineChart(
               _ChartData(
                 context.l10n,
+                context.money,
                 this,
                 chartScale,
                 labelStep(chartScale, constraints.maxWidth),
@@ -82,22 +84,29 @@ class FullHistoryChart extends StatelessWidget {
     );
   }
 
-  String _description(AppLocalizations l10n) {
+  String _description(AppLocalizations l10n, MoneyFormatter money) {
     final last = _points.last;
     return l10n.netWorthChartDescription(
       _points.length,
       MonthFormat.long.format(_points.first.month),
       MonthFormat.long.format(last.month),
-      CurrencyFormatter.format(last.netWorth),
+      money.format(last.netWorth),
     );
   }
 }
 
 /// fl_chart configuration of a [FullHistoryChart].
 class _ChartData {
-  const _ChartData(this.l10n, this.chart, this.scale, this.labelEvery);
+  const _ChartData(
+    this.l10n,
+    this.money,
+    this.chart,
+    this.scale,
+    this.labelEvery,
+  );
 
   final AppLocalizations l10n;
+  final MoneyFormatter money;
   final FullHistoryChart chart;
   final ChartScale scale;
   final int labelEvery;
@@ -125,7 +134,7 @@ class _ChartData {
 
   List<FlSpot> _spots(Money Function(NetWorthTrendPoint point) amountOf) => [
         for (final point in _points)
-          FlSpot(scale.xOf(point.month), amountOf(point).pesos),
+          FlSpot(scale.xOf(point.month), amountOf(point).units),
       ];
 
   LineChartBarData _area(
@@ -184,7 +193,7 @@ class _ChartData {
 
   TextSpan _line(String label, Money amount, {bool newLine = false}) =>
       TextSpan(
-        text: '${l10n.labelValue(label, CurrencyFormatter.format(amount))}'
+        text: '${l10n.labelValue(label, money.format(amount))}'
             '${newLine ? '\n' : ''}',
         style: ChartStyle.tooltipValue,
       );
@@ -197,7 +206,7 @@ class _ChartData {
             showTitles: true,
             reservedSize: FullHistoryChart.axisWidth,
             interval: scale.interval,
-            getTitlesWidget: ChartStyle.millionsLabel,
+            getTitlesWidget: ChartStyle.amountLabel(money),
           ),
         ),
         bottomTitles: AxisTitles(

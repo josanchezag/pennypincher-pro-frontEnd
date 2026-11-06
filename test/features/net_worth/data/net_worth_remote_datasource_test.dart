@@ -127,8 +127,8 @@ void main() {
 
       expect(points.first.delta, isNull);
       expect(points.first.month, DateTime(2026, 8));
-      expect(points.last.delta, const Money.fromPesos(-50000000));
-      expect(points.last.netWorth, const Money.fromPesos(50000000));
+      expect(points.last.delta, const Money.fromUnits(-50000000));
+      expect(points.last.netWorth, const Money.fromUnits(50000000));
     });
 
     test('rejects a point without its net worth', () {

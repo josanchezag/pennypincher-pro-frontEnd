@@ -6,7 +6,6 @@ import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/crud/presentation/crud_screen.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_tile.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
@@ -57,7 +56,7 @@ void main() {
       await pumpLoans(tester, _loaded, size: size);
 
       expect(
-        find.text(CurrencyFormatter.format(carLoan.totalBalance)),
+        find.text(testMoney.format(carLoan.totalBalance)),
         findsOneWidget,
       );
       expect(
@@ -105,11 +104,11 @@ void main() {
 
     await tester.tap(find.byKey(CrudScreen.addButtonKey));
     await tester.pumpAndSettle();
-    expect(find.text(l10n.crudOptionalAmountHelper), findsOneWidget);
+    expect(find.text(testOptionalAmountHelper), findsOneWidget);
     await fillAndSave(tester, {
       l10n.crudNameLabel: 'Davivienda 7141',
       l10n.monthlyInstallment: '2.080.231',
-      l10n.remainingBalance: '45.500.000,25',
+      l10n.remainingBalance: '45,500,000',
     });
 
     verify(
@@ -117,8 +116,8 @@ void main() {
         const CrudSaveRequested(
           BalanceDraft(
             name: 'Davivienda 7141',
-            monthlyAmount: Money.fromPesos(2080231),
-            balance: Money.fromCents(4550000025),
+            monthlyAmount: Money.fromUnits(2080231),
+            balance: Money.fromUnits(45500000),
           ),
         ),
       ),
@@ -126,8 +125,8 @@ void main() {
   });
 
   for (final (typed, original) in [
-    ('5,5', const Money.fromCents(550)),
-    (' ', null),
+    ('5,500', const Money.fromUnits(5500)),
+    ('', null),
   ]) {
     testWidgets('edits the original amount of a loan to "$typed"',
         (tester) async {
@@ -136,7 +135,7 @@ void main() {
       await tester.tap(find.text('Prestamo carro'));
       await tester.pumpAndSettle();
       expect(find.text('Edit loan'), findsOneWidget);
-      expect(find.text('50000000'), findsOneWidget);
+      expect(find.text('50,000,000'), findsOneWidget);
       await fillAndSave(tester, {l10n.originalAmount: typed});
 
       verify(
@@ -144,8 +143,8 @@ void main() {
           CrudSaveRequested(
             BalanceDraft(
               name: 'Prestamo carro',
-              monthlyAmount: const Money.fromPesos(1200000),
-              balance: const Money.fromPesos(30000000),
+              monthlyAmount: const Money.fromUnits(1200000),
+              balance: const Money.fromUnits(30000000),
               originalAmount: original,
             ),
             id: 'l1',
@@ -155,19 +154,19 @@ void main() {
     });
   }
 
-  testWidgets('rejects an invalid original amount', (tester) async {
+  testWidgets('keeps letters out of the amounts', (tester) async {
     final bloc = await pumpLoans(tester, const CrudLoaded([]));
 
     await tester.tap(find.byKey(CrudScreen.addButtonKey));
     await tester.pumpAndSettle();
     await fillAndSave(tester, {
       l10n.crudNameLabel: 'Familia',
-      l10n.monthlyInstallment: '0',
+      l10n.monthlyInstallment: 'abc',
       l10n.remainingBalance: '1',
-      l10n.originalAmount: '1,500',
+      l10n.originalAmount: 'x',
     });
 
-    expect(find.text(l10n.crudAmountInvalid), findsOneWidget);
+    expect(find.text(l10n.crudAmountRequired), findsOneWidget);
     verifyNever(
       () => bloc.add(any(that: isA<CrudSaveRequested<BalanceDraft>>())),
     );

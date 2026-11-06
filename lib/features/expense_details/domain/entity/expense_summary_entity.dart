@@ -9,10 +9,14 @@ enum ExpenseKind {
   loans,
   fixedExpenses,
   variableExpenses,
-  savings
+  savings,
+
+  /// The current period of ant expenses, since the last budget cut.
+  antExpenses,
 }
 
-/// Live totals of one [ExpenseKind]: the monthly total, the total balance
+/// Live totals of one [ExpenseKind]: the monthly total (for ant expenses,
+/// the total of the current period), the total balance
 /// for the kinds that have one, and how many items there are.
 @freezed
 class ExpenseSummary with _$ExpenseSummary {

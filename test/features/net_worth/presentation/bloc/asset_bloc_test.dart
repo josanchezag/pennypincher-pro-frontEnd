@@ -23,7 +23,7 @@ class _MockDeleteAsset extends Mock
 
 const CategorizedDraft<AssetCategory> _draft = CategorizedDraft(
   name: 'Carro Mazda',
-  amount: Money.fromPesos(58000000),
+  amount: Money.fromUnits(58000000),
   category: AssetCategory.vehicle,
 );
 
@@ -78,7 +78,7 @@ void main() {
     const updatedCar = Asset(
       id: 'a2',
       name: 'Carro Mazda',
-      value: Money.fromPesos(58000000),
+      value: Money.fromUnits(58000000),
       category: AssetCategory.vehicle,
     );
 

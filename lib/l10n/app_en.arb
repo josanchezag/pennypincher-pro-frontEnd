@@ -4,7 +4,7 @@
   "shellBackToDashboard": "Back to dashboard",
   "accountMenuTooltip": "Account",
   "accountMenuSignOut": "Sign out",
-  "accountMenuSettingsHint": "Language and other settings",
+  "accountMenuSettingsHint": "Language, currency and other settings",
   "@accountMenuSettingsHint": {
     "description": "Second line of the account menu entry that opens the settings screen."
   },
@@ -16,6 +16,28 @@
   "settingsLanguageSaveFailed": "We couldn't save the language. Check your connection and try again.",
   "@settingsLanguageSaveFailed": {
     "description": "Snack bar shown when saving the language fails; the previous language is restored."
+  },
+  "settingsCurrencyTitle": "Currency",
+  "settingsCurrencyDescription": "Currency your amounts are in. Changing it does not convert the saved amounts: they are only shown with its symbol and decimals.",
+  "@settingsCurrencyDescription": {
+    "description": "Explains under the currency setting that switching currency only relabels the stored amounts, without converting them."
+  },
+  "settingsCurrencySaveFailed": "We couldn't save the currency. Check your connection and try again.",
+  "@settingsCurrencySaveFailed": {
+    "description": "Snack bar shown when saving the currency fails; the previous currency is restored."
+  },
+  "currencyCop": "COP – Colombian peso",
+  "currencyUsd": "USD – US dollar",
+  "currencyEur": "EUR – Euro",
+  "settingsCurrencyExample": "For example, {amount}",
+  "@settingsCurrencyExample": {
+    "description": "Second line of each currency option: how an amount looks in that currency.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "$1,234,567.50"
+      }
+    }
   },
   "settingsLoadFailed": "We couldn't load the settings saved in your account, so the ones of this device are shown.",
   "routeLogin": "Sign in",
@@ -34,6 +56,7 @@
   "routeExpensesFixed": "Fixed Expenses",
   "routeExpensesVariable": "Variable Expenses",
   "routeExpensesSavings": "Savings",
+  "routeExpensesAnt": "Ant expenses",
   "routeGoals": "Goals",
   "routeGoalProjection": "Goal Projection",
   "routeSettings": "Settings",
@@ -74,6 +97,7 @@
   "errorSessionExpired": "Your session has ended. Sign in again.",
   "errorForbidden": "You don't have access to this.",
   "errorRateLimited": "Too many requests in a short time. Wait a minute and try again.",
+  "errorAntExpenseAlreadyCut": "This expense is already part of a budget cut and can no longer change. Reload the page, and add a new expense to correct it.",
   "errorIdentityProviderUnavailable": "Google isn't responding right now. Try again in a few minutes.",
   "crudAdd": "Add {item}",
   "@crudAdd": {
@@ -137,10 +161,24 @@
     }
   },
   "crudAmountRequired": "Enter an amount.",
-  "crudAmountInvalid": "Enter an amount like 1.500.000 or 1.500.000,50, up to 13 digits.",
   "crudAmountNotPositive": "Enter an amount greater than 0.",
-  "crudAmountHelper": "Example: 1.500.000 or 1.500.000,50",
-  "crudOptionalAmountHelper": "Optional. Example: 1.500.000 or 1.500.000,50",
+  "crudAmountHelper": "Example: {example}",
+  "@crudAmountHelper": {
+    "description": "Hint under an amount field; example is an amount in the user's currency, such as $1,500,000.50.",
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
+  "crudOptionalAmountHelper": "Optional. Example: {example}",
+  "@crudOptionalAmountHelper": {
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
   "crudPaidShare": "{percent} paid",
   "@crudPaidShare": {
     "placeholders": {
@@ -461,6 +499,165 @@
   "expenseHubLoadError": "Could not load this total.",
   "expenseBudgetHint": "Budget months keep the totals of their last calculation. Recalculate a month in Budget Overview to include the changes you make here.",
   "expenseOpenBudgetOverview": "Open Budget Overview",
+  "antCurrentPeriod": "Current period",
+  "antCategoryCoffeeAndDrinks": "Coffee and drinks",
+  "antCategorySnacksAndSweets": "Snacks and sweets",
+  "antCategoryFastFood": "Fast food",
+  "antCategoryTransport": "Transport",
+  "antCategoryDeliveryAndTips": "Delivery and tips",
+  "antCategoryAppsAndSubscriptions": "Apps and subscriptions",
+  "antCategoryImpulsePurchases": "Impulse purchases",
+  "antCategoryOther": "Other",
+  "antAdd": "Add ant expense",
+  "antEdit": "Edit ant expense",
+  "antDelete": "Delete ant expense",
+  "antDeleteTitle": "Delete this ant expense?",
+  "antDeleteMessage": "\"{name}\" ({amount}) will be removed from the current period.",
+  "@antDeleteMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "antAmountLabel": "Amount",
+  "antDescriptionLabel": "Description (optional)",
+  "antDescriptionHint": "For example: coffee at the office",
+  "antDateLabel": "Date",
+  "antToday": "Today",
+  "antYesterday": "Yesterday",
+  "antChangeDate": "Change the date",
+  "antQuickAdd": "Quick add",
+  "antQuickAddTooltip": "Add an expense in {category}",
+  "@antQuickAddTooltip": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "antListTitle": "Expenses this period",
+  "antLoadingLabel": "Loading ant expenses",
+  "antListLoadError": "Could not load the expenses of the period.",
+  "antEmptyTitle": "No ant expenses yet",
+  "antEmptyMessage": "Write down every coffee, snack or tip here. At the next budget cut their total goes into the budget as one expense.",
+  "antDailyAverage": "Daily average",
+  "antSinceLastCut": "{days, plural, =0{Since the last cut: today} =1{Since the last cut: 1 day} other{Since the last cut: {days} days}}",
+  "@antSinceLastCut": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "antPeriodSince": "Period since {date}",
+  "@antPeriodSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "antNoCutsYet": "No cuts yet",
+  "antTopCategory": "Top category",
+  "antLimitTitle": "Monthly limit",
+  "antLimitUsed": "{percent} of {limit}",
+  "@antLimitUsed": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "antLimitRemaining": "{amount} left",
+  "@antLimitRemaining": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "antLimitExceeded": "{amount} over the limit",
+  "@antLimitExceeded": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "antLimitNone": "No monthly limit. Set one to see how much is left.",
+  "antLimitSet": "Set limit",
+  "antLimitChange": "Change limit",
+  "antLimitDialogTitle": "Monthly limit for ant expenses",
+  "antLimitDialogHint": "It's only a warning, nothing is blocked. It is compared with the current period.",
+  "antLimitRemove": "Remove limit",
+  "antLimitSaved": "Monthly limit saved",
+  "antLimitRemoved": "Monthly limit removed",
+  "antSummaryLoadError": "Could not load the totals of the period.",
+  "antBreakdownTitle": "By category",
+  "antBreakdownEmpty": "Once you add expenses you'll see here where they go.",
+  "antTrendTitle": "Monthly trend",
+  "antTrendSpent": "Spent in the month",
+  "antTrendLoadError": "Could not load the trend.",
+  "antTrendDescription": "Ant expenses per month of purchase, from {from} to {to}. Highest: {highest} in {highestMonth}.",
+  "@antTrendDescription": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "highest": {
+        "type": "String"
+      },
+      "highestMonth": {
+        "type": "String"
+      }
+    }
+  },
+  "antTrendEmpty": "No ant expenses in these months.",
+  "antCutsTitle": "Cut history",
+  "antCutsEmpty": "No cuts yet. One happens every time you create, edit or recalculate the budget of a month.",
+  "antCutsLoadError": "Could not load the cut history.",
+  "antCutPeriod": "Purchases from {from} to {to}",
+  "@antCutPeriod": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "antCutOpenHint": "Show the expenses of this cut",
+  "antCutTitle": "Cut of {month}",
+  "@antCutTitle": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "antCutLocked": "These expenses are already in the budget of {month}, so they can't be edited or deleted. To correct one, add a new expense to the current period.",
+  "@antCutLocked": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "antCutItemsLoadError": "Could not load the expenses of this cut.",
+  "antCutItemsEmpty": "This cut took no expenses.",
+  "antClose": "Close",
+  "antCutHint": "Every time you create, edit or recalculate the budget of a month, a cut is made: the total of the ant expenses of the period (up to the end of that month) goes into the budget as one expense, within monthly expenses, and the period starts again.",
   "totalIncome": "Total income",
   "totalExpenses": "Total expenses",
   "noBudget": "No budget",
@@ -512,7 +709,14 @@
     }
   },
   "budgetClearHint": "Leave empty to clear it.",
-  "budgetExchangeRateInvalid": "Enter a rate greater than zero, like 3.950 or 3.950,25.",
+  "budgetExchangeRateInvalid": "Enter a rate greater than zero, like {example}.",
+  "@budgetExchangeRateInvalid": {
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
   "budgetWorkDaysInvalid": "Enter a whole number from 0 to {max}.",
   "@budgetWorkDaysInvalid": {
     "placeholders": {
@@ -593,6 +797,16 @@
   "budgetComponentMonthlyExpenses": "Monthly expenses",
   "budgetComponentSavings": "Savings",
   "budgetComponentCharity": "Charity",
+  "budgetAntExpenses": "Ant expenses",
+  "budgetAntExpensesIncluded": "Included in monthly expenses",
+  "budgetRecalculateAntExpenses": "The open ant expenses up to the end of {month} are included too, and their period starts again.",
+  "@budgetRecalculateAntExpenses": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
   "goalsSubtitle": "Your roadmap to financial independence, measured against your current net worth.",
   "goalsLoadingLabel": "Loading goals",
   "goalsLoadErrorTitle": "Could not load your goals",

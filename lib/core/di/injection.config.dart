@@ -25,7 +25,26 @@ import 'package:pennypincher_pro/core/l10n/locale_store.dart' as _i84;
 import 'package:pennypincher_pro/core/network/auth_interceptor.dart' as _i93;
 import 'package:pennypincher_pro/core/network/network_module.dart' as _i683;
 import 'package:pennypincher_pro/core/router/app_router.dart' as _i446;
+import 'package:pennypincher_pro/core/storage/currency_store.dart' as _i130;
 import 'package:pennypincher_pro/core/time/clock.dart' as _i656;
+import 'package:pennypincher_pro/features/ant_expenses/data/datasource/ant_expense_remote_datasource.dart'
+    as _i213;
+import 'package:pennypincher_pro/features/ant_expenses/data/repository/ant_expense_repository_impl.dart'
+    as _i600;
+import 'package:pennypincher_pro/features/ant_expenses/di/ant_expenses_module.dart'
+    as _i612;
+import 'package:pennypincher_pro/features/ant_expenses/domain/entity/ant_expense_entity.dart'
+    as _i63;
+import 'package:pennypincher_pro/features/ant_expenses/domain/repository/ant_expense_repository.dart'
+    as _i526;
+import 'package:pennypincher_pro/features/ant_expenses/domain/usecase/ant_expense_use_cases.dart'
+    as _i702;
+import 'package:pennypincher_pro/features/ant_expenses/presentation/bloc/ant_cut_items_cubit.dart'
+    as _i662;
+import 'package:pennypincher_pro/features/ant_expenses/presentation/bloc/ant_expense_bloc.dart'
+    as _i288;
+import 'package:pennypincher_pro/features/ant_expenses/presentation/bloc/ant_insights_cubit.dart'
+    as _i522;
 import 'package:pennypincher_pro/features/auth/data/datasource/auth_remote_datasource.dart'
     as _i113;
 import 'package:pennypincher_pro/features/auth/data/datasource/google_auth_datasource.dart'
@@ -232,6 +251,7 @@ extension GetItInjectableX on _i174.GetIt {
     final expenseDetailsModule = _$ExpenseDetailsModule();
     final financialGoalsModule = _$FinancialGoalsModule();
     final netWorthModule = _$NetWorthModule();
+    final antExpensesModule = _$AntExpensesModule();
     final settingsModule = _$SettingsModule();
     final dashboardModule = _$DashboardModule();
     gh.singleton<_i504.AppConfig>(() => configModule.config);
@@ -243,6 +263,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i361.HttpClientAdapter>(
         () => networkModule.httpClientAdapter);
     gh.lazySingleton<_i656.Clock>(() => _i656.SystemClock());
+    gh.lazySingleton<_i130.CurrencyStore>(() => _i130.BrowserCurrencyStore());
     gh.lazySingleton<_i361.Dio>(
       () => networkModule.plainDio(
         gh<_i504.AppConfig>(),
@@ -315,6 +336,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i578.IncomeSourceRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i2.FinancialGoalRemoteDataSource>(
         () => _i2.FinancialGoalRemoteDataSource(gh<_i361.Dio>()));
+    gh.lazySingleton<_i213.AntExpenseRemoteDataSource>(
+        () => _i213.AntExpenseRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i459.ExpenseSummaryRemoteDataSource>(
         () => _i459.ExpenseSummaryRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i464.NetWorthRemoteDataSource>(
@@ -385,6 +408,8 @@ extension GetItInjectableX on _i174.GetIt {
             .createDefaultFinancialGoals(gh<_i989.FinancialGoalRepository>()));
     gh.factory<_i375.GetGoalProjection>(() => financialGoalsModule
         .getGoalProjection(gh<_i989.FinancialGoalRepository>()));
+    gh.lazySingleton<_i526.AntExpenseRepository>(() =>
+        _i600.AntExpenseRepositoryImpl(gh<_i213.AntExpenseRemoteDataSource>()));
     gh.lazySingleton<_i90.LiabilityRepository>(() =>
         _i418.LiabilityRepositoryImpl(gh<_i277.LiabilityRemoteDataSource>()));
     gh.lazySingleton<_i563.VariableExpenseRepository>(() =>
@@ -487,6 +512,22 @@ extension GetItInjectableX on _i174.GetIt {
               _i678.DeleteItem<_i793.FixedExpense,
                   _i953.CategorizedDraft<_i793.FixedExpenseCategory>>>(),
         ));
+    gh.factory<_i678.GetItems<_i63.AntExpense, _i63.AntExpenseDraft>>(() =>
+        antExpensesModule.getAntExpenses(gh<_i526.AntExpenseRepository>()));
+    gh.factory<_i678.SaveItem<_i63.AntExpense, _i63.AntExpenseDraft>>(() =>
+        antExpensesModule.saveAntExpense(gh<_i526.AntExpenseRepository>()));
+    gh.factory<_i678.DeleteItem<_i63.AntExpense, _i63.AntExpenseDraft>>(() =>
+        antExpensesModule.deleteAntExpense(gh<_i526.AntExpenseRepository>()));
+    gh.factory<_i702.GetAntSummary>(() =>
+        antExpensesModule.getAntSummary(gh<_i526.AntExpenseRepository>()));
+    gh.factory<_i702.GetAntCuts>(
+        () => antExpensesModule.getAntCuts(gh<_i526.AntExpenseRepository>()));
+    gh.factory<_i702.GetAntCutItems>(() =>
+        antExpensesModule.getAntCutItems(gh<_i526.AntExpenseRepository>()));
+    gh.factory<_i702.GetAntTrend>(
+        () => antExpensesModule.getAntTrend(gh<_i526.AntExpenseRepository>()));
+    gh.factory<_i702.SaveAntLimit>(
+        () => antExpensesModule.saveAntLimit(gh<_i526.AntExpenseRepository>()));
     gh.factory<_i1068.AssetBloc>(() => _i1068.AssetBloc(
           gh<
               _i678.GetItems<_i499.Asset,
@@ -497,6 +538,13 @@ extension GetItInjectableX on _i174.GetIt {
           gh<
               _i678.DeleteItem<_i499.Asset,
                   _i953.CategorizedDraft<_i499.AssetCategory>>>(),
+        ));
+    gh.factory<_i522.AntInsightsCubit>(() => _i522.AntInsightsCubit(
+          gh<_i702.GetAntSummary>(),
+          gh<_i702.GetAntTrend>(),
+          gh<_i702.GetAntCuts>(),
+          gh<_i702.SaveAntLimit>(),
+          gh<_i656.Clock>(),
         ));
     gh.factory<
             _i678.GetItems<_i941.Liability,
@@ -543,6 +591,11 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.factory<_i1030.GoalProjectionBloc>(
         () => _i1030.GoalProjectionBloc(gh<_i375.GetGoalProjection>()));
+    gh.factory<_i288.AntExpenseBloc>(() => _i288.AntExpenseBloc(
+          gh<_i678.GetItems<_i63.AntExpense, _i63.AntExpenseDraft>>(),
+          gh<_i678.SaveItem<_i63.AntExpense, _i63.AntExpenseDraft>>(),
+          gh<_i678.DeleteItem<_i63.AntExpense, _i63.AntExpenseDraft>>(),
+        ));
     gh.factory<_i105.MonthlyBudgetBloc>(() => _i105.MonthlyBudgetBloc(
           gh<_i51.GetMonthlyBudget>(),
           gh<_i51.CreateMonthlyBudget>(),
@@ -552,6 +605,13 @@ extension GetItInjectableX on _i174.GetIt {
               _i678.GetItems<_i161.IncomeSource,
                   _i953.CategorizedDraft<_i161.IncomeCategory>>>(),
           gh<_i656.Clock>(),
+        ));
+    gh.lazySingleton<_i746.PreferencesCubit>(() => _i746.PreferencesCubit(
+          gh<_i1041.GetPreferences>(),
+          gh<_i1041.SavePreferences>(),
+          gh<_i132.LocaleCubit>(),
+          gh<_i84.LocaleStore>(),
+          gh<_i130.CurrencyStore>(),
         ));
     gh.factory<_i876.VariableExpenseBloc>(() => _i876.VariableExpenseBloc(
           gh<
@@ -599,12 +659,8 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i678.SaveItem<_i891.Loan, _i642.BalanceDraft>>(),
           gh<_i678.DeleteItem<_i891.Loan, _i642.BalanceDraft>>(),
         ));
-    gh.lazySingleton<_i746.PreferencesCubit>(() => _i746.PreferencesCubit(
-          gh<_i1041.GetPreferences>(),
-          gh<_i1041.SavePreferences>(),
-          gh<_i132.LocaleCubit>(),
-          gh<_i84.LocaleStore>(),
-        ));
+    gh.factory<_i662.AntCutItemsCubit>(
+        () => _i662.AntCutItemsCubit(gh<_i702.GetAntCutItems>()));
     gh.factory<_i584.DashboardBloc>(() => _i584.DashboardBloc(
           gh<_i77.GetDashboardSummary>(),
           gh<_i77.RecordNetWorthSnapshot>(),
@@ -627,6 +683,8 @@ class _$ExpenseDetailsModule extends _i539.ExpenseDetailsModule {}
 class _$FinancialGoalsModule extends _i72.FinancialGoalsModule {}
 
 class _$NetWorthModule extends _i125.NetWorthModule {}
+
+class _$AntExpensesModule extends _i612.AntExpensesModule {}
 
 class _$SettingsModule extends _i5.SettingsModule {}
 

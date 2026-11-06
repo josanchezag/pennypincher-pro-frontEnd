@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_projection_entity.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/projection_chart.dart';
@@ -58,7 +57,7 @@ void main() {
       final scale = ProjectionScale.of(
         computedProjection(
           target: 100000000,
-          current: const Money.fromPesos(-50000000),
+          current: const Money.fromUnits(-50000000),
           monthly: 3000000,
         ),
       );
@@ -79,7 +78,7 @@ void main() {
     final data = await _pumpChart(tester, _reachable);
 
     final spots = data.lineBarsData.single.spots;
-    expect(spots.first, FlSpot(0, netWorth.pesos));
+    expect(spots.first, FlSpot(0, netWorth.units));
     expect(spots, hasLength(_reachable.dataPoints.length));
     expect(spots.last.x, 31 / 12);
   });
@@ -129,7 +128,7 @@ void main() {
     final item = items.single!;
     expect(
       item.text,
-      '${CurrencyFormatter.format(_reachable.dataPoints[12].projectedValue)}\n',
+      '${testMoney.format(_reachable.dataPoints[12].projectedValue)}\n',
     );
     expect(item.children!.single.toPlainText(), 'October 2027');
   });
@@ -139,7 +138,7 @@ void main() {
 
     final painter = TextPainter(
       text: TextSpan(
-        text: CurrencyFormatter.format(const Money.fromPesos(1021304980)),
+        text: testMoney.format(const Money.fromUnits(1021304980)),
         style: AppTypography.monoMedium,
       ),
       textDirection: TextDirection.ltr,
@@ -160,8 +159,8 @@ void main() {
     );
     final data = await _pumpChart(tester, huge);
 
-    final top = CurrencyFormatter.formatCompact(data.maxY);
-    expect(top, '150.000M');
+    final top = testMoney.formatCompact(data.maxY);
+    expect(top, '150,000M');
     final oneLine = tester.getSize(find.text('0').first).height;
     expect(tester.getSize(find.text(top)).height, oneLine);
     expect(
@@ -195,7 +194,7 @@ void main() {
     test('says when the goal is reached at this rate', () {
       expect(
         ProjectionSummary.textOf(l10n, _reachable),
-        "At this rate, you'll reach Seguridad Financiera in 2,58 years "
+        "At this rate, you'll reach Seguridad Financiera in 2.58 years "
         'on May 2029',
       );
     });

@@ -39,7 +39,10 @@ class BudgetOverviewContent extends StatelessWidget {
 
   /// Two columns on desktop screens, one otherwise.
   Widget _sections(BuildContext context) {
-    final breakdown = BudgetBreakdownCard(components: budget.components);
+    final breakdown = BudgetBreakdownCard(
+      components: budget.components,
+      antExpenseTotal: budget.antExpenseTotal,
+    );
     final side = _side(context);
     final desktop = ScreenSize.fromWidth(MediaQuery.sizeOf(context).width) ==
         ScreenSize.desktop;
@@ -87,12 +90,12 @@ class BudgetOverviewContent extends StatelessWidget {
 
   Future<void> _recalculate(BuildContext context) async {
     final bloc = context.read<MonthlyBudgetBloc>();
+    final month = MonthFormat.long.format(state.month);
     final confirmed = await ConfirmationDialog.show(
       context,
-      title: context.l10n.budgetRecalculateTitle(
-        MonthFormat.long.format(state.month),
-      ),
-      message: context.l10n.budgetRecalculateMessage,
+      title: context.l10n.budgetRecalculateTitle(month),
+      message: '${context.l10n.budgetRecalculateMessage}\n\n'
+          '${context.l10n.budgetRecalculateAntExpenses(month)}',
       confirmLabel: context.l10n.budgetRecalculate,
     );
     if (confirmed) {

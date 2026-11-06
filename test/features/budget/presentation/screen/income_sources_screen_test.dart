@@ -9,7 +9,6 @@ import 'package:pennypincher_pro/core/crud/presentation/crud_screen.dart';
 import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_sheet.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
@@ -80,7 +79,7 @@ void main() {
     expect(total.label, 'Total monthly income');
     expect(
       total.value,
-      CurrencyFormatter.format(const Money.fromPesos(37152922)),
+      testMoney.format(const Money.fromUnits(37152922)),
     );
     expect(find.text('EMPLOYMENT'), findsNWidgets(3));
     expect(find.text('RENTAL'), findsNWidgets(2));
@@ -93,7 +92,7 @@ void main() {
       lessThan(tester.getTopLeft(find.text('Arriendo Madera')).dy),
     );
     expect(
-      find.text(CurrencyFormatter.format(const Money.fromPesos(24152922))),
+      find.text(testMoney.format(const Money.fromUnits(24152922))),
       findsOneWidget,
     );
     expect(tester.takeException(), isNull);
@@ -132,7 +131,7 @@ void main() {
         const CrudSaveRequested(
           CategorizedDraft(
             name: 'Airbnb Barranca',
-            amount: Money.fromPesos(2500000),
+            amount: Money.fromUnits(2500000),
             category: IncomeCategory.rental,
           ),
         ),
@@ -155,7 +154,7 @@ void main() {
         const CrudSaveRequested(
           CategorizedDraft(
             name: 'Remoti',
-            amount: Money.fromPesos(9500000),
+            amount: Money.fromUnits(9500000),
             category: IncomeCategory.employment,
           ),
           id: 'i2',

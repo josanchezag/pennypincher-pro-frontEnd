@@ -8,7 +8,7 @@ import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_pro
 /// Financial goals of the Excel with their projections against a net
 /// worth of $ 423.282.773 in October 2026.
 
-const Money netWorth = Money.fromPesos(423282773);
+const Money netWorth = Money.fromUnits(423282773);
 
 const String securityDescription =
     'Expenses covered for 6 months without income';
@@ -28,12 +28,12 @@ GoalProjection projection({
       goalId: goalId,
       name: name,
       level: level,
-      targetAmount: Money.fromPesos(target),
+      targetAmount: Money.fromUnits(target),
       currentNetWorth: current,
       progressAmount: current,
       progressPercentage: percent,
-      remainingAmount: Money.fromPesos(target) - current,
-      monthlyInvestment: Money.fromPesos(monthly),
+      remainingAmount: Money.fromUnits(target) - current,
+      monthlyInvestment: Money.fromUnits(monthly),
       expectedAnnualReturn: 0.11,
       targetYears: 16,
       reachable: months != null,
@@ -49,7 +49,7 @@ GoalProjection projection({
         ProjectionPoint(
           month: 1,
           date: DateTime(2026, 11),
-          projectedValue: current + Money.fromPesos(monthly),
+          projectedValue: current + Money.fromUnits(monthly),
         ),
       ],
     );
@@ -59,8 +59,8 @@ final FinancialGoal security = FinancialGoal(
   name: 'Seguridad Financiera',
   level: GoalLevel.financialSecurity,
   levelDescription: securityDescription,
-  targetAmount: const Money.fromPesos(605000000),
-  monthlyInvestment: const Money.fromPesos(1470000),
+  targetAmount: const Money.fromUnits(605000000),
+  monthlyInvestment: const Money.fromUnits(1470000),
   expectedAnnualReturn: 0.11,
   targetYears: 16,
   projection: projection(
@@ -78,8 +78,8 @@ final FinancialGoal independence = FinancialGoal(
   name: 'Independencia Financiera',
   level: GoalLevel.financialIndependence,
   levelDescription: 'Passive income covers all basic expenses',
-  targetAmount: const Money.fromPesos(1016000000),
-  monthlyInvestment: const Money.fromPesos(3040000),
+  targetAmount: const Money.fromUnits(1016000000),
+  monthlyInvestment: const Money.fromUnits(3040000),
   expectedAnnualReturn: 0.11,
   targetYears: 16,
   projection: projection(
@@ -99,8 +99,8 @@ final FinancialGoal freedom = FinancialGoal(
   name: 'Libertad Financiera',
   level: GoalLevel.financialFreedom,
   levelDescription: 'Passive income covers desired lifestyle',
-  targetAmount: const Money.fromPesos(2066000000),
-  monthlyInvestment: const Money.fromPesos(7000000),
+  targetAmount: const Money.fromUnits(2066000000),
+  monthlyInvestment: const Money.fromUnits(7000000),
   expectedAnnualReturn: 0.11,
   targetYears: 16,
   projection: projection(
@@ -120,8 +120,8 @@ final FinancialGoal absolute = FinancialGoal(
   name: 'Libertad Absoluta',
   level: GoalLevel.absoluteFreedom,
   levelDescription: 'Unlimited financial choices',
-  targetAmount: const Money.fromPesos(4366000000),
-  monthlyInvestment: const Money.fromPesos(15850000),
+  targetAmount: const Money.fromUnits(4366000000),
+  monthlyInvestment: const Money.fromUnits(15850000),
   expectedAnnualReturn: 0.115,
   projection: projection(
     goalId: 'g4',
@@ -195,7 +195,7 @@ GoalProjection computedProjection({
   final rate = math.pow(1 + annual, 1 / 12) - 1;
   double valueAt(int month) {
     final growth = math.pow(1 + rate, month);
-    return current.pesos * growth + monthly * (growth - 1) / rate;
+    return current.units * growth + monthly * (growth - 1) / rate;
   }
 
   int? months;
@@ -205,7 +205,7 @@ GoalProjection computedProjection({
     }
   }
   final horizon = (months ?? 600).clamp(12, 600);
-  final percent = (current.pesos / target * 100).clamp(0, 100).toDouble();
+  final percent = (current.units / target * 100).clamp(0, 100).toDouble();
   return projection(
     goalId: 'g1',
     name: name,

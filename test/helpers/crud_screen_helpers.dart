@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_sheet.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
+
+import 'l10n.dart';
 
 /// Shared steps of the list screen widget tests.
 
@@ -18,11 +19,11 @@ StatCard statCard(WidgetTester tester, String label) => tester
 
 /// Expects the [StatCard] labelled [label] to show [amount].
 void expectStat(WidgetTester tester, String label, Money amount) =>
-    expect(statCard(tester, label).value, CurrencyFormatter.format(amount));
+    expect(statCard(tester, label).value, testMoney.format(amount));
 
 /// An amount inside a tile's labelled details.
 Finder labeledAmount(Money amount) => find.textContaining(
-      CurrencyFormatter.format(amount),
+      testMoney.format(amount),
       findRichText: true,
     );
 

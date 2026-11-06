@@ -7,7 +7,6 @@ import 'package:pennypincher_pro/core/crud/presentation/crud_screen.dart';
 import 'package:pennypincher_pro/core/crud/presentation/crud_screen_config.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_sheet.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:pennypincher_pro/features/expense_details/domain/entity/fixed_expense_entity.dart';
@@ -56,7 +55,7 @@ void main() {
     verify(() => bloc.add(const CrudLoadRequested<_Draft>())).called(1);
     expect(find.text('No fixed expenses'), findsOneWidget);
     expect(find.byType(ChoiceChip), findsNothing);
-    expect(_total(tester), CurrencyFormatter.format(Money.zero));
+    expect(_total(tester), testMoney.format(Money.zero));
   });
 
   for (final size in TestViewports.expenseWidths) {
@@ -66,7 +65,7 @@ void main() {
 
       expect(
         _total(tester),
-        CurrencyFormatter.format(const Money.fromCents(926300150)),
+        testMoney.format(const Money.fromCents(926300150)),
       );
       expect(find.byType(ChoiceChip), findsNWidgets(12));
       final education = find.text('EDUCATION');
@@ -76,7 +75,7 @@ void main() {
         lessThan(tester.getTopLeft(housing.first).dy),
       );
       expect(
-        find.text(CurrencyFormatter.format(const Money.fromPesos(2347709))),
+        find.text(testMoney.format(const Money.fromUnits(2347709))),
         findsOneWidget,
       );
       expect(tester.takeException(), isNull);
@@ -161,7 +160,7 @@ void main() {
         const CrudSaveRequested(
           CategorizedDraft(
             name: 'Diezmo',
-            amount: Money.fromPesos(3715292),
+            amount: Money.fromUnits(3715292),
             category: FixedExpenseCategory.charity,
           ),
         ),
@@ -177,7 +176,7 @@ void main() {
     await tester.tap(find.text('Arriendo'));
     await tester.pumpAndSettle();
     expect(find.text('Edit fixed expense'), findsOneWidget);
-    expect(find.text('3200000,50'), findsOneWidget);
+    expect(find.text('3,200,000.50'), findsOneWidget);
     Navigator.of(
       tester.element(find.byType(ItemFormSheet<FixedExpense, _Draft>)),
     ).pop();

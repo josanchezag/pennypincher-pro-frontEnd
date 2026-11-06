@@ -7,8 +7,8 @@ import 'package:pennypincher_pro/core/crud/presentation/widget/item_sections.dar
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_tile.dart';
 import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
+import 'package:pennypincher_pro/core/utils/money_formatter.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/responsive_card_row.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
@@ -110,14 +110,23 @@ class BalanceLayout<T extends BalanceItem> extends ItemLayout<T, BalanceDraft> {
       );
 
   @override
-  Widget summary(AppLocalizations l10n, List<T> items) => ResponsiveCardRow(
+  Widget summary(
+    AppLocalizations l10n,
+    MoneyFormatter money,
+    List<T> items,
+  ) =>
+      ResponsiveCardRow(
         children: _ordered(
           _totalCard(
             l10n,
             monthly,
-            sumMoney(items, (item) => item.monthlyAmount),
+            money.format(sumMoney(items, (item) => item.monthlyAmount)),
           ),
-          _totalCard(l10n, balance, sumMoney(items, (item) => item.balance)),
+          _totalCard(
+            l10n,
+            balance,
+            money.format(sumMoney(items, (item) => item.balance)),
+          ),
         ),
       );
 
@@ -126,12 +135,17 @@ class BalanceLayout<T extends BalanceItem> extends ItemLayout<T, BalanceDraft> {
       original == null ? ItemTile.compactHeight : ItemTile.footerHeight;
 
   @override
-  ItemTileContent tileContent(AppLocalizations l10n, T item) => ItemTileContent(
+  ItemTileContent tileContent(
+    AppLocalizations l10n,
+    MoneyFormatter money,
+    T item,
+  ) =>
+      ItemTileContent(
         details: LabeledAmount(
           label: monthly.label(l10n),
-          amount: CurrencyFormatter.format(item.monthlyAmount),
+          amount: money.format(item.monthlyAmount),
         ),
-        amount: CurrencyFormatter.format(item.balance),
+        amount: money.format(item.balance),
         amountColor: balance.color,
         footer: _progress(l10n, item),
       );
@@ -172,11 +186,11 @@ class BalanceLayout<T extends BalanceItem> extends ItemLayout<T, BalanceDraft> {
   static Widget _totalCard(
     AppLocalizations l10n,
     BalanceAmountStyle style,
-    Money total,
+    String total,
   ) =>
       StatCard(
         label: style.totalLabel(l10n),
-        value: CurrencyFormatter.format(total),
+        value: total,
         icon: style.icon,
         valueColor: style.color,
       );

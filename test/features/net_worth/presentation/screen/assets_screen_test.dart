@@ -93,7 +93,7 @@ void main() {
 
     final total = tester.widget<StatCard>(find.byType(StatCard));
     expect(total.label, 'Total assets');
-    expect(total.value, contains('412.150.001'));
+    expect(total.value, contains('412,150,001'));
     expect(find.text('REAL ESTATE'), findsNWidgets(2));
     expect(find.text('VEHICLE'), findsNWidgets(2));
     expect(find.text('Apto Madera'), findsOneWidget);
@@ -129,7 +129,7 @@ void main() {
     await tester.tap(find.byKey(CrudScreen.addButtonKey));
     await tester.pumpAndSettle();
     await tester.enterText(_field(l10n.crudNameLabel), '  Moto  ');
-    await tester.enterText(_field('Value'), '8.500.000,50');
+    await tester.enterText(_field('Value'), '8500000');
     await tester.tap(find.text(l10n.crudCategoryLabel));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Vehicle').last);
@@ -141,7 +141,7 @@ void main() {
   const moto = Asset(
     id: 'a9',
     name: 'Moto',
-    value: Money.fromCents(850000050),
+    value: Money.fromUnits(8500000),
     category: AssetCategory.vehicle,
   );
 
@@ -162,7 +162,7 @@ void main() {
         const CrudSaveRequested(
           CategorizedDraft(
             name: 'Moto',
-            amount: Money.fromCents(850000050),
+            amount: Money.fromUnits(8500000),
             category: AssetCategory.vehicle,
           ),
         ),
@@ -205,7 +205,7 @@ void main() {
 
     expect(find.byKey(ItemFormSheet.errorKey), findsOneWidget);
     expect(find.text('Validation failed: name is too long'), findsOneWidget);
-    expect(find.text('8.500.000,50'), findsOneWidget);
+    expect(find.text('8,500,000'), findsOneWidget);
     expect(find.byType(SnackBar), findsNothing);
     final save = tester.widget<FilledButton>(find.byKey(ItemFormSheet.saveKey));
     expect(save.onPressed, isNotNull);
@@ -222,7 +222,7 @@ void main() {
       tester.getSemantics(find.text(_config.addLabel(l10n)).last),
       matchesSemantics(label: 'Add asset', isHeader: true, namesRoute: true),
     );
-    expect(find.text(l10n.crudAmountHelper), findsOneWidget);
+    expect(find.text(testAmountHelper), findsOneWidget);
     semantics.dispose();
   });
 
@@ -232,12 +232,13 @@ void main() {
 
     await tester.tap(find.byKey(CrudScreen.addButtonKey));
     await tester.pumpAndSettle();
-    await tester.enterText(_field('Value'), '1.50.000');
+    await tester.enterText(_field('Value'), 'abc');
     await tester.tap(find.byKey(ItemFormSheet.saveKey));
     await tester.pumpAndSettle();
 
     expect(find.text(l10n.crudNameRequired), findsOneWidget);
-    expect(find.text(l10n.crudAmountInvalid), findsOneWidget);
+    expect(_field('Value'), findsOneWidget);
+    expect(find.text(l10n.crudAmountRequired), findsOneWidget);
     expect(find.text(l10n.crudCategoryRequired), findsOneWidget);
     verifyNever(() => bloc.add(any()));
   });
@@ -248,7 +249,7 @@ void main() {
     await tester.tap(find.text('Carro Mazda'));
     await tester.pumpAndSettle();
     expect(find.text('Edit asset'), findsOneWidget);
-    expect(find.text('62000000'), findsOneWidget);
+    expect(find.text('62,000,000'), findsOneWidget);
     await tester.enterText(_field('Value'), '58.000.000');
     await tester.tap(find.byKey(ItemFormSheet.saveKey));
     await tester.pump();
@@ -258,7 +259,7 @@ void main() {
         const CrudSaveRequested(
           CategorizedDraft(
             name: 'Carro Mazda',
-            amount: Money.fromPesos(58000000),
+            amount: Money.fromUnits(58000000),
             category: AssetCategory.vehicle,
           ),
           id: 'a2',

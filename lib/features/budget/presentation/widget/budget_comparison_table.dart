@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/time/month_format.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
+import 'package:pennypincher_pro/core/utils/money_formatter.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
+import 'package:pennypincher_pro/core/widgets/money_format_scope.dart';
 import 'package:pennypincher_pro/core/widgets/report_table.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_comparison_entity.dart';
 
@@ -31,12 +32,13 @@ class BudgetComparisonTable extends StatelessWidget {
     return ReportTable(
       columns: columns(context.l10n),
       rows: [
-        for (final month in months.reversed) ReportRow(cells: cellsOf(month)),
+        for (final month in months.reversed)
+          ReportRow(cells: cellsOf(context.money, month)),
       ],
     );
   }
 
-  static List<ReportCell> cellsOf(MonthComparison month) {
+  static List<ReportCell> cellsOf(MoneyFormatter money, MonthComparison month) {
     final name = ReportCell(MonthFormat.short.format(month.month));
     final figures = month.figures;
     if (figures == null) {
@@ -48,10 +50,10 @@ class BudgetComparisonTable extends StatelessWidget {
     }
     return [
       name,
-      ReportCell(CurrencyFormatter.format(figures.totalIncome)),
-      ReportCell(CurrencyFormatter.format(figures.totalExpenses)),
+      ReportCell(money.format(figures.totalIncome)),
+      ReportCell(money.format(figures.totalExpenses)),
       ReportCell(
-        CurrencyFormatter.format(figures.cashFlow),
+        money.format(figures.cashFlow),
         color: figures.cashFlow.isNegative ? AppColors.error : null,
       ),
       percentCell(figures.cashFlowPercentage),

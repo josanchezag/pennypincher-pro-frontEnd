@@ -11,8 +11,9 @@ import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
+import 'package:pennypincher_pro/core/utils/app_currency.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
+import 'package:pennypincher_pro/core/utils/money_formatter.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/budget_comparison_bloc.dart';
@@ -42,6 +43,7 @@ import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/net_worth_mocks.dart';
 import '../../../../helpers/pump_app.dart';
+import '../../../../helpers/settings_fakes.dart';
 
 const Size _phone = Size(390, 844);
 
@@ -64,6 +66,7 @@ void main() {
     Stream<DashboardState> stream = const Stream.empty(),
     bool settle = true,
     Locale locale = testLocale,
+    AppCurrency currency = AppCurrency.cop,
   }) async {
     if (getIt.isRegistered<DashboardBloc>()) {
       await getIt.unregister<DashboardBloc>();
@@ -74,6 +77,9 @@ void main() {
       size: size,
       settle: settle,
       locale: locale,
+      preferences: FakePreferencesRepository(
+        savedPreferences(locale.languageCode, currency),
+      ),
     );
     await tester.pump();
     return bloc;
@@ -213,13 +219,42 @@ void main() {
       expect(find.text(l10nEs.netWorth.toUpperCase()), findsOneWidget);
       expect(find.text(l10nEs.totalAssets.toUpperCase()), findsOneWidget);
       expect(find.text(l10n.netWorth.toUpperCase()), findsNothing);
-      // Amounts keep the Colombian format in both languages.
+      // Pesos in Spanish keep the Colombian format: symbol first, dots.
+      expect(find.text('\$\u00A0707.363.354'), findsOneWidget);
       expect(
         find.text(
-          CurrencyFormatter.format(dashboardSummary.netWorth.totalAssets),
+          MoneyFormatter.of(AppCurrency.cop, 'es')
+              .format(dashboardSummary.netWorth.totalAssets),
         ),
         findsOneWidget,
       );
+    });
+
+    testWidgets('writes the amounts in dollars of an English account',
+        (tester) async {
+      await pumpDashboard(
+        tester,
+        loadedDashboard(dashboardSummary),
+        currency: AppCurrency.usd,
+      );
+
+      expect(find.text(r'$707,363,354.00'), findsOneWidget);
+      expect(find.textContaining('COP'), findsNothing);
+      final line = tester.widget<StatDeltaLine>(find.byType(StatDeltaLine));
+      expect(line.delta.text, startsWith(r'+$5,282,773.'));
+    });
+
+    testWidgets('writes the amounts in euros of a Spanish account',
+        (tester) async {
+      await pumpDashboard(
+        tester,
+        loadedDashboard(dashboardSummary),
+        locale: AppLocales.spanish,
+        currency: AppCurrency.eur,
+      );
+
+      expect(find.text('707.363.354,00\u00A0€'), findsOneWidget);
+      expect(find.textContaining(r'$'), findsNothing);
     });
 
     testWidgets('greets without a name when the profile has none',
@@ -308,12 +343,12 @@ void main() {
       expect(line.delta.isPositive, isTrue);
       expect(
         line.delta.text,
-        endsWith('5.282.773 (+${PercentFormatter.format(1.26)}) vs Sep 2026'),
+        endsWith('5,282,773 (+${PercentFormatter.format(1.26)}) vs Sep 2026'),
       );
-      expect(line.delta.text, startsWith(r'+$'));
+      expect(line.delta.text, startsWith('+COP\u00A0'));
       expect(find.byType(MiniSparkline), findsOneWidget);
-      expect(find.textContaining('707.363.354'), findsOneWidget);
-      expect(find.textContaining('284.080.581'), findsOneWidget);
+      expect(find.textContaining('707,363,354'), findsOneWidget);
+      expect(find.textContaining('284,080,581'), findsOneWidget);
     });
 
     testWidgets('shows a loss in red, without a percentage after zero',
@@ -321,7 +356,7 @@ void main() {
       final change = NetWorthChange(
         previous: Money.zero,
         previousDate: DateTime(2026, 9),
-        delta: const Money.fromPesos(-300000),
+        delta: const Money.fromUnits(-300000),
       );
       await pumpDashboard(
         tester,
@@ -336,7 +371,7 @@ void main() {
       expect(line.delta.isPositive, isFalse);
       expect(
         line.delta.text,
-        '${CurrencyFormatter.formatSigned(const Money.fromPesos(-300000))} '
+        '${testMoney.formatSigned(const Money.fromUnits(-300000))} '
         'vs Sep 2026',
       );
     });
@@ -367,11 +402,11 @@ void main() {
             recentSnapshots: [
               NetWorthPoint(
                 date: DateTime(2026, 8),
-                netWorth: const Money.fromPesos(418000000),
+                netWorth: const Money.fromUnits(418000000),
               ),
               NetWorthPoint(
                 date: DateTime(2026, 9),
-                netWorth: const Money.fromPesos(410000000),
+                netWorth: const Money.fromUnits(410000000),
               ),
             ],
           ),
@@ -389,9 +424,9 @@ void main() {
         (tester) async {
       await pumpDashboard(tester, loadedDashboard(dashboardSummary));
 
-      expect(find.textContaining('37.152.922'), findsOneWidget);
-      expect(find.textContaining('19.135.201'), findsOneWidget);
-      final cashFlow = tester.widget<Text>(find.textContaining('18.017.721'));
+      expect(find.textContaining('37,152,922'), findsOneWidget);
+      expect(find.textContaining('19,135,201'), findsOneWidget);
+      final cashFlow = tester.widget<Text>(find.textContaining('18,017,721'));
       expect(cashFlow.style?.color, AppColors.success);
       expect(
         find.text(
@@ -413,9 +448,9 @@ void main() {
             budget: MonthBudgetOverview(
               month: DateTime(2026, 10),
               figures: const BudgetFigures(
-                totalIncome: Money.fromPesos(1000000),
-                totalExpenses: Money.fromPesos(1500000),
-                monthlyCashFlow: Money.fromPesos(-500000),
+                totalIncome: Money.fromUnits(1000000),
+                totalExpenses: Money.fromUnits(1500000),
+                monthlyCashFlow: Money.fromUnits(-500000),
                 cashFlowPercentage: -50,
               ),
             ),
@@ -424,7 +459,7 @@ void main() {
       );
 
       final cashFlow = tester.widget<Text>(
-        find.text(CurrencyFormatter.format(const Money.fromPesos(-500000))),
+        find.text(testMoney.format(const Money.fromUnits(-500000))),
       );
       expect(cashFlow.style?.color, AppColors.error);
     });

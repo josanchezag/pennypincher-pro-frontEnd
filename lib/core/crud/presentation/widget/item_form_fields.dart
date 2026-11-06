@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:pennypincher_pro/core/crud/domain/crud_item.dart';
 import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
-import 'package:pennypincher_pro/core/utils/currency_formatter.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
+import 'package:pennypincher_pro/core/widgets/money_field.dart';
+import 'package:pennypincher_pro/core/widgets/money_format_scope.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 /// Controls and fields the item forms are made of, with the same limits as
@@ -12,12 +12,12 @@ import 'package:reactive_forms/reactive_forms.dart';
 /// characters and amounts from zero up to [Money.maxCents].
 abstract final class ItemFormFields {
   static const String name = 'name';
-  static const String amountInvalidError = 'amountInvalid';
   static const String amountNotPositiveError = 'amountNotPositive';
 
-  /// Digits plus the dot and comma separators.
-  static final TextInputFormatter amountCharacters =
-      FilteringTextInputFormatter.allow(RegExp('[0-9.,]'));
+  /// Example amounts of the field hints: one and a half million, with
+  /// cents in currencies that have them.
+  static const Money _example = Money.fromUnits(1500000);
+  static const Money _exampleWithCents = Money.fromCents(150000050);
 
   static FormControl<String> nameControl(String? initial) => FormControl(
         value: initial,
@@ -27,38 +27,28 @@ abstract final class ItemFormFields {
         ],
       );
 
-  /// Required amount typed in the Colombian format, prefilled with
-  /// [initial].
-  static FormControl<String> amountControl(Money? initial) => FormControl(
-        value: initial?.toInputString(),
-        validators: [Validators.required, Validators.delegate(_amount)],
-      );
+  /// Required amount, prefilled with [initial].
+  static FormControl<Money> amountControl(Money? initial) =>
+      FormControl(value: initial, validators: [Validators.required]);
 
   /// Required amount above zero, prefilled with [initial].
-  static FormControl<String> positiveAmountControl(Money? initial) =>
+  static FormControl<Money> positiveAmountControl(Money? initial) =>
       FormControl(
-        value: initial?.toInputString(),
-        validators: [
-          Validators.required,
-          Validators.delegate(_amount),
-          Validators.delegate(_positive),
-        ],
+        value: initial,
+        validators: [Validators.required, Validators.delegate(_positive)],
       );
 
   /// Amount that may be left empty, prefilled with [initial].
-  static FormControl<String> optionalAmountControl(Money? initial) =>
-      FormControl(
-        value: initial?.toInputString(),
-        validators: [Validators.delegate(_amount)],
-      );
+  static FormControl<Money> optionalAmountControl(Money? initial) =>
+      FormControl(value: initial);
 
   static FormControl<C> categoryControl<C extends Enum>(C? initial) =>
       FormControl(value: initial, validators: [Validators.required]);
 
   static Widget nameField() => const _NameField();
 
-  /// Amount typed in the Colombian format; when [optional] it may be left
-  /// empty and its hint says so.
+  /// Amount in the user's currency, formatted as it is typed; when
+  /// [optional] it may be left empty and its hint says so.
   static Widget amountField(
     String controlName,
     String label, {
@@ -104,28 +94,13 @@ abstract final class ItemFormFields {
 
   /// Amount of the control [controlName] of a valid [form], or null when it
   /// was left empty.
-  static Money? optionalAmountOf(FormGroup form, String controlName) {
-    final text = form.control(controlName).value as String?;
-    return text == null || text.trim().isEmpty
-        ? null
-        : Money.tryParseInput(text);
-  }
+  static Money? optionalAmountOf(FormGroup form, String controlName) =>
+      form.control(controlName).value as Money?;
 
   static Map<String, dynamic>? _positive(AbstractControl<dynamic> control) {
-    final text = control.value;
-    final amount = text is String ? Money.tryParseInput(text) : null;
-    return amount != null && amount.isZero
+    final amount = control.value;
+    return amount is Money && amount.isZero
         ? {amountNotPositiveError: true}
-        : null;
-  }
-
-  static Map<String, dynamic>? _amount(AbstractControl<dynamic> control) {
-    final text = control.value;
-    if (text is! String || text.trim().isEmpty) {
-      return null;
-    }
-    return Money.tryParseInput(text) == null
-        ? {amountInvalidError: true}
         : null;
   }
 }
@@ -164,21 +139,20 @@ class _AmountField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ReactiveTextField<String>(
+    final money = context.money;
+    final example = money.format(
+      money.currency.decimalDigits > 0
+          ? ItemFormFields._exampleWithCents
+          : ItemFormFields._example,
+    );
+    return MoneyField(
       formControlName: controlName,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: [ItemFormFields.amountCharacters],
-      decoration: InputDecoration(
-        labelText: label,
-        prefixText: '${CurrencyFormatter.symbol} ',
-        helperText: optional
-            ? context.l10n.crudOptionalAmountHelper
-            : context.l10n.crudAmountHelper,
-      ),
+      label: label,
+      helperText: optional
+          ? context.l10n.crudOptionalAmountHelper(example)
+          : context.l10n.crudAmountHelper(example),
       validationMessages: {
         ValidationMessage.required: (_) => context.l10n.crudAmountRequired,
-        ItemFormFields.amountInvalidError: (_) =>
-            context.l10n.crudAmountInvalid,
         ItemFormFields.amountNotPositiveError: (_) =>
             context.l10n.crudAmountNotPositive,
       },
