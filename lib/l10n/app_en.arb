@@ -699,6 +699,17 @@
   "budgetDetailsTitle": "Month details",
   "budgetExchangeRate": "TRM (USD/COP)",
   "budgetWorkDays": "Work days",
+  "budgetEurCopClose": "EUR/COP (close)",
+  "budgetExchangeRateAutomatic": "Today's TRM ({date}), updated automatically.",
+  "@budgetExchangeRateAutomatic": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetExchangeRateUnavailable": "Today's TRM could not be retrieved, so it was not updated. You can edit it by hand.",
+  "budgetExchangeRateSaveFailed": "Today's TRM could not be saved. You can edit it by hand.",
   "budgetNotSet": "Not set",
   "budgetEditValue": "Edit {label}",
   "@budgetEditValue": {

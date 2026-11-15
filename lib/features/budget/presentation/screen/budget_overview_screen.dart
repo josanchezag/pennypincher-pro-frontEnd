@@ -78,7 +78,12 @@ class BudgetOverviewScreen extends StatelessWidget {
     };
   }
 
+  /// Reports a change of the user. Saving today's TRM is reported by the
+  /// details card instead, since the user did not ask for it.
   static void _reportChange(BuildContext context, MonthlyBudgetState state) {
+    if (state.finishedAction == BudgetAction.syncExchangeRate) {
+      return;
+    }
     final error = state.actionError;
     if (error != null) {
       AppSnackbar.showError(context, error);
@@ -94,6 +99,7 @@ class BudgetOverviewScreen extends StatelessWidget {
           l10n.budgetCreated(MonthFormat.long.format(state.month)),
         BudgetAction.update => l10n.budgetUpdated,
         BudgetAction.recalculate => l10n.budgetRecalculated,
+        BudgetAction.syncExchangeRate => l10n.budgetUpdated,
       },
     );
   }

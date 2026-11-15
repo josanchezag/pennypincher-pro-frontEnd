@@ -108,6 +108,16 @@ import 'package:pennypincher_pro/features/dashboard/domain/usecase/dashboard_use
     as _i77;
 import 'package:pennypincher_pro/features/dashboard/presentation/bloc/dashboard_bloc.dart'
     as _i584;
+import 'package:pennypincher_pro/features/exchange_rates/data/datasource/exchange_rate_remote_datasource.dart'
+    as _i689;
+import 'package:pennypincher_pro/features/exchange_rates/data/repository/exchange_rate_repository_impl.dart'
+    as _i952;
+import 'package:pennypincher_pro/features/exchange_rates/di/exchange_rates_module.dart'
+    as _i996;
+import 'package:pennypincher_pro/features/exchange_rates/domain/repository/exchange_rate_repository.dart'
+    as _i366;
+import 'package:pennypincher_pro/features/exchange_rates/domain/usecase/get_today_exchange_rates.dart'
+    as _i138;
 import 'package:pennypincher_pro/features/expense_details/data/datasource/credit_card_remote_datasource.dart'
     as _i129;
 import 'package:pennypincher_pro/features/expense_details/data/datasource/expense_summary_remote_datasource.dart'
@@ -251,6 +261,7 @@ extension GetItInjectableX on _i174.GetIt {
     final expenseDetailsModule = _$ExpenseDetailsModule();
     final financialGoalsModule = _$FinancialGoalsModule();
     final netWorthModule = _$NetWorthModule();
+    final exchangeRatesModule = _$ExchangeRatesModule();
     final antExpensesModule = _$AntExpensesModule();
     final settingsModule = _$SettingsModule();
     final dashboardModule = _$DashboardModule();
@@ -334,10 +345,10 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i277.LiabilityRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i578.IncomeSourceRemoteDataSource>(
         () => _i578.IncomeSourceRemoteDataSource(gh<_i361.Dio>()));
-    gh.lazySingleton<_i2.FinancialGoalRemoteDataSource>(
-        () => _i2.FinancialGoalRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i213.AntExpenseRemoteDataSource>(
         () => _i213.AntExpenseRemoteDataSource(gh<_i361.Dio>()));
+    gh.lazySingleton<_i2.FinancialGoalRemoteDataSource>(
+        () => _i2.FinancialGoalRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i459.ExpenseSummaryRemoteDataSource>(
         () => _i459.ExpenseSummaryRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i464.NetWorthRemoteDataSource>(
@@ -346,6 +357,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i542.MonthlyBudgetRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i709.PreferencesRemoteDataSource>(
         () => _i709.PreferencesRemoteDataSource(gh<_i361.Dio>()));
+    gh.lazySingleton<_i689.ExchangeRateRemoteDataSource>(
+        () => _i689.ExchangeRateRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i19.DashboardRemoteDataSource>(
         () => _i19.DashboardRemoteDataSource(gh<_i361.Dio>()));
     gh.lazySingleton<_i446.AppRouter>(() => _i446.AppRouter(
@@ -360,6 +373,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i867.MonthlyBudgetRepository>(() =>
         _i833.MonthlyBudgetRepositoryImpl(
             gh<_i542.MonthlyBudgetRemoteDataSource>()));
+    gh.lazySingleton<_i366.ExchangeRateRepository>(
+        () => _i952.ExchangeRateRepositoryImpl(
+              gh<_i689.ExchangeRateRemoteDataSource>(),
+              gh<_i656.Clock>(),
+            ));
     gh.lazySingleton<_i365.AssetRepository>(
         () => _i171.AssetRepositoryImpl(gh<_i392.AssetRemoteDataSource>()));
     gh.lazySingleton<_i116.IncomeSourceRepository>(() =>
@@ -492,6 +510,8 @@ extension GetItInjectableX on _i174.GetIt {
             _i953.CategorizedDraft<_i793.FixedExpenseCategory>>>(() =>
         expenseDetailsModule
             .deleteFixedExpense(gh<_i544.FixedExpenseRepository>()));
+    gh.factory<_i138.GetTodayExchangeRates>(() => exchangeRatesModule
+        .getTodayExchangeRates(gh<_i366.ExchangeRateRepository>()));
     gh.factory<_i307.BudgetComparisonBloc>(() => _i307.BudgetComparisonBloc(
           gh<_i51.GetMonthlyComparison>(),
           gh<_i656.Clock>(),
@@ -596,16 +616,6 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i678.SaveItem<_i63.AntExpense, _i63.AntExpenseDraft>>(),
           gh<_i678.DeleteItem<_i63.AntExpense, _i63.AntExpenseDraft>>(),
         ));
-    gh.factory<_i105.MonthlyBudgetBloc>(() => _i105.MonthlyBudgetBloc(
-          gh<_i51.GetMonthlyBudget>(),
-          gh<_i51.CreateMonthlyBudget>(),
-          gh<_i51.UpdateMonthlyBudget>(),
-          gh<_i51.RecalculateBudget>(),
-          gh<
-              _i678.GetItems<_i161.IncomeSource,
-                  _i953.CategorizedDraft<_i161.IncomeCategory>>>(),
-          gh<_i656.Clock>(),
-        ));
     gh.lazySingleton<_i746.PreferencesCubit>(() => _i746.PreferencesCubit(
           gh<_i1041.GetPreferences>(),
           gh<_i1041.SavePreferences>(),
@@ -628,6 +638,17 @@ extension GetItInjectableX on _i174.GetIt {
         dashboardModule.getDashboardSummary(gh<_i884.DashboardRepository>()));
     gh.factory<_i77.RecordNetWorthSnapshot>(() => dashboardModule
         .recordNetWorthSnapshot(gh<_i884.DashboardRepository>()));
+    gh.factory<_i105.MonthlyBudgetBloc>(() => _i105.MonthlyBudgetBloc(
+          gh<_i51.GetMonthlyBudget>(),
+          gh<_i51.CreateMonthlyBudget>(),
+          gh<_i51.UpdateMonthlyBudget>(),
+          gh<_i51.RecalculateBudget>(),
+          gh<
+              _i678.GetItems<_i161.IncomeSource,
+                  _i953.CategorizedDraft<_i161.IncomeCategory>>>(),
+          gh<_i138.GetTodayExchangeRates>(),
+          gh<_i656.Clock>(),
+        ));
     gh.factory<_i689.SavingsAccountBloc>(() => _i689.SavingsAccountBloc(
           gh<_i678.GetItems<_i1038.SavingsAccount, _i642.BalanceDraft>>(),
           gh<_i678.SaveItem<_i1038.SavingsAccount, _i642.BalanceDraft>>(),
@@ -683,6 +704,8 @@ class _$ExpenseDetailsModule extends _i539.ExpenseDetailsModule {}
 class _$FinancialGoalsModule extends _i72.FinancialGoalsModule {}
 
 class _$NetWorthModule extends _i125.NetWorthModule {}
+
+class _$ExchangeRatesModule extends _i996.ExchangeRatesModule {}
 
 class _$AntExpensesModule extends _i612.AntExpensesModule {}
 

@@ -53,3 +53,13 @@ final class MonthlyBudgetSettingsChanged extends MonthlyBudgetEvent {
 final class MonthlyBudgetRecalculateRequested extends MonthlyBudgetEvent {
   const MonthlyBudgetRecalculateRequested();
 }
+
+/// Today's exchange rates arrived (or failed) for the current month.
+final class _TodayRatesReceived extends MonthlyBudgetEvent {
+  const _TodayRatesReceived(this.result);
+
+  final Either<Failure, TodayExchangeRates> result;
+
+  @override
+  List<Object?> get props => [result];
+}

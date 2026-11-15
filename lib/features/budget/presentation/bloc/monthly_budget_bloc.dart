@@ -6,11 +6,15 @@ import 'package:pennypincher_pro/core/crud/domain/categorized_item.dart';
 import 'package:pennypincher_pro/core/crud/domain/usecase/crud_use_cases.dart';
 import 'package:pennypincher_pro/core/error/error_codes.dart';
 import 'package:pennypincher_pro/core/error/failure.dart';
+import 'package:pennypincher_pro/core/time/api_date.dart';
 import 'package:pennypincher_pro/core/time/calendar_month.dart';
 import 'package:pennypincher_pro/core/time/clock.dart';
+import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/income_source_entity.dart';
 import 'package:pennypincher_pro/features/budget/domain/entity/monthly_budget_entity.dart';
 import 'package:pennypincher_pro/features/budget/domain/usecase/monthly_budget_use_cases.dart';
+import 'package:pennypincher_pro/features/exchange_rates/domain/entity/today_exchange_rates_entity.dart';
+import 'package:pennypincher_pro/features/exchange_rates/domain/usecase/get_today_exchange_rates.dart';
 
 part 'monthly_budget_event.dart';
 part 'monthly_budget_state.dart';
@@ -18,6 +22,14 @@ part 'monthly_budget_state.dart';
 /// State of the budget overview. A new instance is created per screen and
 /// opens on the current month. Results that arrive after the user moved to
 /// another month are dropped, and changes run one at a time.
+///
+/// In the current month the TRM follows today's rate: whenever the month
+/// is loaded today's rates are fetched (at most once a day, see
+/// [GetTodayExchangeRates]) without delaying the budget, and when the
+/// fresh TRM differs from the stored one it is saved with the work days
+/// unchanged. Each budget gets one such save per day, so a failed or
+/// rejected save is not repeated, and none starts while another change
+/// runs. A failed, stale or missing TRM overwrites nothing.
 @injectable
 class MonthlyBudgetBloc extends Bloc<MonthlyBudgetEvent, MonthlyBudgetState> {
   MonthlyBudgetBloc(
@@ -26,8 +38,9 @@ class MonthlyBudgetBloc extends Bloc<MonthlyBudgetEvent, MonthlyBudgetState> {
     this._updateBudget,
     this._recalculateBudget,
     this._getIncomeSources,
-    Clock clock,
-  ) : super(MonthlyBudgetState(month: CalendarMonth.of(clock.now()))) {
+    this._getTodayRates,
+    this._clock,
+  ) : super(MonthlyBudgetState(month: CalendarMonth.of(_clock.now()))) {
     on<MonthlyBudgetStarted>((_, emit) => _load(state.month, emit));
     on<MonthlyBudgetReloadRequested>((_, emit) => _load(state.month, emit));
     on<MonthlyBudgetIncomeReloadRequested>(_onIncomeReloadRequested);
@@ -35,6 +48,7 @@ class MonthlyBudgetBloc extends Bloc<MonthlyBudgetEvent, MonthlyBudgetState> {
     on<MonthlyBudgetCreateRequested>(_onCreateRequested);
     on<MonthlyBudgetSettingsChanged>(_onSettingsChanged);
     on<MonthlyBudgetRecalculateRequested>(_onRecalculateRequested);
+    on<_TodayRatesReceived>(_onTodayRatesReceived);
   }
 
   final GetMonthlyBudget _getBudget;
@@ -43,6 +57,11 @@ class MonthlyBudgetBloc extends Bloc<MonthlyBudgetEvent, MonthlyBudgetState> {
   final RecalculateBudget _recalculateBudget;
   final GetItems<IncomeSource, CategorizedDraft<IncomeCategory>>
       _getIncomeSources;
+  final GetTodayExchangeRates _getTodayRates;
+  final Clock _clock;
+
+  /// Budgets whose TRM was already saved automatically, by budget and day.
+  final Set<String> _exchangeRateSyncs = {};
 
   /// Loads the budget of [month] and the income sources in parallel. A
   /// failure of the income sources only affects their section, and they
@@ -54,6 +73,7 @@ class MonthlyBudgetBloc extends Bloc<MonthlyBudgetEvent, MonthlyBudgetState> {
     final income = await incomeRequest;
     final current = state.month == month ? _withBudget(budget) : state;
     emit(_withIncome(current, income));
+    await _syncExchangeRate(emit);
   }
 
   Future<void> _onIncomeReloadRequested(
@@ -89,17 +109,81 @@ class MonthlyBudgetBloc extends Bloc<MonthlyBudgetEvent, MonthlyBudgetState> {
     final budget = await _getBudget(month);
     if (state.month == month) {
       emit(_withBudget(budget));
+      await _syncExchangeRate(emit);
     }
   }
 
-  void _showLoading(DateTime month, Emitter<MonthlyBudgetState> emit) => emit(
-        state.copyWith(
-          month: month,
-          status: BudgetLoadStatus.loading,
-          budget: () => null,
-          loadError: () => null,
-        ),
-      );
+  /// Shows [month] loading, and fetches today's rates when it is the
+  /// current month.
+  void _showLoading(DateTime month, Emitter<MonthlyBudgetState> emit) {
+    final currentMonth = CalendarMonth.of(_clock.now());
+    emit(
+      state.copyWith(
+        month: month,
+        status: BudgetLoadStatus.loading,
+        budget: () => null,
+        loadError: () => null,
+        currentMonth: currentMonth,
+      ),
+    );
+    if (month == currentMonth) {
+      _requestTodayRates();
+    }
+  }
+
+  /// Fetches today's rates without making the budget wait for them.
+  void _requestTodayRates() {
+    _getTodayRates().then((result) {
+      if (!isClosed) {
+        add(_TodayRatesReceived(result));
+      }
+    });
+  }
+
+  Future<void> _onTodayRatesReceived(
+    _TodayRatesReceived event,
+    Emitter<MonthlyBudgetState> emit,
+  ) async {
+    emit(
+      event.result.fold(
+        (_) => state.copyWith(todayRatesFailed: true),
+        (rates) => state.copyWith(todayRates: rates, todayRatesFailed: false),
+      ),
+    );
+    await _syncExchangeRate(emit);
+  }
+
+  /// Saves today's TRM in the current month's budget shown when it differs
+  /// from the stored one, once per budget and day.
+  Future<void> _syncExchangeRate(Emitter<MonthlyBudgetState> emit) async {
+    final rate = _freshTrm();
+    final budget = state.budget;
+    final now = _clock.now();
+    if (rate == null ||
+        budget == null ||
+        state.isBusy ||
+        state.status != BudgetLoadStatus.loaded ||
+        budget.month != CalendarMonth.of(now) ||
+        budget.month != state.month ||
+        budget.settings.exchangeRate == rate ||
+        !_exchangeRateSyncs.add('${budget.id}@${ApiDate.format(now)}')) {
+      return;
+    }
+    final settings = budget.settings.copyWith(exchangeRate: rate);
+    await _change(
+      emit,
+      BudgetAction.syncExchangeRate,
+      () async => (await _updateBudget(budget.id, settings)).map(_changed),
+    );
+  }
+
+  /// Today's TRM, when it was fetched and is today's.
+  Money? _freshTrm() {
+    final rates = state.todayRates;
+    return state.todayRatesFailed || rates == null || !rates.hasFreshUsdCop
+        ? null
+        : rates.usdCop;
+  }
 
   MonthlyBudgetState _withBudget(Either<Failure, MonthlyBudget?> result) =>
       result.fold(
@@ -179,6 +263,7 @@ class MonthlyBudgetBloc extends Bloc<MonthlyBudgetEvent, MonthlyBudgetState> {
 
   /// Runs [request] for the month shown and applies its result. The month
   /// cannot change meanwhile: navigation is ignored while a change runs.
+  /// Once a change of the user ends, today's TRM is saved if it is due.
   Future<void> _change(
     Emitter<MonthlyBudgetState> emit,
     BudgetAction action,
@@ -192,6 +277,8 @@ class MonthlyBudgetBloc extends Bloc<MonthlyBudgetEvent, MonthlyBudgetState> {
           runningAction: () => null,
           finishedAction: action,
           actionError: failure.message,
+          exchangeRateSyncFailed:
+              action == BudgetAction.syncExchangeRate ? true : null,
         ),
         (outcome) => state.copyWith(
           budget: () => outcome.budget,
@@ -201,6 +288,9 @@ class MonthlyBudgetBloc extends Bloc<MonthlyBudgetEvent, MonthlyBudgetState> {
         ),
       ),
     );
+    if (action != BudgetAction.syncExchangeRate) {
+      await _syncExchangeRate(emit);
+    }
   }
 }
 
