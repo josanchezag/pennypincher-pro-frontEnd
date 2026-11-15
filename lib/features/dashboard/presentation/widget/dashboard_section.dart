@@ -29,6 +29,9 @@ class DashboardSection extends StatelessWidget {
 class TileGrid extends StatelessWidget {
   const TileGrid({required this.columns, required this.children, super.key});
 
+  /// Space between two tiles, across and down.
+  static const double gap = AppSpacing.sm;
+
   final int columns;
   final List<Widget> children;
 
@@ -36,7 +39,6 @@ class TileGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        const gap = AppSpacing.sm;
         final width = (constraints.maxWidth - gap * (columns - 1)) / columns;
         return Wrap(
           spacing: gap,

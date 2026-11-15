@@ -384,6 +384,8 @@
   "dashboardAddExpense": "Add expense",
   "dashboardNetWorthReport": "Net worth report",
   "dashboardBudgetComparison": "Budget comparison",
+  "dashboardAntExpense": "Ant expense",
+  "dashboardAntExpenseAdded": "Ant expense added",
   "dashboardOnboardingTitle": "Start by adding your assets",
   "dashboardOnboardingMessage": "Add what you own and what you owe to see your net worth. Then create a budget and set your financial goals.",
   "assets": "Assets",

@@ -197,6 +197,8 @@
   "dashboardAddExpense": "Agregar gasto",
   "dashboardNetWorthReport": "Informe de patrimonio",
   "dashboardBudgetComparison": "Comparar presupuestos",
+  "dashboardAntExpense": "Gasto hormiga",
+  "dashboardAntExpenseAdded": "Gasto hormiga agregado",
   "dashboardOnboardingTitle": "Empieza agregando tus activos",
   "dashboardOnboardingMessage": "Agrega lo que tienes y lo que debes para ver tu patrimonio neto. Luego crea un presupuesto y define tus metas financieras.",
   "assets": "Activos",

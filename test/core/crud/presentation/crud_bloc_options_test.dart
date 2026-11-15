@@ -56,4 +56,20 @@ void main() {
     act: (bloc) => bloc.add(const CrudDefaultsRequested()),
     expect: () => <_State>[],
   );
+
+  blocTest<_Bloc, _State>(
+    'starts empty without loading when asked, keeping what it saves',
+    setUp: () =>
+        when(() => saveItem(draft)).thenAnswer((_) async => Right(security)),
+    build: () => CrudBloc(getItems, saveItem, _MockDelete(), startEmpty: true),
+    verify: (bloc) => verifyNever(getItems.call),
+    act: (bloc) {
+      expect(bloc.state, const CrudLoaded<FinancialGoal>([]));
+      bloc.add(CrudSaveRequested(draft));
+    },
+    expect: () => [
+      const CrudLoaded<FinancialGoal>([], busy: true),
+      CrudLoaded([security]),
+    ],
+  );
 }

@@ -3,23 +3,28 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
+import 'package:pennypincher_pro/core/shortcuts/ant_expense_shortcut.dart';
 import 'package:pennypincher_pro/core/theme/app_breakpoints.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
 import 'package:pennypincher_pro/core/theme/app_typography.dart';
+import 'package:pennypincher_pro/core/widgets/app_snackbar.dart';
 import 'package:pennypincher_pro/core/widgets/button_progress_icon.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/dashboard_section.dart';
 
-/// The four quick actions: record this month's snapshot (disabled while
-/// the dashboard is busy), add an expense and open the two reports. Two
-/// per row on mobile, all four in a row on wider screens.
+/// The five quick actions: add an ant expense without leaving the
+/// dashboard, record this month's snapshot (disabled while the dashboard
+/// is busy), add an expense and open the two reports. On mobile the ant
+/// expense takes the whole first row and the other four go two per row;
+/// on wider screens all five share one row.
 class QuickActionsRow extends StatelessWidget {
   const QuickActionsRow({required this.state, super.key});
 
+  static const Key antExpenseKey = Key('dashboard-add-ant-expense');
   static const Key recordSnapshotKey = Key('dashboard-record-snapshot');
   static const int mobileColumns = 2;
-  static const int wideColumns = 4;
+  static const int wideColumns = 5;
 
   final DashboardState state;
 
@@ -28,18 +33,45 @@ class QuickActionsRow extends StatelessWidget {
     return DashboardSection(
       title: context.l10n.dashboardQuickActions,
       child: LayoutBuilder(
-        builder: (context, constraints) => TileGrid(
-          columns:
-              ScreenSize.fromWidth(constraints.maxWidth) == ScreenSize.mobile
-                  ? mobileColumns
-                  : wideColumns,
-          children: _actions(context),
-        ),
+        builder: (context, constraints) {
+          final antExpense = _antExpense(context);
+          final others = _others(context);
+          if (ScreenSize.fromWidth(constraints.maxWidth) != ScreenSize.mobile) {
+            return TileGrid(
+              columns: wideColumns,
+              children: [antExpense, ...others],
+            );
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              antExpense,
+              const SizedBox(height: TileGrid.gap),
+              TileGrid(columns: mobileColumns, children: others),
+            ],
+          );
+        },
       ),
     );
   }
 
-  List<Widget> _actions(BuildContext context) => [
+  Widget _antExpense(BuildContext context) => _QuickAction(
+        key: antExpenseKey,
+        icon: Icons.local_cafe_outlined,
+        label: context.l10n.dashboardAntExpense,
+        onTap: () => _addAntExpense(context),
+      );
+
+  /// Opens the ant expense add sheet over the dashboard and confirms a
+  /// saved expense; a failed save stays in the sheet.
+  static Future<void> _addAntExpense(BuildContext context) async {
+    final saved = await context.read<AntExpenseShortcut>().addExpense(context);
+    if (saved && context.mounted) {
+      AppSnackbar.showSuccess(context, context.l10n.dashboardAntExpenseAdded);
+    }
+  }
+
+  List<Widget> _others(BuildContext context) => [
         _QuickAction(
           key: recordSnapshotKey,
           icon: Icons.add_chart,
