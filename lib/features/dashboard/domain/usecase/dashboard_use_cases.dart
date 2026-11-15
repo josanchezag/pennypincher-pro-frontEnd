@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:pennypincher_pro/core/error/failure.dart';
 import 'package:pennypincher_pro/core/time/calendar_month.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/dashboard_summary_entity.dart';
+import 'package:pennypincher_pro/features/dashboard/domain/entity/snapshot_ant_cut_entity.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/repository/dashboard_repository.dart';
 
 /// Loads the dashboard summary of the month of a date.
@@ -15,12 +16,13 @@ class GetDashboardSummary {
 }
 
 /// Saves the net worth snapshot of the month of a date; running it again
-/// in the same month recalculates it.
+/// in the same month recalculates it. Resolves to the ant expense cut
+/// made with it, when the backend reports one.
 class RecordNetWorthSnapshot {
   const RecordNetWorthSnapshot(this._repository);
 
   final DashboardRepository _repository;
 
-  Future<Either<Failure, Unit>> call(DateTime date) =>
+  Future<Either<Failure, SnapshotAntCut?>> call(DateTime date) =>
       _repository.recordSnapshot(CalendarMonth.of(date));
 }

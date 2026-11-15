@@ -6,6 +6,7 @@ import 'package:pennypincher_pro/core/error/error_codes.dart';
 import 'package:pennypincher_pro/core/error/failure.dart';
 import 'package:pennypincher_pro/features/dashboard/data/datasource/dashboard_remote_datasource.dart';
 import 'package:pennypincher_pro/features/dashboard/data/repository/dashboard_repository_impl.dart';
+import 'package:pennypincher_pro/features/dashboard/domain/entity/snapshot_ant_cut_entity.dart';
 
 import '../../../helpers/dashboard_fixtures.dart';
 
@@ -32,11 +33,11 @@ void main() {
 
   test('records the snapshot of the first day of the month', () async {
     when(() => remote.recordSnapshot(DateTime(2026, 10)))
-        .thenAnswer((_) async {});
+        .thenAnswer((_) async => octoberAntCut);
 
     final result = await repository.recordSnapshot(DateTime(2026, 10, 31));
 
-    expect(result, const Right<Failure, Unit>(unit));
+    expect(result, Right<Failure, SnapshotAntCut?>(octoberAntCut));
     verify(() => remote.recordSnapshot(DateTime(2026, 10))).called(1);
   });
 

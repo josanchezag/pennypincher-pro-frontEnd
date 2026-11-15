@@ -191,7 +191,7 @@ void main() {
       'saves the local month and reloads the summary',
       setUp: () {
         when(() => recordSnapshot(any()))
-            .thenAnswer((_) async => const Right(unit));
+            .thenAnswer((_) async => const Right(null));
         answerSummary(Right(updated));
       },
       build: buildBloc,
@@ -205,6 +205,44 @@ void main() {
         verify(() => recordSnapshot(_morning)).called(1);
         verify(() => getSummary(_morning)).called(1);
       },
+    );
+
+    for (final cut in [octoberAntCut, octoberEmptyAntCut, noBudgetAntCut]) {
+      blocTest<DashboardBloc, DashboardState>(
+        'reports the ${cut.status.name} ant expense cut with the notice '
+        '(${cut.itemsTaken} taken)',
+        setUp: () {
+          when(() => recordSnapshot(any())).thenAnswer((_) async => Right(cut));
+          answerSummary(Right(updated));
+        },
+        build: buildBloc,
+        seed: () => loaded,
+        act: (bloc) => bloc.add(const DashboardSnapshotRequested()),
+        expect: () => [
+          loadedDashboard(dashboardSummary, recordingSnapshot: true),
+          loadedDashboard(
+            updated,
+            notice: DashboardNotice.snapshotSaved,
+            antCut: cut,
+          ),
+        ],
+      );
+    }
+
+    blocTest<DashboardBloc, DashboardState>(
+      'forgets the ant expense cut after the notice',
+      build: buildBloc,
+      seed: () => loadedDashboard(
+        dashboardSummary,
+        notice: DashboardNotice.snapshotSaved,
+        antCut: octoberAntCut,
+      ),
+      act: (bloc) => bloc.add(const DashboardRefreshRequested()),
+      setUp: () => answerSummary(Right(updated)),
+      expect: () => [
+        loadedDashboard(dashboardSummary, refreshing: true),
+        loadedDashboard(updated),
+      ],
     );
 
     blocTest<DashboardBloc, DashboardState>(
@@ -229,7 +267,7 @@ void main() {
       'keeps the summary when the reload after a saved snapshot fails',
       setUp: () {
         when(() => recordSnapshot(any()))
-            .thenAnswer((_) async => const Right(unit));
+            .thenAnswer((_) async => Right(octoberAntCut));
         answerSummary(const Left(_offline));
       },
       build: buildBloc,
@@ -240,6 +278,7 @@ void main() {
         loadedDashboard(
           dashboardSummary,
           notice: DashboardNotice.snapshotSaved,
+          antCut: octoberAntCut,
         ),
       ],
     );

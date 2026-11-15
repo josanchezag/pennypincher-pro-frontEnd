@@ -30,6 +30,7 @@ import 'package:pennypincher_pro/features/budget/presentation/bloc/budget_compar
 import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/dashboard_summary_entity.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/part_of_day.dart';
+import 'package:pennypincher_pro/features/dashboard/domain/entity/snapshot_ant_cut_entity.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/budget_summary_card.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/dashboard_content.dart';
@@ -789,7 +790,12 @@ void main() {
   });
 
   group('notices', () {
-    Future<void> notify(WidgetTester tester, DashboardState notice) async {
+    Future<void> notify(
+      WidgetTester tester,
+      DashboardState notice, {
+      Locale locale = testLocale,
+      AppCurrency currency = AppCurrency.cop,
+    }) async {
       final states = StreamController<DashboardState>();
       addTearDown(states.close);
       await pumpDashboard(
@@ -797,6 +803,8 @@ void main() {
         loadedDashboard(dashboardSummary, recordingSnapshot: true),
         stream: states.stream,
         settle: false,
+        locale: locale,
+        currency: currency,
       );
       states.add(notice);
       await tester.pump();
@@ -816,6 +824,119 @@ void main() {
         find.text(l10n.snapshotSaved('October 2026')),
         findsOneWidget,
       );
+    });
+
+    DashboardState savedWith(SnapshotAntCut? cut) => loadedDashboard(
+          dashboardSummary,
+          notice: DashboardNotice.snapshotSaved,
+          antCut: cut,
+        );
+
+    testWidgets('counts the ant expenses the snapshot moved to the budget',
+        (tester) async {
+      await notify(tester, savedWith(octoberAntCut));
+
+      expect(
+        find.text(
+          l10n.snapshotSavedAntCut(
+            7,
+            testMoney.format(const Money.fromUnits(42000)),
+            'October 2026',
+          ),
+        ),
+        findsOneWidget,
+      );
+      expect(testMoney.format(const Money.fromUnits(42000)), 'COP\u00A042,000');
+      expect(find.byType(SnackBarAction), findsNothing);
+    });
+
+    testWidgets('writes the moved amount in the preferred currency',
+        (tester) async {
+      await notify(
+        tester,
+        savedWith(
+          SnapshotAntCut(
+            status: SnapshotAntCutStatus.cut,
+            month: DateTime(2026, 10),
+            budgetId: 'b-2026-10',
+            itemsTaken: 1,
+            amountTaken: const Money.fromCents(350),
+          ),
+        ),
+        currency: AppCurrency.usd,
+      );
+
+      expect(
+        find.text(
+          r'Snapshot saved. 1 ant expense ($3.50) moved to the October 2026 '
+          'budget.',
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('tells the moved ant expenses in Spanish', (tester) async {
+      await notify(
+        tester,
+        savedWith(octoberAntCut),
+        locale: AppLocales.spanish,
+      );
+
+      expect(
+        find.text(
+          'Corte guardado. 7 gastos hormiga '
+          '(${MoneyFormatter.of(AppCurrency.cop, 'es').format(const Money.fromUnits(42000))}) '
+          'pasaron al presupuesto de octubre 2026.',
+        ),
+        findsOneWidget,
+      );
+    });
+
+    for (final cut in [null, octoberEmptyAntCut]) {
+      testWidgets(
+          'keeps the plain confirmation '
+          '${cut == null ? 'without a cut' : 'when the cut took nothing'}',
+          (tester) async {
+        await notify(tester, savedWith(cut));
+
+        expect(find.text(l10n.snapshotSaved('October 2026')), findsOneWidget);
+        expect(find.byType(SnackBarAction), findsNothing);
+      });
+    }
+
+    testWidgets('asks for the budget of the month and opens it',
+        (tester) async {
+      await notify(tester, savedWith(noBudgetAntCut));
+
+      expect(
+        find.text(
+          'Snapshot saved. Create the October 2026 budget to close the ant '
+          'expenses.',
+        ),
+        findsOneWidget,
+      );
+      registerMonthlyBudgetBloc(MonthlyBudgetState(month: DateTime(2026, 10)));
+      await tester.tap(find.text(l10n.snapshotCreateBudget));
+      await tester.pumpAndSettle();
+
+      expect(_location(tester), AppRoute.budgetOverview.path);
+    });
+
+    testWidgets('asks for the budget in Spanish', (tester) async {
+      await notify(
+        tester,
+        savedWith(noBudgetAntCut),
+        locale: AppLocales.spanish,
+      );
+
+      expect(
+        find.text(
+          'Corte guardado. Crea el presupuesto de octubre 2026 para cerrar '
+          'los gastos hormiga.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Crear presupuesto'), findsOneWidget);
     });
 
     testWidgets('reports a failed snapshot or refresh', (tester) async {

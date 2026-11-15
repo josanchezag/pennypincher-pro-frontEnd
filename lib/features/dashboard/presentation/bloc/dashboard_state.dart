@@ -11,7 +11,9 @@ enum DashboardNotice { snapshotSaved, snapshotFailed, refreshFailed }
 /// Once [status] is loaded, [summary] stays visible while it is
 /// [refreshing] or [recordingSnapshot]. [loadError] explains a failed first
 /// load. [notice] and [noticeMessage] report the action that just ended,
-/// for one state only. [period] picks the greeting, as of the last load.
+/// for one state only; with a saved snapshot, [antCut] is the ant expense
+/// cut made with it, when the backend reported one. [period] picks the
+/// greeting, as of the last load.
 final class DashboardState extends Equatable {
   const DashboardState({
     required this.period,
@@ -22,6 +24,7 @@ final class DashboardState extends Equatable {
     this.recordingSnapshot = false,
     this.notice,
     this.noticeMessage,
+    this.antCut,
   });
 
   final PartOfDay period;
@@ -32,6 +35,7 @@ final class DashboardState extends Equatable {
   final bool recordingSnapshot;
   final DashboardNotice? notice;
   final String? noticeMessage;
+  final SnapshotAntCut? antCut;
 
   bool get isBusy => refreshing || recordingSnapshot;
 
@@ -45,6 +49,7 @@ final class DashboardState extends Equatable {
     bool? recordingSnapshot,
     DashboardNotice? notice,
     String? noticeMessage,
+    SnapshotAntCut? antCut,
   }) =>
       DashboardState(
         period: period ?? this.period,
@@ -55,6 +60,7 @@ final class DashboardState extends Equatable {
         recordingSnapshot: recordingSnapshot ?? this.recordingSnapshot,
         notice: notice,
         noticeMessage: noticeMessage,
+        antCut: antCut,
       );
 
   @override
@@ -67,5 +73,6 @@ final class DashboardState extends Equatable {
         recordingSnapshot,
         notice,
         noticeMessage,
+        antCut,
       ];
 }

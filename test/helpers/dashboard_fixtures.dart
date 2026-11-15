@@ -1,6 +1,7 @@
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/dashboard_summary_entity.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/part_of_day.dart';
+import 'package:pennypincher_pro/features/dashboard/domain/entity/snapshot_ant_cut_entity.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 
 /// Dashboard of October 2026 with the figures of the Excel.
@@ -193,6 +194,7 @@ DashboardState loadedDashboard(
   bool recordingSnapshot = false,
   DashboardNotice? notice,
   String? noticeMessage,
+  SnapshotAntCut? antCut,
 }) =>
     DashboardState(
       period: period,
@@ -202,4 +204,64 @@ DashboardState loadedDashboard(
       recordingSnapshot: recordingSnapshot,
       notice: notice,
       noticeMessage: noticeMessage,
+      antCut: antCut,
     );
+
+/// `antExpenseCut` of a snapshot that moved 7 ant expenses into the
+/// October budget.
+const Map<String, Object?> octoberAntCutJson = {
+  'status': 'CUT',
+  'month': '2026-10',
+  'budgetId': 'b-2026-10',
+  'itemsTaken': 7,
+  'amountTaken': 42000.00,
+  'antExpenseTotal': 58000.00,
+};
+
+final SnapshotAntCut octoberAntCut = SnapshotAntCut(
+  status: SnapshotAntCutStatus.cut,
+  month: DateTime(2026, 10),
+  budgetId: 'b-2026-10',
+  itemsTaken: 7,
+  amountTaken: const Money.fromUnits(42000),
+  antExpenseTotal: const Money.fromUnits(58000),
+);
+
+/// The snapshot repeated without new ant expenses.
+final SnapshotAntCut octoberEmptyAntCut = SnapshotAntCut(
+  status: SnapshotAntCutStatus.cut,
+  month: DateTime(2026, 10),
+  budgetId: 'b-2026-10',
+  antExpenseTotal: const Money.fromUnits(58000),
+);
+
+const Map<String, Object?> noBudgetAntCutJson = {
+  'status': 'NO_BUDGET',
+  'month': '2026-10',
+  'budgetId': null,
+  'itemsTaken': 0,
+  'amountTaken': 0.00,
+  'antExpenseTotal': null,
+};
+
+final SnapshotAntCut noBudgetAntCut = SnapshotAntCut(
+  status: SnapshotAntCutStatus.noBudget,
+  month: DateTime(2026, 10),
+);
+
+/// `POST /net-worth/snapshots` data of October 2026, with [antExpenseCut]
+/// unless it is left out.
+Map<String, Object?> snapshotResponseJson({
+  Object? antExpenseCut,
+  bool withAntCut = true,
+}) =>
+    {
+      'id': 's-2026-10',
+      'snapshotDate': '2026-10-01',
+      'totalAssets': 707363354.00,
+      'totalLiabilities': 284080581.00,
+      'netWorth': 423282773.00,
+      'createdAt': '2026-10-31T23:00:00Z',
+      'updatedAt': '2026-10-31T23:00:00Z',
+      if (withAntCut) 'antExpenseCut': antExpenseCut,
+    };

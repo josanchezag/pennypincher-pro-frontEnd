@@ -5,6 +5,7 @@ import 'package:pennypincher_pro/core/error/failure.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/dashboard_summary_entity.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/part_of_day.dart';
+import 'package:pennypincher_pro/features/dashboard/domain/entity/snapshot_ant_cut_entity.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/repository/dashboard_repository.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/usecase/dashboard_use_cases.dart';
 
@@ -115,7 +116,7 @@ void main() {
       when(() => repository.getSummary(DateTime(2026, 10)))
           .thenAnswer((_) async => Right(dashboardSummary));
       when(() => repository.recordSnapshot(DateTime(2026, 10)))
-          .thenAnswer((_) async => const Right(unit));
+          .thenAnswer((_) async => Right(octoberAntCut));
 
       final summary =
           await GetDashboardSummary(repository)(DateTime(2026, 10, 22, 9));
@@ -123,7 +124,7 @@ void main() {
           await RecordNetWorthSnapshot(repository)(DateTime(2026, 10, 31, 23));
 
       expect(summary, Right<Failure, DashboardSummary>(dashboardSummary));
-      expect(saved, const Right<Failure, Unit>(unit));
+      expect(saved, Right<Failure, SnapshotAntCut?>(octoberAntCut));
     });
   });
 }

@@ -6,6 +6,7 @@ import 'package:pennypincher_pro/core/error/failure.dart';
 import 'package:pennypincher_pro/core/time/clock.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/dashboard_summary_entity.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/part_of_day.dart';
+import 'package:pennypincher_pro/features/dashboard/domain/entity/snapshot_ant_cut_entity.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/usecase/dashboard_use_cases.dart';
 
 part 'dashboard_event.dart';
@@ -69,7 +70,8 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
   }
 
   /// Saves the snapshot and reloads the summary. A reload that fails after
-  /// the snapshot was saved keeps the summary shown.
+  /// the snapshot was saved keeps the summary shown. The ant expense cut
+  /// made with the snapshot goes with the notice.
   Future<void> _onSnapshotRequested(
     DashboardSnapshotRequested event,
     Emitter<DashboardState> emit,
@@ -79,21 +81,24 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     }
     emit(state.copyWith(recordingSnapshot: true));
     final saved = await _recordSnapshot(_clock.now());
-    if (saved.isLeft()) {
+    final failure = saved.fold((failure) => failure, (_) => null);
+    if (failure != null) {
       emit(
         state.copyWith(
           recordingSnapshot: false,
           notice: DashboardNotice.snapshotFailed,
-          noticeMessage: saved.fold((failure) => failure.message, (_) => null),
+          noticeMessage: failure.message,
         ),
       );
       return;
     }
+    final antCut = saved.getOrElse(() => null);
     final reloaded = (await _reload()).fold((_) => state, _withSummary);
     emit(
       reloaded.copyWith(
         recordingSnapshot: false,
         notice: DashboardNotice.snapshotSaved,
+        antCut: antCut,
       ),
     );
   }
