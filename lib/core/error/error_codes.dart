@@ -30,6 +30,10 @@ abstract final class ErrorCodes {
   /// Backend (409): the ant expense is already part of a budget cut, so it
   /// can no longer be edited or deleted.
   static const String antExpenseAlreadyCut = 'ANT_EXPENSE_ALREADY_CUT';
+
+  /// Backend (422): the goals based on the income need a monthly income
+  /// above zero, and the user has no income sources yet.
+  static const String incomeRequired = 'INCOME_REQUIRED';
   static const String googleAuthFailed = 'GOOGLE_AUTH_FAILED';
   static const String identityProviderUnavailable =
       'IDENTITY_PROVIDER_UNAVAILABLE';
@@ -59,6 +63,7 @@ abstract final class ErrorMessages {
       ErrorCodes.conflict => texts.errorConflict,
       ErrorCodes.rateLimited => texts.errorRateLimited,
       ErrorCodes.antExpenseAlreadyCut => texts.errorAntExpenseAlreadyCut,
+      ErrorCodes.incomeRequired => texts.errorIncomeRequired,
       ErrorCodes.accountNotAllowed => texts.signInAccountNotAllowed,
       ErrorCodes.registrationDisabled => texts.signInRegistrationDisabled,
       ErrorCodes.googleAuthFailed => texts.signInFailed,

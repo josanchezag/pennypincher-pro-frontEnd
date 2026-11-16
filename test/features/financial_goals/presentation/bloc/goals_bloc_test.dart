@@ -210,6 +210,27 @@ void main() {
   );
 
   blocTest<GoalsBloc, _State>(
+    'reports the code of standard goals that need an income',
+    setUp: () => when(createDefaults.call).thenAnswer(
+      (_) async => const Left(
+        ServerFailure('Add your income', code: 'INCOME_REQUIRED'),
+      ),
+    ),
+    build: build,
+    seed: () => const CrudLoaded([]),
+    act: (bloc) => bloc.add(const CrudDefaultsRequested()),
+    expect: () => [
+      const CrudLoaded<FinancialGoal>([], busy: true),
+      const CrudLoaded<FinancialGoal>(
+        [],
+        errorMessage: 'Add your income',
+        failedAction: CrudAction.createDefaults,
+        errorCode: 'INCOME_REQUIRED',
+      ),
+    ],
+  );
+
+  blocTest<GoalsBloc, _State>(
     'ignores the standard goals while another change is running',
     build: build,
     seed: () => const CrudLoaded([], busy: true),

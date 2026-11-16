@@ -4,6 +4,7 @@ import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/features/financial_goals/data/datasource/financial_goal_remote_datasource.dart';
 import 'package:pennypincher_pro/features/financial_goals/data/model/goal_json_codec.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
+import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_income_mode.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_level.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_projection_entity.dart';
 
@@ -50,6 +51,8 @@ void main() {
       'monthlyInvestment': 0,
       'expectedAnnualReturn': 0.115,
       'targetYears': null,
+      'incomeMode': 'MANUAL',
+      'desiredMonthlyIncome': null,
     });
   });
 
@@ -147,6 +150,90 @@ void main() {
         );
 
     expect(dataSource.getAllProjections(), throwsA(isA<AppException>()));
+  });
+
+  test('sends a typed income goal without a target or an investment', () async {
+    await dataSource.create(
+      const GoalDraft(
+        name: 'Libertad',
+        level: GoalLevel.financialFreedom,
+        expectedAnnualReturn: 0.12,
+        targetYears: 10,
+        incomeMode: GoalIncomeMode.desiredIncome,
+        desiredMonthlyIncome: Money.fromCents(600000050),
+      ),
+    );
+
+    expect(adapter.requests.single.data, {
+      'name': 'Libertad',
+      'level': 'FINANCIAL_FREEDOM',
+      'targetAmount': null,
+      'monthlyInvestment': null,
+      'expectedAnnualReturn': 0.12,
+      'targetYears': 10,
+      'incomeMode': 'DESIRED_INCOME',
+      'desiredMonthlyIncome': 6000000.5,
+    });
+  });
+
+  test('sends a goal based on the current income with only its term', () async {
+    await dataSource.update(
+      'g1',
+      const GoalDraft(
+        name: 'Seguridad',
+        level: GoalLevel.financialSecurity,
+        expectedAnnualReturn: 0.10,
+        targetYears: 16,
+        incomeMode: GoalIncomeMode.currentIncome,
+      ),
+    );
+
+    final data = adapter.requests.single.data as Map;
+    expect(data['incomeMode'], 'CURRENT_INCOME');
+    expect(data['desiredMonthlyIncome'], isNull);
+    expect(data['targetAmount'], isNull);
+    expect(data['targetYears'], 16);
+  });
+
+  test('sums the income sources into the monthly income', () async {
+    adapter.handler = (_) async => FakeResponse(
+          200,
+          envelope([
+            {
+              'id': 'i1',
+              'name': 'Salario',
+              'amount': 8000000,
+              'category': 'SALARY',
+            },
+            {
+              'id': 'i2',
+              'name': 'Arriendo',
+              'amount': '2000000.50',
+              'category': 'RENTAL',
+            },
+          ]),
+        );
+
+    final income = await dataSource.getMonthlyIncome();
+
+    expect(adapter.requests.single.path, '/income-sources');
+    expect(income, const Money.fromCents(1000000050));
+  });
+
+  test('reads the current net worth', () async {
+    adapter.handler = (_) async => FakeResponse(
+          200,
+          envelope({
+            'totalAssets': 500000000,
+            'totalLiabilities': 76717227,
+            'netWorth': 423282773.00,
+          }),
+        );
+
+    final netWorth = await dataSource.getCurrentNetWorth();
+
+    expect(adapter.requests.single.path, '/net-worth/current');
+    expect(netWorth, const Money.fromUnits(423282773));
   });
 
   test('reads an unknown level as the last one', () {

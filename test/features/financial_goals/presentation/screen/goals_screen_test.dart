@@ -5,9 +5,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_sheet.dart';
+import 'package:pennypincher_pro/core/error/error_codes.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
+import 'package:pennypincher_pro/features/budget/presentation/screen/income_sources_screen.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_level.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/screen/goals_screen.dart';
@@ -16,6 +19,7 @@ import 'package:pennypincher_pro/features/financial_goals/presentation/widget/go
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/halfway_celebration.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/projections_notice.dart';
 
+import '../../../../helpers/budget_mocks.dart';
 import '../../../../helpers/crud_screen_helpers.dart';
 import '../../../../helpers/goal_fixtures.dart';
 import '../../../../helpers/goal_mocks.dart';
@@ -29,6 +33,27 @@ final CrudLoaded<FinancialGoal> _loaded = CrudLoaded(excelGoals);
 
 Finder _card(String name) =>
     find.ancestor(of: find.text(name), matching: find.byType(GoalCard));
+
+/// Taps [finder] after scrolling the sheet to it.
+Future<void> tapInSheet(WidgetTester tester, Finder finder) async {
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
+  await tester.tap(finder);
+}
+
+/// Types [values] into the goal sheet fields with those labels, scrolling
+/// to each one, and saves.
+Future<void> fillAndSaveGoal(
+  WidgetTester tester,
+  Map<String, String> values,
+) async {
+  for (final MapEntry(key: label, value: text) in values.entries) {
+    await tester.ensureVisible(fieldLabeled(label));
+    await tester.enterText(fieldLabeled(label), text);
+  }
+  await tapInSheet(tester, find.byKey(ItemFormSheet.saveKey));
+  await tester.pump();
+}
 
 void main() {
   setUpAll(() {
@@ -156,6 +181,88 @@ void main() {
     });
   });
 
+  group('income required', () {
+    const needsIncome = CrudLoaded<FinancialGoal>(
+      [],
+      errorMessage: 'Add your income first',
+      failedAction: CrudAction.createDefaults,
+      errorCode: ErrorCodes.incomeRequired,
+    );
+
+    Future<void> refuseStandardGoals(
+      WidgetTester tester, {
+      Locale locale = testLocale,
+    }) async {
+      final states = StreamController<_State>();
+      addTearDown(states.close);
+      registerGoalsBloc(const CrudLoaded([]), stream: states.stream);
+      await tester.pumpApp(location: AppRoute.goals.path, locale: locale);
+      await tester.tap(find.byKey(GoalsEmptyState.standardGoalsKey));
+      states
+        ..add(const CrudLoaded([], busy: true))
+        ..add(needsIncome);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('explains that the standard goals need an income',
+        (tester) async {
+      await refuseStandardGoals(tester);
+
+      expect(find.text(l10n.goalsIncomeRequiredTitle), findsOneWidget);
+      expect(find.text(l10n.goalsIncomeRequiredMessage), findsOneWidget);
+      expect(find.text('Add your income first'), findsNothing);
+      expect(find.byKey(GoalsEmptyState.standardGoalsKey), findsNothing);
+      expect(find.byKey(GoalsEmptyState.addGoalKey), findsOneWidget);
+    });
+
+    testWidgets('leads to the income sources', (tester) async {
+      registerIncomeSourceBloc(const CrudLoaded([]));
+      await refuseStandardGoals(tester);
+
+      await tester.tap(find.byKey(GoalsEmptyState.goToIncomeKey));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(IncomeSourcesScreen), findsOneWidget);
+    });
+
+    testWidgets('still adds a goal by hand', (tester) async {
+      await refuseStandardGoals(tester);
+
+      await tester.tap(find.byKey(GoalsEmptyState.addGoalKey));
+      await tester.pumpAndSettle();
+
+      expect(find.text(l10n.goalsAddGoal), findsWidgets);
+    });
+
+    testWidgets('explains it in Spanish', (tester) async {
+      await refuseStandardGoals(tester, locale: AppLocales.spanish);
+
+      expect(find.text('Primero registra tus ingresos'), findsOneWidget);
+      expect(find.text('Ir a mis ingresos'), findsOneWidget);
+    });
+
+    testWidgets('reports other failures of the standard goals as before',
+        (tester) async {
+      final states = StreamController<_State>();
+      addTearDown(states.close);
+      await pumpGoals(tester, const CrudLoaded([]), stream: states.stream);
+
+      states.add(
+        const CrudLoaded(
+          [],
+          errorMessage: 'Conflict',
+          failedAction: CrudAction.createDefaults,
+          errorCode: ErrorCodes.conflict,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Conflict'), findsOneWidget);
+      expect(find.text(l10n.goalsIncomeRequiredTitle), findsNothing);
+      expect(find.byKey(GoalsEmptyState.standardGoalsKey), findsOneWidget);
+    });
+  });
+
   group('layout', () {
     testWidgets('shows the goals in a 2x2 grid on desktop', (tester) async {
       await pumpGoals(tester, _loaded);
@@ -172,6 +279,8 @@ void main() {
 
     testWidgets('stacks the goals in one column on mobile', (tester) async {
       await pumpGoals(tester, _loaded, size: TestViewports.mobile);
+      await tester.drag(find.byType(ListView), const Offset(0, -200));
+      await tester.pumpAndSettle();
 
       final first = tester.getRect(_card('Seguridad Financiera'));
       final second = tester.getRect(_card('Independencia Financiera'));
@@ -195,7 +304,7 @@ void main() {
       final bloc = await pumpGoals(tester, const CrudLoaded([]));
       await openAddSheet(tester);
 
-      await fillAndSave(tester, {
+      await fillAndSaveGoal(tester, {
         l10n.goalsTarget: '0',
         l10n.goalsMonthlyInvestment: '',
         l10n.goalsExpectedAnnualReturn: '101',
@@ -218,11 +327,11 @@ void main() {
       await pumpGoals(tester, const CrudLoaded([]));
       await openAddSheet(tester);
 
-      await fillAndSave(tester, {l10n.goalsExpectedAnnualReturn: '0'});
+      await fillAndSaveGoal(tester, {l10n.goalsExpectedAnnualReturn: '0'});
       await tester.pumpAndSettle();
       expect(find.text(l10n.goalsReturnInvalid), findsOneWidget);
 
-      await fillAndSave(tester, {l10n.goalsExpectedAnnualReturn: ''});
+      await fillAndSaveGoal(tester, {l10n.goalsExpectedAnnualReturn: ''});
       await tester.pumpAndSettle();
       expect(find.text(l10n.goalsReturnRequired), findsOneWidget);
     });
@@ -232,7 +341,7 @@ void main() {
       await openAddSheet(tester);
 
       await chooseLevel(tester, 'Absolute freedom');
-      await fillAndSave(tester, {
+      await fillAndSaveGoal(tester, {
         l10n.crudNameLabel: ' Libertad Absoluta ',
         l10n.goalsTarget: '4.366.000.000',
         l10n.goalsMonthlyInvestment: '15.850.000',
@@ -266,7 +375,7 @@ void main() {
       expect(find.text('1,470,000'), findsOneWidget);
       expect(find.text('11'), findsOneWidget);
       expect(find.text('16'), findsOneWidget);
-      await fillAndSave(tester, {
+      await fillAndSaveGoal(tester, {
         l10n.goalsMonthlyInvestment: '2.000.000',
         l10n.goalsTargetYears: '',
       });
@@ -315,7 +424,7 @@ void main() {
 
       await tester.tap(find.text('Seguridad Financiera'));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(ItemFormSheet.deleteKey));
+      await tapInSheet(tester, find.byKey(ItemFormSheet.deleteKey));
       await tester.pumpAndSettle();
       expect(find.text(l10n.goalsDeleteTitle), findsOneWidget);
       await tester.tap(find.text(l10n.commonCancel));
@@ -324,7 +433,7 @@ void main() {
 
       await tester.tap(find.text('Seguridad Financiera'));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(ItemFormSheet.deleteKey));
+      await tapInSheet(tester, find.byKey(ItemFormSheet.deleteKey));
       await tester.pumpAndSettle();
       await tester.tap(find.text(l10n.commonDelete));
       await tester.pumpAndSettle();

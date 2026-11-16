@@ -26,8 +26,33 @@ mixin _$FinancialGoal {
   /// Fraction of one, such as `0.11` for 11 % a year.
   double get expectedAnnualReturn => throw _privateConstructorUsedError;
 
-  /// Years the user wants to reach it in, when set.
+  /// Years the user wants to reach it in, when set. Always set in the
+  /// income modes.
   int? get targetYears => throw _privateConstructorUsedError;
+
+  /// Where the desired income comes from; [GoalIncomeMode.manual] for a
+  /// backend that does not send it yet.
+  GoalIncomeMode get incomeMode => throw _privateConstructorUsedError;
+
+  /// Times the current income the goal aims to earn; only in
+  /// [GoalIncomeMode.currentIncome].
+  double? get incomeFactor => throw _privateConstructorUsedError;
+
+  /// Current monthly income the backend read; null in
+  /// [GoalIncomeMode.manual].
+  Money? get monthlyIncomeBasis => throw _privateConstructorUsedError;
+
+  /// Monthly income the target pays at the reference return; null in
+  /// [GoalIncomeMode.manual].
+  Money? get desiredMonthlyIncome => throw _privateConstructorUsedError;
+
+  /// Monthly investment that reaches the target in [targetYears]; null
+  /// for a manual goal without target years.
+  Money? get requiredMonthlyInvestment => throw _privateConstructorUsedError;
+
+  /// What the target yields at 10 % effective annual, as the backend
+  /// computed it.
+  ReferenceReturn? get referenceReturn => throw _privateConstructorUsedError;
 
   /// Progress and projection against the current net worth; null until
   /// it is loaded.
@@ -55,6 +80,12 @@ abstract class $FinancialGoalCopyWith<$Res> {
       Money monthlyInvestment,
       double expectedAnnualReturn,
       int? targetYears,
+      GoalIncomeMode incomeMode,
+      double? incomeFactor,
+      Money? monthlyIncomeBasis,
+      Money? desiredMonthlyIncome,
+      Money? requiredMonthlyInvestment,
+      ReferenceReturn? referenceReturn,
       GoalProjection? projection});
 
   $GoalProjectionCopyWith<$Res>? get projection;
@@ -83,6 +114,12 @@ class _$FinancialGoalCopyWithImpl<$Res, $Val extends FinancialGoal>
     Object? monthlyInvestment = null,
     Object? expectedAnnualReturn = null,
     Object? targetYears = freezed,
+    Object? incomeMode = null,
+    Object? incomeFactor = freezed,
+    Object? monthlyIncomeBasis = freezed,
+    Object? desiredMonthlyIncome = freezed,
+    Object? requiredMonthlyInvestment = freezed,
+    Object? referenceReturn = freezed,
     Object? projection = freezed,
   }) {
     return _then(_value.copyWith(
@@ -118,6 +155,30 @@ class _$FinancialGoalCopyWithImpl<$Res, $Val extends FinancialGoal>
           ? _value.targetYears
           : targetYears // ignore: cast_nullable_to_non_nullable
               as int?,
+      incomeMode: null == incomeMode
+          ? _value.incomeMode
+          : incomeMode // ignore: cast_nullable_to_non_nullable
+              as GoalIncomeMode,
+      incomeFactor: freezed == incomeFactor
+          ? _value.incomeFactor
+          : incomeFactor // ignore: cast_nullable_to_non_nullable
+              as double?,
+      monthlyIncomeBasis: freezed == monthlyIncomeBasis
+          ? _value.monthlyIncomeBasis
+          : monthlyIncomeBasis // ignore: cast_nullable_to_non_nullable
+              as Money?,
+      desiredMonthlyIncome: freezed == desiredMonthlyIncome
+          ? _value.desiredMonthlyIncome
+          : desiredMonthlyIncome // ignore: cast_nullable_to_non_nullable
+              as Money?,
+      requiredMonthlyInvestment: freezed == requiredMonthlyInvestment
+          ? _value.requiredMonthlyInvestment
+          : requiredMonthlyInvestment // ignore: cast_nullable_to_non_nullable
+              as Money?,
+      referenceReturn: freezed == referenceReturn
+          ? _value.referenceReturn
+          : referenceReturn // ignore: cast_nullable_to_non_nullable
+              as ReferenceReturn?,
       projection: freezed == projection
           ? _value.projection
           : projection // ignore: cast_nullable_to_non_nullable
@@ -157,6 +218,12 @@ abstract class _$$FinancialGoalImplCopyWith<$Res>
       Money monthlyInvestment,
       double expectedAnnualReturn,
       int? targetYears,
+      GoalIncomeMode incomeMode,
+      double? incomeFactor,
+      Money? monthlyIncomeBasis,
+      Money? desiredMonthlyIncome,
+      Money? requiredMonthlyInvestment,
+      ReferenceReturn? referenceReturn,
       GoalProjection? projection});
 
   @override
@@ -184,6 +251,12 @@ class __$$FinancialGoalImplCopyWithImpl<$Res>
     Object? monthlyInvestment = null,
     Object? expectedAnnualReturn = null,
     Object? targetYears = freezed,
+    Object? incomeMode = null,
+    Object? incomeFactor = freezed,
+    Object? monthlyIncomeBasis = freezed,
+    Object? desiredMonthlyIncome = freezed,
+    Object? requiredMonthlyInvestment = freezed,
+    Object? referenceReturn = freezed,
     Object? projection = freezed,
   }) {
     return _then(_$FinancialGoalImpl(
@@ -219,6 +292,30 @@ class __$$FinancialGoalImplCopyWithImpl<$Res>
           ? _value.targetYears
           : targetYears // ignore: cast_nullable_to_non_nullable
               as int?,
+      incomeMode: null == incomeMode
+          ? _value.incomeMode
+          : incomeMode // ignore: cast_nullable_to_non_nullable
+              as GoalIncomeMode,
+      incomeFactor: freezed == incomeFactor
+          ? _value.incomeFactor
+          : incomeFactor // ignore: cast_nullable_to_non_nullable
+              as double?,
+      monthlyIncomeBasis: freezed == monthlyIncomeBasis
+          ? _value.monthlyIncomeBasis
+          : monthlyIncomeBasis // ignore: cast_nullable_to_non_nullable
+              as Money?,
+      desiredMonthlyIncome: freezed == desiredMonthlyIncome
+          ? _value.desiredMonthlyIncome
+          : desiredMonthlyIncome // ignore: cast_nullable_to_non_nullable
+              as Money?,
+      requiredMonthlyInvestment: freezed == requiredMonthlyInvestment
+          ? _value.requiredMonthlyInvestment
+          : requiredMonthlyInvestment // ignore: cast_nullable_to_non_nullable
+              as Money?,
+      referenceReturn: freezed == referenceReturn
+          ? _value.referenceReturn
+          : referenceReturn // ignore: cast_nullable_to_non_nullable
+              as ReferenceReturn?,
       projection: freezed == projection
           ? _value.projection
           : projection // ignore: cast_nullable_to_non_nullable
@@ -239,6 +336,12 @@ class _$FinancialGoalImpl extends _FinancialGoal {
       required this.monthlyInvestment,
       required this.expectedAnnualReturn,
       this.targetYears,
+      this.incomeMode = GoalIncomeMode.manual,
+      this.incomeFactor,
+      this.monthlyIncomeBasis,
+      this.desiredMonthlyIncome,
+      this.requiredMonthlyInvestment,
+      this.referenceReturn,
       this.projection})
       : super._();
 
@@ -259,9 +362,41 @@ class _$FinancialGoalImpl extends _FinancialGoal {
   @override
   final double expectedAnnualReturn;
 
-  /// Years the user wants to reach it in, when set.
+  /// Years the user wants to reach it in, when set. Always set in the
+  /// income modes.
   @override
   final int? targetYears;
+
+  /// Where the desired income comes from; [GoalIncomeMode.manual] for a
+  /// backend that does not send it yet.
+  @override
+  @JsonKey()
+  final GoalIncomeMode incomeMode;
+
+  /// Times the current income the goal aims to earn; only in
+  /// [GoalIncomeMode.currentIncome].
+  @override
+  final double? incomeFactor;
+
+  /// Current monthly income the backend read; null in
+  /// [GoalIncomeMode.manual].
+  @override
+  final Money? monthlyIncomeBasis;
+
+  /// Monthly income the target pays at the reference return; null in
+  /// [GoalIncomeMode.manual].
+  @override
+  final Money? desiredMonthlyIncome;
+
+  /// Monthly investment that reaches the target in [targetYears]; null
+  /// for a manual goal without target years.
+  @override
+  final Money? requiredMonthlyInvestment;
+
+  /// What the target yields at 10 % effective annual, as the backend
+  /// computed it.
+  @override
+  final ReferenceReturn? referenceReturn;
 
   /// Progress and projection against the current net worth; null until
   /// it is loaded.
@@ -270,7 +405,7 @@ class _$FinancialGoalImpl extends _FinancialGoal {
 
   @override
   String toString() {
-    return 'FinancialGoal(id: $id, name: $name, level: $level, levelDescription: $levelDescription, targetAmount: $targetAmount, monthlyInvestment: $monthlyInvestment, expectedAnnualReturn: $expectedAnnualReturn, targetYears: $targetYears, projection: $projection)';
+    return 'FinancialGoal(id: $id, name: $name, level: $level, levelDescription: $levelDescription, targetAmount: $targetAmount, monthlyInvestment: $monthlyInvestment, expectedAnnualReturn: $expectedAnnualReturn, targetYears: $targetYears, incomeMode: $incomeMode, incomeFactor: $incomeFactor, monthlyIncomeBasis: $monthlyIncomeBasis, desiredMonthlyIncome: $desiredMonthlyIncome, requiredMonthlyInvestment: $requiredMonthlyInvestment, referenceReturn: $referenceReturn, projection: $projection)';
   }
 
   @override
@@ -291,6 +426,19 @@ class _$FinancialGoalImpl extends _FinancialGoal {
                 other.expectedAnnualReturn == expectedAnnualReturn) &&
             (identical(other.targetYears, targetYears) ||
                 other.targetYears == targetYears) &&
+            (identical(other.incomeMode, incomeMode) ||
+                other.incomeMode == incomeMode) &&
+            (identical(other.incomeFactor, incomeFactor) ||
+                other.incomeFactor == incomeFactor) &&
+            (identical(other.monthlyIncomeBasis, monthlyIncomeBasis) ||
+                other.monthlyIncomeBasis == monthlyIncomeBasis) &&
+            (identical(other.desiredMonthlyIncome, desiredMonthlyIncome) ||
+                other.desiredMonthlyIncome == desiredMonthlyIncome) &&
+            (identical(other.requiredMonthlyInvestment,
+                    requiredMonthlyInvestment) ||
+                other.requiredMonthlyInvestment == requiredMonthlyInvestment) &&
+            (identical(other.referenceReturn, referenceReturn) ||
+                other.referenceReturn == referenceReturn) &&
             (identical(other.projection, projection) ||
                 other.projection == projection));
   }
@@ -306,6 +454,12 @@ class _$FinancialGoalImpl extends _FinancialGoal {
       monthlyInvestment,
       expectedAnnualReturn,
       targetYears,
+      incomeMode,
+      incomeFactor,
+      monthlyIncomeBasis,
+      desiredMonthlyIncome,
+      requiredMonthlyInvestment,
+      referenceReturn,
       projection);
 
   /// Create a copy of FinancialGoal
@@ -327,6 +481,12 @@ abstract class _FinancialGoal extends FinancialGoal {
       required final Money monthlyInvestment,
       required final double expectedAnnualReturn,
       final int? targetYears,
+      final GoalIncomeMode incomeMode,
+      final double? incomeFactor,
+      final Money? monthlyIncomeBasis,
+      final Money? desiredMonthlyIncome,
+      final Money? requiredMonthlyInvestment,
+      final ReferenceReturn? referenceReturn,
       final GoalProjection? projection}) = _$FinancialGoalImpl;
   const _FinancialGoal._() : super._();
 
@@ -347,9 +507,40 @@ abstract class _FinancialGoal extends FinancialGoal {
   @override
   double get expectedAnnualReturn;
 
-  /// Years the user wants to reach it in, when set.
+  /// Years the user wants to reach it in, when set. Always set in the
+  /// income modes.
   @override
   int? get targetYears;
+
+  /// Where the desired income comes from; [GoalIncomeMode.manual] for a
+  /// backend that does not send it yet.
+  @override
+  GoalIncomeMode get incomeMode;
+
+  /// Times the current income the goal aims to earn; only in
+  /// [GoalIncomeMode.currentIncome].
+  @override
+  double? get incomeFactor;
+
+  /// Current monthly income the backend read; null in
+  /// [GoalIncomeMode.manual].
+  @override
+  Money? get monthlyIncomeBasis;
+
+  /// Monthly income the target pays at the reference return; null in
+  /// [GoalIncomeMode.manual].
+  @override
+  Money? get desiredMonthlyIncome;
+
+  /// Monthly investment that reaches the target in [targetYears]; null
+  /// for a manual goal without target years.
+  @override
+  Money? get requiredMonthlyInvestment;
+
+  /// What the target yields at 10 % effective annual, as the backend
+  /// computed it.
+  @override
+  ReferenceReturn? get referenceReturn;
 
   /// Progress and projection against the current net worth; null until
   /// it is loaded.

@@ -194,8 +194,12 @@ import 'package:pennypincher_pro/features/financial_goals/domain/entity/financia
     as _i308;
 import 'package:pennypincher_pro/features/financial_goals/domain/repository/financial_goal_repository.dart'
     as _i989;
+import 'package:pennypincher_pro/features/financial_goals/domain/usecase/get_goal_plan_basis.dart'
+    as _i783;
 import 'package:pennypincher_pro/features/financial_goals/domain/usecase/get_goal_projection.dart'
     as _i375;
+import 'package:pennypincher_pro/features/financial_goals/presentation/bloc/goal_plan_basis_cubit.dart'
+    as _i827;
 import 'package:pennypincher_pro/features/financial_goals/presentation/bloc/goal_projection_bloc.dart'
     as _i1030;
 import 'package:pennypincher_pro/features/financial_goals/presentation/bloc/goals_bloc.dart'
@@ -430,6 +434,8 @@ extension GetItInjectableX on _i174.GetIt {
             .createDefaultFinancialGoals(gh<_i989.FinancialGoalRepository>()));
     gh.factory<_i375.GetGoalProjection>(() => financialGoalsModule
         .getGoalProjection(gh<_i989.FinancialGoalRepository>()));
+    gh.factory<_i783.GetGoalPlanBasis>(() => financialGoalsModule
+        .getGoalPlanBasis(gh<_i989.FinancialGoalRepository>()));
     gh.lazySingleton<_i526.AntExpenseRepository>(() =>
         _i600.AntExpenseRepositoryImpl(gh<_i213.AntExpenseRemoteDataSource>()));
     gh.lazySingleton<_i90.LiabilityRepository>(() =>
@@ -479,6 +485,8 @@ extension GetItInjectableX on _i174.GetIt {
             gh<_i459.ExpenseSummaryRemoteDataSource>()));
     gh.lazySingleton<_i884.DashboardRepository>(() =>
         _i19.DashboardRepositoryImpl(gh<_i19.DashboardRemoteDataSource>()));
+    gh.factory<_i827.GoalPlanBasisCubit>(
+        () => _i827.GoalPlanBasisCubit(gh<_i783.GetGoalPlanBasis>()));
     gh.factory<_i11.IncomeSourceBloc>(() => _i11.IncomeSourceBloc(
           gh<
               _i678.GetItems<_i161.IncomeSource,

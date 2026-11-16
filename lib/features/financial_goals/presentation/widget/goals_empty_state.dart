@@ -6,24 +6,64 @@ import 'package:pennypincher_pro/core/widgets/status_message.dart';
 
 /// Shown while the user has no goals: an illustration, a button that adds
 /// the first goal and another that starts from the four standard goals.
-/// Both are disabled while [busy].
+/// Both are disabled while [busy]. When the standard goals were refused
+/// because the user has no income yet ([incomeRequired]), it explains it
+/// and leads to the income sources with [onGoToIncome] instead, keeping
+/// the button that adds a goal by hand.
 class GoalsEmptyState extends StatelessWidget {
   const GoalsEmptyState({
     required this.busy,
     required this.onAddGoal,
     required this.onUseStandardGoals,
+    required this.onGoToIncome,
+    this.incomeRequired = false,
     super.key,
   });
 
   static const Key addGoalKey = Key('goals-empty-add');
   static const Key standardGoalsKey = Key('goals-empty-standard');
+  static const Key goToIncomeKey = Key('goals-empty-go-to-income');
 
   final bool busy;
+  final bool incomeRequired;
   final VoidCallback onAddGoal;
   final VoidCallback onUseStandardGoals;
+  final VoidCallback onGoToIncome;
 
   @override
   Widget build(BuildContext context) {
+    return incomeRequired ? _incomeRequired(context) : _empty(context);
+  }
+
+  Widget _incomeRequired(BuildContext context) {
+    final l10n = context.l10n;
+    return StatusMessage(
+      icon: Icons.payments_outlined,
+      title: l10n.goalsIncomeRequiredTitle,
+      message: l10n.goalsIncomeRequiredMessage,
+      action: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: AppSpacing.sm,
+        runSpacing: AppSpacing.sm,
+        children: [
+          FilledButton.icon(
+            key: goToIncomeKey,
+            onPressed: onGoToIncome,
+            icon: const Icon(Icons.payments_outlined),
+            label: Text(l10n.goalsGoToIncome),
+          ),
+          OutlinedButton.icon(
+            key: addGoalKey,
+            onPressed: busy ? null : onAddGoal,
+            icon: const Icon(Icons.add),
+            label: Text(l10n.firstGoalTitle),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _empty(BuildContext context) {
     return StatusMessage(
       icon: Icons.flag_outlined,
       illustration: const _Illustration(),

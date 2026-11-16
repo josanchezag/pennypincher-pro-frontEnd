@@ -2,7 +2,10 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/crud/domain/usecase/crud_use_cases.dart';
+import 'package:pennypincher_pro/core/utils/money.dart';
+import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_plan_basis.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/repository/financial_goal_repository.dart';
+import 'package:pennypincher_pro/features/financial_goals/domain/usecase/get_goal_plan_basis.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/usecase/get_goal_projection.dart';
 
 import '../../../helpers/goal_fixtures.dart';
@@ -29,6 +32,34 @@ void main() {
     expect(
       result.getOrElse(() => throw StateError('missing')),
       security.projection,
+    );
+  });
+
+  test('GetGoalPlanBasis loads the income and net worth', () async {
+    final repository = _MockRepository();
+    const basis = GoalPlanBasis(monthlyIncome: monthlyIncome);
+    when(repository.getPlanBasis).thenAnswer((_) async => basis);
+
+    expect(await GetGoalPlanBasis(repository)(), basis);
+  });
+
+  test('GoalPlanBasis takes from the goals what it does not know', () {
+    final fromGoals = GoalPlanBasis.ofGoals([security, incomeIndependence]);
+
+    expect(
+      fromGoals,
+      const GoalPlanBasis(
+        monthlyIncome: monthlyIncome,
+        currentNetWorth: netWorth,
+      ),
+    );
+    expect(GoalPlanBasis.ofGoals(const []), GoalPlanBasis.unknown);
+    expect(
+      const GoalPlanBasis(monthlyIncome: Money.fromUnits(1)).orElse(fromGoals),
+      const GoalPlanBasis(
+        monthlyIncome: Money.fromUnits(1),
+        currentNetWorth: netWorth,
+      ),
     );
   });
 }

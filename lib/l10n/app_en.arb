@@ -983,5 +983,53 @@
   "goalLevelFinancialSecurityDescription": "Expenses covered for 6 months without income",
   "goalLevelFinancialIndependenceDescription": "Passive income covers all basic expenses",
   "goalLevelFinancialFreedomDescription": "Passive income covers desired lifestyle",
-  "goalLevelAbsoluteFreedomDescription": "Unlimited financial choices"
+  "goalLevelAbsoluteFreedomDescription": "Unlimited financial choices",
+  "goalsDesiredIncome": "Desired monthly income",
+  "goalsModeCurrentIncomeLabel": "Based on your income (×{factor})",
+  "@goalsModeCurrentIncomeLabel": {
+    "placeholders": {
+      "factor": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsModeDesiredIncomeLabel": "Income you want",
+  "goalsRequiredInvestment": "Required monthly investment",
+  "goalsRequiredInvestmentShort": "Required investment",
+  "goalsTerm": "Term",
+  "goalsNoTerm": "No term",
+  "goalsReferenceReturn": "At {rate} a year it would yield {monthly} a month ({annual} a year)",
+  "@goalsReferenceReturn": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      },
+      "monthly": {
+        "type": "String"
+      },
+      "annual": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsBaseOnIncome": "Base on my income",
+  "goalsModeLabel": "How do you want to set this goal?",
+  "goalsModeCurrentIncome": "My current income",
+  "goalsModeDesiredIncome": "How much I want to earn",
+  "goalsModeManual": "Manual",
+  "goalsModeCurrentIncomeHelp": "The target is the capital that, yielding 10% a year, pays you every month your current income times the factor of the level. It follows your income when it changes.",
+  "goalsModeDesiredIncomeHelp": "Enter how much you want to receive a month: the target is the capital that pays it yielding 10% a year.",
+  "goalsModeManualHelp": "You set the target and the monthly investment yourself.",
+  "goalsIncomeBasis": "Your current income",
+  "goalsIncomeFactor": "Level factor",
+  "goalsIncomeUnknown": "We couldn't read your income right now: the target will be computed when you save.",
+  "goalsIncomeMissing": "You have no income sources yet. Add them to base this goal on your income.",
+  "goalsGoToIncome": "Go to my income",
+  "goalsTargetYearsRequired": "Enter the term in years.",
+  "goalsTargetYearsRequiredHelper": "From 1 to 100. 16 by default",
+  "goalsPreviewTitle": "Preview",
+  "goalsPreviewNote": "Estimate. Once you save, the goal shows the figures the server computes.",
+  "errorIncomeRequired": "Your goals are based on your monthly income, and you have no income sources yet. Add them in Income Sources and try again.",
+  "goalsIncomeRequiredTitle": "First add your income",
+  "goalsIncomeRequiredMessage": "The standard goals are computed from your current monthly income, and you have no income sources yet. Add them and come back to create your goals, or set a goal by hand."
 }

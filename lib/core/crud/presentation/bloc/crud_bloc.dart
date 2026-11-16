@@ -127,6 +127,7 @@ class CrudBloc<T extends CrudItem, D> extends Bloc<CrudEvent<D>, CrudState<T>> {
               : current.items,
           errorMessage: failure.message,
           failedAction: action,
+          errorCode: failure is ServerFailure ? failure.code : null,
         ),
         (value) async =>
             CrudLoaded<T>(await _refreshed(apply(current.items, value))),

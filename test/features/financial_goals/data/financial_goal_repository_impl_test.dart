@@ -1,8 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pennypincher_pro/core/error/failure.dart';
+import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/features/financial_goals/data/datasource/financial_goal_remote_datasource.dart';
 import 'package:pennypincher_pro/features/financial_goals/data/repository/financial_goal_repository_impl.dart';
+import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_plan_basis.dart';
 
 import '../../../helpers/fake_http_adapter.dart';
 import '../../../helpers/goal_fixtures.dart';
@@ -108,5 +110,45 @@ void main() {
     final result = await repository.createDefaults();
 
     expect(result.isLeft(), isTrue);
+  });
+
+  group('plan basis', () {
+    FakeResponse incomeOrNetWorth(String path) => path == '/income-sources'
+        ? FakeResponse(
+            200,
+            envelope([
+              {'id': 'i1', 'name': 'Salario', 'amount': 10000000},
+            ]),
+          )
+        : FakeResponse(200, envelope({'netWorth': 100000000}));
+
+    test('reads the income and the net worth in parallel', () async {
+      adapter.handler = (options) async => incomeOrNetWorth(options.path);
+
+      final basis = await repository.getPlanBasis();
+
+      expect(
+        adapter.requests.map((r) => r.path),
+        unorderedEquals(['/income-sources', '/net-worth/current']),
+      );
+      expect(
+        basis,
+        const GoalPlanBasis(
+          monthlyIncome: Money.fromUnits(10000000),
+          currentNetWorth: Money.fromUnits(100000000),
+        ),
+      );
+    });
+
+    test('leaves unknown a figure that cannot be loaded', () async {
+      adapter.handler = (options) async => options.path == '/income-sources'
+          ? FakeResponse(500, errorEnvelope('INTERNAL_ERROR', 'Boom'))
+          : incomeOrNetWorth(options.path);
+
+      final basis = await repository.getPlanBasis();
+
+      expect(basis.monthlyIncome, isNull);
+      expect(basis.currentNetWorth, const Money.fromUnits(100000000));
+    });
   });
 }
