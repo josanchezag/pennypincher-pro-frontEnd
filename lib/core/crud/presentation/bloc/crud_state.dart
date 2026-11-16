@@ -27,21 +27,26 @@ final class CrudLoadFailure<T> extends CrudState<T> {
 enum CrudAction { save, delete, createDefaults }
 
 /// The list is available. While [busy], a create, update or delete is
-/// running. [errorMessage] reports the [failedAction] that just failed;
-/// the list itself is still valid.
+/// running. [errorMessage] reports the [failedAction] that just failed,
+/// with the backend [errorCode] when the backend answered with one, so a
+/// screen can offer a way out of a specific error; the list itself is
+/// still valid.
 final class CrudLoaded<T> extends CrudState<T> {
   const CrudLoaded(
     this.items, {
     this.busy = false,
     this.errorMessage,
     this.failedAction,
+    this.errorCode,
   });
 
   final List<T> items;
   final bool busy;
   final String? errorMessage;
   final CrudAction? failedAction;
+  final String? errorCode;
 
   @override
-  List<Object?> get props => [items, busy, errorMessage, failedAction];
+  List<Object?> get props =>
+      [items, busy, errorMessage, failedAction, errorCode];
 }

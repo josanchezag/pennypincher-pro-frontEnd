@@ -439,5 +439,8 @@
   "goalsTargetYearsRequired": "Escribe el plazo en años.",
   "goalsTargetYearsRequiredHelper": "De 1 a 100. Por defecto 16",
   "goalsPreviewTitle": "Vista previa",
-  "goalsPreviewNote": "Cálculo estimado. Al guardar, la meta muestra las cifras que calcula el servidor."
+  "goalsPreviewNote": "Cálculo estimado. Al guardar, la meta muestra las cifras que calcula el servidor.",
+  "errorIncomeRequired": "Tus metas parten de tu ingreso mensual y aún no tienes fuentes de ingreso. Regístralas en Ingresos e inténtalo de nuevo.",
+  "goalsIncomeRequiredTitle": "Primero registra tus ingresos",
+  "goalsIncomeRequiredMessage": "Las metas estándar se calculan con tu ingreso mensual actual y aún no tienes fuentes de ingreso. Regístralas y vuelve para crear tus metas, o define una meta a mano."
 }

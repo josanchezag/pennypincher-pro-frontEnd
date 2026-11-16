@@ -73,6 +73,7 @@ void main() {
         openExpenses,
         errorMessage: 'Already cut',
         failedAction: CrudAction.delete,
+        errorCode: ErrorCodes.antExpenseAlreadyCut,
       ),
     ],
   );

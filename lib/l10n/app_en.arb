@@ -1028,5 +1028,8 @@
   "goalsTargetYearsRequired": "Enter the term in years.",
   "goalsTargetYearsRequiredHelper": "From 1 to 100. 16 by default",
   "goalsPreviewTitle": "Preview",
-  "goalsPreviewNote": "Estimate. Once you save, the goal shows the figures the server computes."
+  "goalsPreviewNote": "Estimate. Once you save, the goal shows the figures the server computes.",
+  "errorIncomeRequired": "Your goals are based on your monthly income, and you have no income sources yet. Add them in Income Sources and try again.",
+  "goalsIncomeRequiredTitle": "First add your income",
+  "goalsIncomeRequiredMessage": "The standard goals are computed from your current monthly income, and you have no income sources yet. Add them and come back to create your goals, or set a goal by hand."
 }

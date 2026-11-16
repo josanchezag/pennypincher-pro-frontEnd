@@ -5,9 +5,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_sheet.dart';
+import 'package:pennypincher_pro/core/error/error_codes.dart';
+import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
+import 'package:pennypincher_pro/features/budget/presentation/screen/income_sources_screen.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_level.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/screen/goals_screen.dart';
@@ -16,6 +19,7 @@ import 'package:pennypincher_pro/features/financial_goals/presentation/widget/go
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/halfway_celebration.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/projections_notice.dart';
 
+import '../../../../helpers/budget_mocks.dart';
 import '../../../../helpers/crud_screen_helpers.dart';
 import '../../../../helpers/goal_fixtures.dart';
 import '../../../../helpers/goal_mocks.dart';
@@ -174,6 +178,88 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Server unavailable'), findsOneWidget);
+    });
+  });
+
+  group('income required', () {
+    const needsIncome = CrudLoaded<FinancialGoal>(
+      [],
+      errorMessage: 'Add your income first',
+      failedAction: CrudAction.createDefaults,
+      errorCode: ErrorCodes.incomeRequired,
+    );
+
+    Future<void> refuseStandardGoals(
+      WidgetTester tester, {
+      Locale locale = testLocale,
+    }) async {
+      final states = StreamController<_State>();
+      addTearDown(states.close);
+      registerGoalsBloc(const CrudLoaded([]), stream: states.stream);
+      await tester.pumpApp(location: AppRoute.goals.path, locale: locale);
+      await tester.tap(find.byKey(GoalsEmptyState.standardGoalsKey));
+      states
+        ..add(const CrudLoaded([], busy: true))
+        ..add(needsIncome);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('explains that the standard goals need an income',
+        (tester) async {
+      await refuseStandardGoals(tester);
+
+      expect(find.text(l10n.goalsIncomeRequiredTitle), findsOneWidget);
+      expect(find.text(l10n.goalsIncomeRequiredMessage), findsOneWidget);
+      expect(find.text('Add your income first'), findsNothing);
+      expect(find.byKey(GoalsEmptyState.standardGoalsKey), findsNothing);
+      expect(find.byKey(GoalsEmptyState.addGoalKey), findsOneWidget);
+    });
+
+    testWidgets('leads to the income sources', (tester) async {
+      registerIncomeSourceBloc(const CrudLoaded([]));
+      await refuseStandardGoals(tester);
+
+      await tester.tap(find.byKey(GoalsEmptyState.goToIncomeKey));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(IncomeSourcesScreen), findsOneWidget);
+    });
+
+    testWidgets('still adds a goal by hand', (tester) async {
+      await refuseStandardGoals(tester);
+
+      await tester.tap(find.byKey(GoalsEmptyState.addGoalKey));
+      await tester.pumpAndSettle();
+
+      expect(find.text(l10n.goalsAddGoal), findsWidgets);
+    });
+
+    testWidgets('explains it in Spanish', (tester) async {
+      await refuseStandardGoals(tester, locale: AppLocales.spanish);
+
+      expect(find.text('Primero registra tus ingresos'), findsOneWidget);
+      expect(find.text('Ir a mis ingresos'), findsOneWidget);
+    });
+
+    testWidgets('reports other failures of the standard goals as before',
+        (tester) async {
+      final states = StreamController<_State>();
+      addTearDown(states.close);
+      await pumpGoals(tester, const CrudLoaded([]), stream: states.stream);
+
+      states.add(
+        const CrudLoaded(
+          [],
+          errorMessage: 'Conflict',
+          failedAction: CrudAction.createDefaults,
+          errorCode: ErrorCodes.conflict,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Conflict'), findsOneWidget);
+      expect(find.text(l10n.goalsIncomeRequiredTitle), findsNothing);
+      expect(find.byKey(GoalsEmptyState.standardGoalsKey), findsOneWidget);
     });
   });
 

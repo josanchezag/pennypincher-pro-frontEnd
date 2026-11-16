@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
+import 'package:pennypincher_pro/core/error/error_codes.dart';
 import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
@@ -25,7 +26,8 @@ typedef _State = CrudState<FinancialGoal>;
 
 /// `/goals`: a card per goal with its progress and projected date, an add
 /// button, an edit sheet with delete, and an empty state that offers the
-/// standard goals. A goal that a reload shows past half of its target is
+/// standard goals, or leads to the income sources when they need an
+/// income the user has not added yet. A goal that a reload shows past half of its target is
 /// celebrated once. Manual goals offer to base them on the income.
 /// Expects a [GoalsBloc] and a [GoalPlanBasisCubit] above it.
 class GoalsScreen extends StatefulWidget {
@@ -87,7 +89,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
       setState(() => _celebrating = {..._celebrating, ...crossed});
     }
     final message = loaded.errorMessage;
-    if (message != null && loaded.failedAction != CrudAction.save) {
+    if (message != null &&
+        loaded.failedAction != CrudAction.save &&
+        !_needsIncome(loaded)) {
       AppSnackbar.showError(context, message);
     }
   }
@@ -108,10 +112,21 @@ class _GoalsScreenState extends State<GoalsScreen> {
             ),
           ),
         CrudLoaded<FinancialGoal>(:final items, :final busy) =>
-          _list(context, items, busy),
+          _list(context, items, busy, needsIncome: _needsIncome(state)),
       };
 
-  Widget _list(BuildContext context, List<FinancialGoal> goals, bool busy) =>
+  /// Whether the standard goals were just refused because the user has no
+  /// income yet; the empty state then explains it instead of a snackbar.
+  static bool _needsIncome(CrudLoaded<FinancialGoal> state) =>
+      state.failedAction == CrudAction.createDefaults &&
+      state.errorCode == ErrorCodes.incomeRequired;
+
+  Widget _list(
+    BuildContext context,
+    List<FinancialGoal> goals,
+    bool busy, {
+    required bool needsIncome,
+  }) =>
       GoalList(
         goals: goals,
         busy: busy,
@@ -121,6 +136,8 @@ class _GoalsScreenState extends State<GoalsScreen> {
             : null,
         empty: GoalsEmptyState(
           busy: busy,
+          incomeRequired: needsIncome,
+          onGoToIncome: () => context.goNamed(AppRoute.budgetIncome.name),
           onAddGoal: () => _edit(context, null),
           onUseStandardGoals: () => context
               .read<GoalsBloc>()

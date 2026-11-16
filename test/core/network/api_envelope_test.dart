@@ -85,6 +85,7 @@ void main() {
         'REGISTRATION_DISABLED': l10n.signInRegistrationDisabled,
         'GOOGLE_AUTH_FAILED': l10n.signInFailed,
         'IDENTITY_PROVIDER_UNAVAILABLE': l10n.errorIdentityProviderUnavailable,
+        'INCOME_REQUIRED': l10n.errorIncomeRequired,
         'INTERNAL_ERROR': l10n.errorUnexpected,
         'METHOD_NOT_ALLOWED': l10n.errorUnexpected,
         'SOMETHING_NEW': l10n.errorUnexpected,
