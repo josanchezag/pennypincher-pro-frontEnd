@@ -66,6 +66,7 @@ abstract final class ApiPaths {
   static const String dashboardSummary = '/dashboard/summary';
   static const String netWorthTrend = '/reports/net-worth-trend';
   static const String monthlyComparison = '/reports/monthly-comparison';
+  static const String exchangeRatesToday = '/exchange-rates/today';
 }
 
 /// Query parameters of the backend endpoints.

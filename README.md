@@ -352,6 +352,14 @@ también siguen al idioma (`42,7 %` / `42.7%`). La TRM del presupuesto es siempr
 que se escribe como pesos con centavos en cualquier moneda (`$ 3.950,25` / `COP 3,950.25`); para
 `EUR` se oculta (no aplica) y se conserva sin cambios.
 
+En el mes actual la TRM es automática: la app pide `GET /exchange-rates/today` (como mucho una vez
+por día local mientras la respuesta llegue completa y fresca; si falla o viene `stale` vuelve a
+intentarlo tras 10 minutos) y, si la TRM del día difiere de la guardada, la guarda sola con el `PUT`
+del presupuesto conservando los días laborales, un intento por presupuesto y día. Ese mes no tiene
+lápiz para la TRM y una nota dice que es la de hoy. Si la consulta falla o viene `stale` no se
+sobrescribe nada y la TRM se edita a mano. Los meses anteriores conservan su TRM y su lápiz. Debajo
+se muestra, de solo lectura, el cierre EUR/COP del día cuando lo hay.
+
 Todos los campos de monto son `MoneyField` (`lib/core/widgets/money_field.dart`), que guarda el
 `Money` exacto en su `FormControl<Money>` y escribe el monto mientras se teclea con
 `MoneyInputFormatter`: separadores de miles automáticos y decimales según el idioma (`1.500.000,50`

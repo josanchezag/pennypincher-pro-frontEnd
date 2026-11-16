@@ -26,6 +26,7 @@ import 'package:pennypincher_pro/features/budget/presentation/widget/expense_per
 
 import '../../../../helpers/budget_fixtures.dart';
 import '../../../../helpers/budget_mocks.dart';
+import '../../../../helpers/exchange_rate_fixtures.dart';
 import '../../../../helpers/l10n.dart';
 import '../../../../helpers/load_fonts.dart';
 import '../../../../helpers/pump_app.dart';
@@ -620,6 +621,65 @@ void main() {
       );
     await tester.pumpAndSettle();
     expect(find.text('Validation failed'), findsOneWidget);
+  });
+
+  testWidgets("saves today's TRM without a snack bar, failed or not",
+      (tester) async {
+    final states = StreamController<MonthlyBudgetState>();
+    addTearDown(states.close);
+    final current = _loaded.copyWith(
+      currentMonth: _october,
+      todayRates: freshRates,
+    );
+    await pumpOverview(
+      tester,
+      current.copyWith(runningAction: () => BudgetAction.syncExchangeRate),
+      stream: states.stream,
+      settle: false,
+      size: TestViewports.desktop,
+    );
+
+    states.add(
+      current.copyWith(
+        finishedAction: BudgetAction.syncExchangeRate,
+        actionError: 'Offline',
+        exchangeRateSyncFailed: true,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SnackBar), findsNothing);
+    expect(find.text(l10n.budgetExchangeRateSaveFailed), findsOneWidget);
+    expect(find.byKey(BudgetDetailsCard.exchangeRateEditKey), findsOneWidget);
+  });
+
+  testWidgets("shows today's rates in the current month only", (tester) async {
+    await pumpOverview(
+      tester,
+      _loaded.copyWith(currentMonth: _october, todayRates: freshRates),
+      size: TestViewports.desktop,
+    );
+
+    expect(find.byKey(BudgetDetailsCard.exchangeRateEditKey), findsNothing);
+    expect(find.byKey(BudgetDetailsCard.exchangeRateCaptionKey), findsOne);
+    expect(find.text('COP 3,632.10'), findsOneWidget);
+  });
+
+  testWidgets('keeps the stored TRM and its pencil in a past month',
+      (tester) async {
+    await pumpOverview(
+      tester,
+      _loaded.copyWith(
+        currentMonth: DateTime(2026, 11),
+        todayRates: freshRates,
+      ),
+      size: TestViewports.desktop,
+    );
+
+    expect(find.byKey(BudgetDetailsCard.exchangeRateEditKey), findsOneWidget);
+    expect(find.byKey(BudgetDetailsCard.exchangeRateCaptionKey), findsNothing);
+    expect(find.byKey(BudgetDetailsCard.eurCopKey), findsNothing);
+    expect(find.text('COP 3,300.00'), findsOneWidget);
   });
 
   testWidgets('says when a create found the budget already created',

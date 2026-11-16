@@ -68,6 +68,9 @@ class BudgetOverviewContent extends StatelessWidget {
           BudgetDetailsCard(
             settings: budget.settings,
             enabled: !state.isBusy,
+            exchangeRateMode: state.exchangeRateMode,
+            rateDate: state.todayRates?.date,
+            eurCop: state.eurCop,
             onChanged: (settings) => context
                 .read<MonthlyBudgetBloc>()
                 .add(MonthlyBudgetSettingsChanged(settings)),
