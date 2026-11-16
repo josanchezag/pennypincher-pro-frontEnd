@@ -172,6 +172,8 @@ void main() {
 
     testWidgets('stacks the goals in one column on mobile', (tester) async {
       await pumpGoals(tester, _loaded, size: TestViewports.mobile);
+      await tester.drag(find.byType(ListView), const Offset(0, -200));
+      await tester.pumpAndSettle();
 
       final first = tester.getRect(_card('Seguridad Financiera'));
       final second = tester.getRect(_card('Independencia Financiera'));

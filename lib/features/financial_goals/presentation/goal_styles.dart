@@ -1,6 +1,7 @@
 import 'package:flutter/painting.dart';
 import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
+import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_income_mode.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_level.dart';
 
 /// Display name, description and badge color of every goal level.
@@ -37,5 +38,18 @@ extension GoalLevelStyle on GoalLevel {
         GoalLevel.financialIndependence => AppColors.backgroundPrimary,
         GoalLevel.financialFreedom => AppColors.textOnBrand,
         GoalLevel.absoluteFreedom => AppColors.backgroundPrimary,
+      };
+}
+
+/// Texts of every income mode of a goal.
+extension GoalIncomeModeStyle on GoalIncomeMode {
+  /// Where the desired income of a goal comes from, as its card says it:
+  /// "Based on your income (×1)" with the [factor] already formatted, or
+  /// "Income you want". Null for a manual goal, which has none.
+  String? sourceLabel(AppLocalizations l10n, String factor) => switch (this) {
+        GoalIncomeMode.currentIncome =>
+          l10n.goalsModeCurrentIncomeLabel(factor),
+        GoalIncomeMode.desiredIncome => l10n.goalsModeDesiredIncomeLabel,
+        GoalIncomeMode.manual => null,
       };
 }

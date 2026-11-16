@@ -2,8 +2,10 @@ import 'dart:math' as math;
 
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
+import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_income_mode.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_level.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_projection_entity.dart';
+import 'package:pennypincher_pro/features/financial_goals/domain/entity/reference_return.dart';
 
 /// Financial goals of the Excel with their projections against a net
 /// worth of $ 423.282.773 in October 2026.
@@ -139,6 +141,76 @@ final List<FinancialGoal> excelGoals = [
   freedom,
   absolute,
 ];
+
+/// Monthly income of the income based goals: $ 10.000.000.
+const Money monthlyIncome = Money.fromUnits(10000000);
+
+/// Independence based on the current income (factor 1): the target pays
+/// $ 10.000.000 a month at 10 % EA, reached in 16 years from a net worth of
+/// $ 100.000.000 at 10 % a year. Figures checked by hand against the
+/// contract formulas.
+final FinancialGoal incomeIndependence = independence.copyWith(
+  id: 'g5',
+  name: 'Independencia según mi ingreso',
+  incomeMode: GoalIncomeMode.currentIncome,
+  incomeFactor: 1,
+  monthlyIncomeBasis: monthlyIncome,
+  desiredMonthlyIncome: monthlyIncome,
+  targetAmount: const Money.fromCents(125405366123),
+  monthlyInvestment: const Money.fromCents(176243439),
+  requiredMonthlyInvestment: const Money.fromCents(176243439),
+  expectedAnnualReturn: 0.10,
+  targetYears: 16,
+  referenceReturn: const ReferenceReturn(
+    annualRate: 0.10,
+    annualAmount: Money.fromCents(12540536612),
+    monthlyAmount: Money.fromUnits(10000000),
+  ),
+);
+
+/// Freedom on a typed income of $ 6.000.000 a month, in 10 years at 12 %
+/// from a net worth of $ 50.000.000.
+final FinancialGoal desiredFreedom = freedom.copyWith(
+  id: 'g6',
+  name: 'Libertad que quiero',
+  incomeMode: GoalIncomeMode.desiredIncome,
+  monthlyIncomeBasis: monthlyIncome,
+  desiredMonthlyIncome: const Money.fromUnits(6000000),
+  targetAmount: const Money.fromCents(75243219674),
+  monthlyInvestment: const Money.fromCents(269066676),
+  requiredMonthlyInvestment: const Money.fromCents(269066676),
+  expectedAnnualReturn: 0.12,
+  targetYears: 10,
+  referenceReturn: const ReferenceReturn(
+    annualRate: 0.10,
+    annualAmount: Money.fromCents(7524321967),
+    monthlyAmount: Money.fromUnits(6000000),
+  ),
+);
+
+/// API JSON of [incomeIndependence] without its projection.
+const Map<String, Object?> incomeIndependenceJson = {
+  'id': 'g5',
+  'name': 'Independencia según mi ingreso',
+  'level': 'FINANCIAL_INDEPENDENCE',
+  'levelDescription': 'Passive income covers all basic expenses',
+  'targetAmount': 1254053661.23,
+  'monthlyInvestment': 1762434.39,
+  'expectedAnnualReturn': 0.1000,
+  'targetYears': 16,
+  'incomeMode': 'CURRENT_INCOME',
+  'incomeFactor': 1.00,
+  'monthlyIncomeBasis': 10000000.00,
+  'desiredMonthlyIncome': 10000000.00,
+  'requiredMonthlyInvestment': 1762434.39,
+  'referenceReturn': {
+    'annualRate': 0.10,
+    'annualAmount': 125405366.12,
+    'monthlyAmount': 10000000.00,
+  },
+  'createdAt': '2026-11-16T10:00:00Z',
+  'updatedAt': '2026-11-16T10:00:00Z',
+};
 
 /// [goal] with its progress at [percent].
 FinancialGoal withProgress(FinancialGoal goal, double percent) => goal.copyWith(

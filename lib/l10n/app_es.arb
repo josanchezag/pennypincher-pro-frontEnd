@@ -414,5 +414,14 @@
   "goalLevelFinancialSecurityDescription": "Gastos cubiertos por 6 meses sin ingresos",
   "goalLevelFinancialIndependenceDescription": "Los ingresos pasivos cubren todos los gastos básicos",
   "goalLevelFinancialFreedomDescription": "Los ingresos pasivos cubren el estilo de vida deseado",
-  "goalLevelAbsoluteFreedomDescription": "Opciones financieras ilimitadas"
+  "goalLevelAbsoluteFreedomDescription": "Opciones financieras ilimitadas",
+  "goalsDesiredIncome": "Ingreso mensual deseado",
+  "goalsModeCurrentIncomeLabel": "Según tu ingreso (×{factor})",
+  "goalsModeDesiredIncomeLabel": "Ingreso que quieres",
+  "goalsRequiredInvestment": "Inversión mensual requerida",
+  "goalsRequiredInvestmentShort": "Inversión requerida",
+  "goalsTerm": "Plazo",
+  "goalsNoTerm": "Sin plazo",
+  "goalsReferenceReturn": "Con {rate} EA rentaría {monthly} al mes ({annual} al año)",
+  "goalsBaseOnIncome": "Basar en mi ingreso"
 }

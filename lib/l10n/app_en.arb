@@ -983,5 +983,34 @@
   "goalLevelFinancialSecurityDescription": "Expenses covered for 6 months without income",
   "goalLevelFinancialIndependenceDescription": "Passive income covers all basic expenses",
   "goalLevelFinancialFreedomDescription": "Passive income covers desired lifestyle",
-  "goalLevelAbsoluteFreedomDescription": "Unlimited financial choices"
+  "goalLevelAbsoluteFreedomDescription": "Unlimited financial choices",
+  "goalsDesiredIncome": "Desired monthly income",
+  "goalsModeCurrentIncomeLabel": "Based on your income (×{factor})",
+  "@goalsModeCurrentIncomeLabel": {
+    "placeholders": {
+      "factor": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsModeDesiredIncomeLabel": "Income you want",
+  "goalsRequiredInvestment": "Required monthly investment",
+  "goalsRequiredInvestmentShort": "Required investment",
+  "goalsTerm": "Term",
+  "goalsNoTerm": "No term",
+  "goalsReferenceReturn": "At {rate} a year it would yield {monthly} a month ({annual} a year)",
+  "@goalsReferenceReturn": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      },
+      "monthly": {
+        "type": "String"
+      },
+      "annual": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsBaseOnIncome": "Base on my income"
 }

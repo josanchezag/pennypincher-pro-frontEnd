@@ -3,12 +3,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/progress_band.dart';
+import 'package:pennypincher_pro/core/utils/app_currency.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
+import 'package:pennypincher_pro/core/utils/money_formatter.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_level.dart';
+import 'package:pennypincher_pro/features/financial_goals/domain/entity/reference_return.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/goal_styles.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/circular_progress_indicator_widget.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_card.dart';
+import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_figures.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_level_badge.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/halfway_celebration.dart';
 
@@ -28,6 +32,11 @@ Future<void> _pump(WidgetTester tester, Widget child, {double width = 360}) =>
     );
 
 String _cop(int pesos) => testMoney.format(Money.fromUnits(pesos));
+
+String _copCents(int cents) => testMoney.format(Money.fromCents(cents));
+
+String _referenceText(WidgetTester tester) =>
+    tester.widget<Text>(find.byKey(GoalReferenceReturnLine.textKey)).data!;
 
 /// WCAG contrast ratio between two colors.
 double _contrast(Color a, Color b) {
@@ -216,5 +225,195 @@ void main() {
 
     expect(find.byKey(HalfwayCelebration.messageKey), findsOneWidget);
     await tester.pumpAndSettle();
+  });
+
+  group('income modes', () {
+    testWidgets(
+        'shows the income, required investment and 10 % return of a '
+        'goal based on the current income', (tester) async {
+      await _pump(tester, GoalCard(goal: incomeIndependence, onTap: null));
+
+      expect(find.text(l10n.goalsDesiredIncome.toUpperCase()), findsOneWidget);
+      expect(find.text(_cop(10000000)), findsOneWidget);
+      expect(find.text('Based on your income (×1)'), findsOneWidget);
+      expect(find.text(_copCents(125405366123)), findsOneWidget);
+      expect(
+        find.text(l10n.goalsRequiredInvestmentShort.toUpperCase()),
+        findsOne,
+      );
+      expect(
+        find.text(l10n.goalsMonthlyInvestment.toUpperCase()),
+        findsNothing,
+      );
+      expect(find.text(_copCents(176243439)), findsOneWidget);
+      expect(find.text('16 years'), findsOneWidget);
+      expect(
+        _referenceText(tester),
+        'At 10% a year it would yield ${_cop(10000000)} a month '
+        '(${_copCents(12540536612)} a year)',
+      );
+      expect(find.byKey(GoalCard.baseOnIncomeKey), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('labels a typed income as the income the user wants',
+        (tester) async {
+      await _pump(tester, GoalCard(goal: desiredFreedom, onTap: null));
+
+      expect(find.text(_cop(6000000)), findsWidgets);
+      expect(find.text(l10n.goalsModeDesiredIncomeLabel), findsOneWidget);
+      expect(find.textContaining('×'), findsNothing);
+      expect(find.text('10 years'), findsOneWidget);
+      expect(find.text(_copCents(269066676)), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('shows no income on a manual goal but its 10 % return',
+        (tester) async {
+      await _pump(tester, GoalCard(goal: security, onTap: null));
+
+      expect(find.text(l10n.goalsDesiredIncome.toUpperCase()), findsNothing);
+      expect(find.byKey(GoalIncomeSection.sourceKey), findsNothing);
+      expect(find.text(l10n.goalsMonthlyInvestment.toUpperCase()), findsOne);
+      expect(
+        find.text(l10n.goalsRequiredInvestment.toUpperCase()),
+        findsNothing,
+      );
+      expect(
+        _referenceText(tester),
+        'At 10% a year it would yield ${_copCents(482435496)} a month '
+        '(${_cop(60500000)} a year)',
+      );
+    });
+
+    testWidgets('shows what the term of a manual goal requires',
+        (tester) async {
+      await _pump(
+        tester,
+        GoalCard(
+          goal: absolute.copyWith(
+            targetYears: 16,
+            requiredMonthlyInvestment: const Money.fromUnits(9000000),
+          ),
+          onTap: null,
+        ),
+      );
+
+      expect(find.text(_cop(15850000)), findsOneWidget);
+      expect(find.text(l10n.goalsRequiredInvestment.toUpperCase()), findsOne);
+      expect(find.text(_cop(9000000)), findsOneWidget);
+    });
+
+    testWidgets('says when a goal has no term', (tester) async {
+      await _pump(tester, GoalCard(goal: absolute, onTap: null));
+
+      expect(find.text(l10n.goalsNoTerm), findsOneWidget);
+    });
+
+    testWidgets('prefers the 10 % return the backend sent', (tester) async {
+      await _pump(
+        tester,
+        GoalCard(
+          goal: security.copyWith(
+            referenceReturn: const ReferenceReturn(
+              annualRate: 0.10,
+              annualAmount: Money.fromUnits(1),
+              monthlyAmount: Money.fromUnits(2),
+            ),
+          ),
+          onTap: null,
+        ),
+      );
+
+      expect(
+        _referenceText(tester),
+        'At 10% a year it would yield ${_cop(2)} a month (${_cop(1)} a year)',
+      );
+    });
+
+    testWidgets('offers to base a manual goal on the income', (tester) async {
+      var taps = 0;
+      await _pump(
+        tester,
+        GoalCard(goal: security, onTap: null, onBaseOnIncome: () => taps++),
+      );
+
+      await tester.tap(find.byKey(GoalCard.baseOnIncomeKey));
+
+      expect(find.text(l10n.goalsBaseOnIncome), findsOneWidget);
+      expect(taps, 1);
+    });
+
+    testWidgets('does not offer it on a goal already based on an income',
+        (tester) async {
+      await _pump(
+        tester,
+        GoalCard(goal: desiredFreedom, onTap: null, onBaseOnIncome: () {}),
+      );
+
+      expect(find.byKey(GoalCard.baseOnIncomeKey), findsNothing);
+    });
+
+    testWidgets('writes the income texts in Spanish', (tester) async {
+      await tester.pumpWidget(
+        localizedApp(
+          locale: AppLocales.spanish,
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  GoalCard(
+                    goal: incomeIndependence.copyWith(
+                      level: GoalLevel.financialSecurity,
+                      incomeFactor: 0.6,
+                    ),
+                    onTap: null,
+                  ),
+                  GoalCard(goal: desiredFreedom, onTap: null),
+                  GoalCard(goal: security, onTap: null, onBaseOnIncome: () {}),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Según tu ingreso (×0,6)'), findsOneWidget);
+      expect(find.text('Ingreso que quieres'), findsOneWidget);
+      expect(find.text('INGRESO MENSUAL DESEADO'), findsNWidgets(2));
+      expect(find.text('INVERSIÓN REQUERIDA'), findsNWidgets(2));
+      expect(find.text('Basar en mi ingreso'), findsOneWidget);
+      final spanishMoney = MoneyFormatter.of(AppCurrency.fallback, 'es');
+      expect(
+        find.text(
+          'Con 10% EA rentaría '
+          '${spanishMoney.format(const Money.fromUnits(10000000))} al mes '
+          '(${spanishMoney.format(const Money.fromCents(12540536612))} al año)',
+        ),
+        findsOneWidget,
+      );
+    });
+
+    for (final width in [320.0, 390.0]) {
+      testWidgets('fits a goal based on the income in $width px',
+          (tester) async {
+        await _pump(
+          tester,
+          GoalCard(
+            goal: incomeIndependence,
+            onTap: null,
+            onSeeProjection: () {},
+          ),
+          width: width,
+        );
+        await _pump(
+          tester,
+          GoalCard(goal: security, onTap: null, onBaseOnIncome: () {}),
+          width: width,
+        );
+
+        expect(tester.takeException(), isNull);
+      });
+    }
   });
 }
