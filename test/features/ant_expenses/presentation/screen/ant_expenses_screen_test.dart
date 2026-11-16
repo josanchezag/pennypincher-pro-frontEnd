@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
 import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_sheet.dart';
@@ -107,6 +108,24 @@ void main() {
       expect(find.byKey(AntExpensesScreen.addButtonKey), findsNothing);
       expect(find.bySemanticsLabel(l10n.commonLoading), findsWidgets);
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('loads the period again every time it opens', (tester) async {
+      // A cut made elsewhere (a snapshot from the dashboard, a budget)
+      // restarts the period: nothing is kept between two visits.
+      final doubles = await pumpScreen(tester);
+      final router = GoRouter.of(tester.element(find.byType(Scaffold).last));
+
+      router.go(AppRoute.dashboard.path);
+      await tester.pumpAndSettle();
+      expect(find.byType(AntExpensesScreen), findsNothing);
+      router.go(AppRoute.expensesAnt.path);
+      await tester.pumpAndSettle();
+
+      verify(
+        () => doubles.bloc.add(const CrudLoadRequested<AntExpenseDraft>()),
+      ).called(2);
+      verify(doubles.cubit.load).called(2);
     });
 
     testWidgets('retries the list after it failed', (tester) async {

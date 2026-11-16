@@ -308,6 +308,31 @@
       }
     }
   },
+  "snapshotSavedAntCut": "Snapshot saved. {count, plural, =1{1 ant expense ({amount}) moved} other{{count} ant expenses ({amount}) moved}} to the {month} budget.",
+  "@snapshotSavedAntCut": {
+    "description": "After recording the snapshot, when the ant expenses of the period went into the month's budget.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "snapshotSavedNoBudget": "Snapshot saved. Create the {month} budget to close the ant expenses.",
+  "@snapshotSavedNoBudget": {
+    "description": "After recording the snapshot of a month without a budget: the ant expenses stay open.",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "snapshotCreateBudget": "Create budget",
   "firstGoalTitle": "Set your first financial goal",
   "dashboardGreetingMorning": "Good morning",
   "dashboardGreetingAfternoon": "Good afternoon",
@@ -384,6 +409,8 @@
   "dashboardAddExpense": "Add expense",
   "dashboardNetWorthReport": "Net worth report",
   "dashboardBudgetComparison": "Budget comparison",
+  "dashboardAntExpense": "Ant expense",
+  "dashboardAntExpenseAdded": "Ant expense added",
   "dashboardOnboardingTitle": "Start by adding your assets",
   "dashboardOnboardingMessage": "Add what you own and what you owe to see your net worth. Then create a budget and set your financial goals.",
   "assets": "Assets",
@@ -624,7 +651,7 @@
   },
   "antTrendEmpty": "No ant expenses in these months.",
   "antCutsTitle": "Cut history",
-  "antCutsEmpty": "No cuts yet. One happens every time you create, edit or recalculate the budget of a month.",
+  "antCutsEmpty": "No cuts yet. One happens every time you create, edit or recalculate the budget of a month, and when you record that month's snapshot.",
   "antCutsLoadError": "Could not load the cut history.",
   "antCutPeriod": "Purchases from {from} to {to}",
   "@antCutPeriod": {
@@ -657,7 +684,7 @@
   "antCutItemsLoadError": "Could not load the expenses of this cut.",
   "antCutItemsEmpty": "This cut took no expenses.",
   "antClose": "Close",
-  "antCutHint": "Every time you create, edit or recalculate the budget of a month, a cut is made: the total of the ant expenses of the period (up to the end of that month) goes into the budget as one expense, within monthly expenses, and the period starts again.",
+  "antCutHint": "Every time you create, edit or recalculate the budget of a month, and when you record that month's snapshot, a cut is made: the total of the ant expenses of the period (up to the end of that month) goes into the budget as one expense, within monthly expenses, and the period starts again.",
   "totalIncome": "Total income",
   "totalExpenses": "Total expenses",
   "noBudget": "No budget",

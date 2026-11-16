@@ -16,7 +16,9 @@ part 'crud_state.dart';
 /// is followed by a reload of the whole list, for lists whose items carry
 /// values the backend derives from the others; the local result is kept
 /// when that reload fails. With [createDefaults], the list can be filled
-/// with the standard items of its backend.
+/// with the standard items of its backend. With [startEmpty], the bloc
+/// starts with an empty loaded list instead of loading it, for a form
+/// that only adds items (its list then holds the items saved through it).
 class CrudBloc<T extends CrudItem, D> extends Bloc<CrudEvent<D>, CrudState<T>> {
   CrudBloc(
     this._getItems,
@@ -24,8 +26,9 @@ class CrudBloc<T extends CrudItem, D> extends Bloc<CrudEvent<D>, CrudState<T>> {
     this._deleteItem, {
     CreateDefaultItems<T>? createDefaults,
     this.reloadAfterChange = false,
+    bool startEmpty = false,
   })  : _createDefaults = createDefaults,
-        super(CrudLoading<T>()) {
+        super(startEmpty ? CrudLoaded<T>(const []) : CrudLoading<T>()) {
     on<CrudLoadRequested<D>>(_onLoadRequested);
     on<CrudSaveRequested<D>>(_onSaveRequested);
     on<CrudDeleteRequested<D>>(_onDeleteRequested);

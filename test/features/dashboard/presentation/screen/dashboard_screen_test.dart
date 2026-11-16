@@ -1,25 +1,36 @@
 import 'dart:async';
 
+import 'package:dartz/dartz.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:pennypincher_pro/core/crud/domain/usecase/crud_use_cases.dart';
 import 'package:pennypincher_pro/core/crud/presentation/bloc/crud_bloc.dart';
+import 'package:pennypincher_pro/core/crud/presentation/widget/item_form_sheet.dart';
 import 'package:pennypincher_pro/core/di/injection.dart';
+import 'package:pennypincher_pro/core/error/failure.dart';
 import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/router/app_route.dart';
+import 'package:pennypincher_pro/core/shortcuts/ant_expense_shortcut.dart';
 import 'package:pennypincher_pro/core/theme/app_colors.dart';
 import 'package:pennypincher_pro/core/theme/app_spacing.dart';
+import 'package:pennypincher_pro/core/time/clock.dart';
 import 'package:pennypincher_pro/core/utils/app_currency.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/core/utils/money_formatter.dart';
 import 'package:pennypincher_pro/core/utils/percent_formatter.dart';
 import 'package:pennypincher_pro/core/widgets/stat_card.dart';
+import 'package:pennypincher_pro/features/ant_expenses/domain/entity/ant_expense_entity.dart';
+import 'package:pennypincher_pro/features/ant_expenses/domain/repository/ant_expense_repository.dart';
+import 'package:pennypincher_pro/features/ant_expenses/presentation/ant_expense_sheet_shortcut.dart';
+import 'package:pennypincher_pro/features/ant_expenses/presentation/widget/ant_expense_form.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/budget_comparison_bloc.dart';
 import 'package:pennypincher_pro/features/budget/presentation/bloc/monthly_budget_bloc.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/dashboard_summary_entity.dart';
 import 'package:pennypincher_pro/features/dashboard/domain/entity/part_of_day.dart';
+import 'package:pennypincher_pro/features/dashboard/domain/entity/snapshot_ant_cut_entity.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/budget_summary_card.dart';
 import 'package:pennypincher_pro/features/dashboard/presentation/widget/dashboard_content.dart';
@@ -34,7 +45,9 @@ import 'package:pennypincher_pro/features/dashboard/presentation/widget/user_ava
 import 'package:pennypincher_pro/features/expense_details/presentation/bloc/expenses_hub_bloc.dart';
 import 'package:pennypincher_pro/features/net_worth/presentation/bloc/net_worth_report_bloc.dart';
 
+import '../../../../helpers/ant_fixtures.dart';
 import '../../../../helpers/budget_mocks.dart';
+import '../../../../helpers/crud_screen_helpers.dart';
 import '../../../../helpers/dashboard_fixtures.dart';
 import '../../../../helpers/dashboard_mocks.dart';
 import '../../../../helpers/expense_mocks.dart';
@@ -46,6 +59,17 @@ import '../../../../helpers/pump_app.dart';
 import '../../../../helpers/settings_fakes.dart';
 
 const Size _phone = Size(390, 844);
+
+class _MockAntRepository extends Mock implements AntExpenseRepository {}
+
+class _FixedClock implements Clock {
+  _FixedClock(this.value);
+
+  final DateTime value;
+
+  @override
+  DateTime now() => value;
+}
 
 String _location(WidgetTester tester) => GoRouter.of(
       tester.element(find.byType(Scaffold).first),
@@ -589,6 +613,164 @@ void main() {
         expect(_location(tester), route.path);
       });
     }
+
+    group('ant expense', () {
+      late _MockAntRepository repository;
+      final draft = AntExpenseDraft(
+        amount: const Money.fromUnits(4200),
+        category: AntExpenseCategory.coffeeAndDrinks,
+        spentOn: antToday,
+      );
+
+      setUpAll(() => registerFallbackValue(draft));
+
+      /// The dashboard with the real ant expense sheet, saving through a
+      /// mocked repository late in the local evening of [antToday].
+      Future<void> pumpWithSheet(WidgetTester tester) async {
+        repository = _MockAntRepository();
+        await pumpDashboard(tester, loadedDashboard(dashboardSummary));
+        getIt.registerSingleton<AntExpenseShortcut>(
+          AntExpenseSheetShortcut(
+            GetItems(repository),
+            SaveItem(repository),
+            DeleteItem(repository),
+            _FixedClock(DateTime(2026, 11, 5, 23, 30)),
+          ),
+        );
+        await tapAndSettle(tester, find.byKey(QuickActionsRow.antExpenseKey));
+      }
+
+      Future<void> fillAndSave(WidgetTester tester) async {
+        await tester.enterText(fieldLabeled(l10n.antAmountLabel), '4200');
+        await tester.tap(find.text(l10n.antCategoryCoffeeAndDrinks).last);
+        await tester.tap(find.byKey(ItemFormSheet.saveKey));
+        await tester.pumpAndSettle();
+      }
+
+      testWidgets('comes first and opens the ant expense sheet',
+          (tester) async {
+        await pumpWithSheet(tester);
+
+        expect(find.text(l10n.antAdd), findsOneWidget);
+        expect(find.byKey(AntExpenseForm.amountKey), findsOneWidget);
+        expect(find.text(l10n.antToday), findsOneWidget);
+        expect(_location(tester), AppRoute.dashboard.path);
+        verifyNever(repository.getAll);
+      });
+
+      testWidgets('saves the local day, closes the sheet and confirms',
+          (tester) async {
+        await pumpWithSheet(tester);
+        when(() => repository.create(any()))
+            .thenAnswer((_) async => Right(coffee));
+
+        await fillAndSave(tester);
+
+        verify(() => repository.create(draft)).called(1);
+        expect(find.byKey(ItemFormSheet.saveKey), findsNothing);
+        expect(find.text(l10n.dashboardAntExpenseAdded), findsOneWidget);
+        expect(_location(tester), AppRoute.dashboard.path);
+      });
+
+      testWidgets('keeps the sheet open with the error when saving fails',
+          (tester) async {
+        await pumpWithSheet(tester);
+        when(() => repository.create(any()))
+            .thenAnswer((_) async => const Left(NetworkFailure('Offline')));
+
+        await fillAndSave(tester);
+
+        expect(find.byKey(ItemFormSheet.saveKey), findsOneWidget);
+        expect(find.byKey(ItemFormSheet.errorKey), findsOneWidget);
+        expect(find.text(l10n.dashboardAntExpenseAdded), findsNothing);
+      });
+
+      testWidgets('confirms nothing when the sheet is closed', (tester) async {
+        await pumpWithSheet(tester);
+
+        Navigator.of(tester.element(find.byKey(ItemFormSheet.saveKey))).pop();
+        await tester.pumpAndSettle();
+
+        expect(find.byKey(ItemFormSheet.saveKey), findsNothing);
+        expect(find.text(l10n.dashboardAntExpenseAdded), findsNothing);
+        verifyNever(() => repository.create(any()));
+      });
+
+      testWidgets('is labelled in Spanish', (tester) async {
+        await pumpDashboard(
+          tester,
+          loadedDashboard(dashboardSummary),
+          locale: AppLocales.spanish,
+        );
+        await reveal(tester, find.byKey(QuickActionsRow.antExpenseKey));
+
+        expect(find.text('Gasto hormiga'), findsOneWidget);
+        expect(l10nEs.dashboardAntExpenseAdded, 'Gasto hormiga agregado');
+      });
+    });
+
+    group('layout', () {
+      Future<List<Rect>> tiles(WidgetTester tester, Size size) async {
+        await pumpDashboard(
+          tester,
+          loadedDashboard(dashboardSummary),
+          size: size,
+        );
+        await reveal(tester, find.byKey(QuickActionsRow.recordSnapshotKey));
+        expect(tester.takeException(), isNull);
+        final row = find.byType(QuickActionsRow);
+        return [
+          for (final key in [
+            QuickActionsRow.antExpenseKey,
+            QuickActionsRow.recordSnapshotKey,
+          ])
+            tester.getRect(find.byKey(key)),
+          for (final label in [
+            l10n.dashboardAddExpense,
+            l10n.dashboardNetWorthReport,
+            l10n.dashboardBudgetComparison,
+          ])
+            tester.getRect(
+              find
+                  .ancestor(
+                    of: find.descendant(of: row, matching: find.text(label)),
+                    matching: find.byType(Card),
+                  )
+                  .first,
+            ),
+        ];
+      }
+
+      testWidgets('puts the ant expense on top and the rest 2 by 2 on mobile',
+          (tester) async {
+        final rects = await tiles(tester, const Size(390, 844));
+        final [ant, snapshot, expense, report, comparison] = rects;
+        final row = tester.getRect(find.byType(QuickActionsRow));
+
+        expect(ant.width, closeTo(row.width, 0.5));
+        expect(snapshot.top, greaterThan(ant.bottom));
+        expect(expense.top, snapshot.top);
+        expect(report.top, greaterThan(snapshot.bottom));
+        expect(comparison.top, report.top);
+        expect(snapshot.width, closeTo(expense.width, 0.5));
+        expect(snapshot.left, closeTo(ant.left, 0.5));
+        expect(expense.right, closeTo(ant.right, 0.5));
+      });
+
+      for (final size in const [Size(820, 1180), Size(1440, 900)]) {
+        testWidgets('lines up the five actions at ${size.width.toInt()} px',
+            (tester) async {
+          final rects = await tiles(tester, size);
+
+          expect(rects.map((rect) => rect.top).toSet(), hasLength(1));
+          expect(
+            rects.map((rect) => rect.width.roundToDouble()).toSet(),
+            hasLength(1),
+          );
+          expect(rects.first.left, lessThan(rects[1].left));
+        });
+      }
+    });
   });
 
   group('onboarding', () {
@@ -608,7 +790,12 @@ void main() {
   });
 
   group('notices', () {
-    Future<void> notify(WidgetTester tester, DashboardState notice) async {
+    Future<void> notify(
+      WidgetTester tester,
+      DashboardState notice, {
+      Locale locale = testLocale,
+      AppCurrency currency = AppCurrency.cop,
+    }) async {
       final states = StreamController<DashboardState>();
       addTearDown(states.close);
       await pumpDashboard(
@@ -616,6 +803,8 @@ void main() {
         loadedDashboard(dashboardSummary, recordingSnapshot: true),
         stream: states.stream,
         settle: false,
+        locale: locale,
+        currency: currency,
       );
       states.add(notice);
       await tester.pump();
@@ -635,6 +824,119 @@ void main() {
         find.text(l10n.snapshotSaved('October 2026')),
         findsOneWidget,
       );
+    });
+
+    DashboardState savedWith(SnapshotAntCut? cut) => loadedDashboard(
+          dashboardSummary,
+          notice: DashboardNotice.snapshotSaved,
+          antCut: cut,
+        );
+
+    testWidgets('counts the ant expenses the snapshot moved to the budget',
+        (tester) async {
+      await notify(tester, savedWith(octoberAntCut));
+
+      expect(
+        find.text(
+          l10n.snapshotSavedAntCut(
+            7,
+            testMoney.format(const Money.fromUnits(42000)),
+            'October 2026',
+          ),
+        ),
+        findsOneWidget,
+      );
+      expect(testMoney.format(const Money.fromUnits(42000)), 'COP\u00A042,000');
+      expect(find.byType(SnackBarAction), findsNothing);
+    });
+
+    testWidgets('writes the moved amount in the preferred currency',
+        (tester) async {
+      await notify(
+        tester,
+        savedWith(
+          SnapshotAntCut(
+            status: SnapshotAntCutStatus.cut,
+            month: DateTime(2026, 10),
+            budgetId: 'b-2026-10',
+            itemsTaken: 1,
+            amountTaken: const Money.fromCents(350),
+          ),
+        ),
+        currency: AppCurrency.usd,
+      );
+
+      expect(
+        find.text(
+          r'Snapshot saved. 1 ant expense ($3.50) moved to the October 2026 '
+          'budget.',
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('tells the moved ant expenses in Spanish', (tester) async {
+      await notify(
+        tester,
+        savedWith(octoberAntCut),
+        locale: AppLocales.spanish,
+      );
+
+      expect(
+        find.text(
+          'Corte guardado. 7 gastos hormiga '
+          '(${MoneyFormatter.of(AppCurrency.cop, 'es').format(const Money.fromUnits(42000))}) '
+          'pasaron al presupuesto de octubre 2026.',
+        ),
+        findsOneWidget,
+      );
+    });
+
+    for (final cut in [null, octoberEmptyAntCut]) {
+      testWidgets(
+          'keeps the plain confirmation '
+          '${cut == null ? 'without a cut' : 'when the cut took nothing'}',
+          (tester) async {
+        await notify(tester, savedWith(cut));
+
+        expect(find.text(l10n.snapshotSaved('October 2026')), findsOneWidget);
+        expect(find.byType(SnackBarAction), findsNothing);
+      });
+    }
+
+    testWidgets('asks for the budget of the month and opens it',
+        (tester) async {
+      await notify(tester, savedWith(noBudgetAntCut));
+
+      expect(
+        find.text(
+          'Snapshot saved. Create the October 2026 budget to close the ant '
+          'expenses.',
+        ),
+        findsOneWidget,
+      );
+      registerMonthlyBudgetBloc(MonthlyBudgetState(month: DateTime(2026, 10)));
+      await tester.tap(find.text(l10n.snapshotCreateBudget));
+      await tester.pumpAndSettle();
+
+      expect(_location(tester), AppRoute.budgetOverview.path);
+    });
+
+    testWidgets('asks for the budget in Spanish', (tester) async {
+      await notify(
+        tester,
+        savedWith(noBudgetAntCut),
+        locale: AppLocales.spanish,
+      );
+
+      expect(
+        find.text(
+          'Corte guardado. Crea el presupuesto de octubre 2026 para cerrar '
+          'los gastos hormiga.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Crear presupuesto'), findsOneWidget);
     });
 
     testWidgets('reports a failed snapshot or refresh', (tester) async {

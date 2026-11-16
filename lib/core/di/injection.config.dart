@@ -25,6 +25,8 @@ import 'package:pennypincher_pro/core/l10n/locale_store.dart' as _i84;
 import 'package:pennypincher_pro/core/network/auth_interceptor.dart' as _i93;
 import 'package:pennypincher_pro/core/network/network_module.dart' as _i683;
 import 'package:pennypincher_pro/core/router/app_router.dart' as _i446;
+import 'package:pennypincher_pro/core/shortcuts/ant_expense_shortcut.dart'
+    as _i250;
 import 'package:pennypincher_pro/core/storage/currency_store.dart' as _i130;
 import 'package:pennypincher_pro/core/time/clock.dart' as _i656;
 import 'package:pennypincher_pro/features/ant_expenses/data/datasource/ant_expense_remote_datasource.dart'
@@ -39,6 +41,8 @@ import 'package:pennypincher_pro/features/ant_expenses/domain/repository/ant_exp
     as _i526;
 import 'package:pennypincher_pro/features/ant_expenses/domain/usecase/ant_expense_use_cases.dart'
     as _i702;
+import 'package:pennypincher_pro/features/ant_expenses/presentation/ant_expense_sheet_shortcut.dart'
+    as _i925;
 import 'package:pennypincher_pro/features/ant_expenses/presentation/bloc/ant_cut_items_cubit.dart'
     as _i662;
 import 'package:pennypincher_pro/features/ant_expenses/presentation/bloc/ant_expense_bloc.dart'
@@ -680,6 +684,13 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i678.SaveItem<_i891.Loan, _i642.BalanceDraft>>(),
           gh<_i678.DeleteItem<_i891.Loan, _i642.BalanceDraft>>(),
         ));
+    gh.lazySingleton<_i250.AntExpenseShortcut>(
+        () => _i925.AntExpenseSheetShortcut(
+              gh<_i678.GetItems<_i63.AntExpense, _i63.AntExpenseDraft>>(),
+              gh<_i678.SaveItem<_i63.AntExpense, _i63.AntExpenseDraft>>(),
+              gh<_i678.DeleteItem<_i63.AntExpense, _i63.AntExpenseDraft>>(),
+              gh<_i656.Clock>(),
+            ));
     gh.factory<_i662.AntCutItemsCubit>(
         () => _i662.AntCutItemsCubit(gh<_i702.GetAntCutItems>()));
     gh.factory<_i584.DashboardBloc>(() => _i584.DashboardBloc(

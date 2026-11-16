@@ -6,7 +6,9 @@ import 'package:pennypincher_pro/core/constants/app_constants.dart';
 import 'package:pennypincher_pro/core/di/injection.dart';
 import 'package:pennypincher_pro/core/network/auth_interceptor.dart';
 import 'package:pennypincher_pro/core/router/app_router.dart';
+import 'package:pennypincher_pro/core/shortcuts/ant_expense_shortcut.dart';
 import 'package:pennypincher_pro/core/time/clock.dart';
+import 'package:pennypincher_pro/features/ant_expenses/presentation/ant_expense_sheet_shortcut.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pennypincher_pro/features/budget/domain/repository/income_source_repository.dart';
 import 'package:pennypincher_pro/features/budget/domain/repository/monthly_budget_repository.dart';
@@ -145,6 +147,11 @@ void main() {
 
     expect(blocs.first, isNot(same(blocs.last)));
     expect(getIt<DashboardRepository>(), same(getIt<DashboardRepository>()));
+  });
+
+  test('lets other features open the ant expense sheet', () {
+    expect(getIt<AntExpenseShortcut>(), isA<AntExpenseSheetShortcut>());
+    expect(getIt<AntExpenseShortcut>(), same(getIt<AntExpenseShortcut>()));
   });
 
   test('creates a fresh net worth report bloc per screen', () {

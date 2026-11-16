@@ -107,6 +107,76 @@ void main() {
     expect(request.data, {'snapshotDate': '2026-10-01'});
   });
 
+  group('ant expense cut of the snapshot', () {
+    Future<Object?> cutOf(Object? data, {int status = 201}) {
+      adapter.handler = (_) async => FakeResponse(status, envelope(data));
+      return dataSource.recordSnapshot(DateTime(2026, 10));
+    }
+
+    test('reads a cut that took expenses', () async {
+      expect(
+        await cutOf(snapshotResponseJson(antExpenseCut: octoberAntCutJson)),
+        octoberAntCut,
+      );
+    });
+
+    test('reads a repeated cut that took nothing', () async {
+      final cut = await cutOf(
+        snapshotResponseJson(
+          antExpenseCut: {
+            ...octoberAntCutJson,
+            'itemsTaken': 0,
+            'amountTaken': 0.00,
+          },
+        ),
+        status: 200,
+      );
+
+      expect(cut, octoberEmptyAntCut);
+    });
+
+    test('reads a month without a budget', () async {
+      expect(
+        await cutOf(snapshotResponseJson(antExpenseCut: noBudgetAntCutJson)),
+        noBudgetAntCut,
+      );
+    });
+
+    test('is null when the backend does not send it yet', () async {
+      expect(await cutOf(snapshotResponseJson(withAntCut: false)), isNull);
+      expect(await cutOf(snapshotResponseJson()), isNull);
+      expect(await cutOf(const <String, Object?>{}), isNull);
+    });
+
+    test('is null for an unknown status or an unexpected shape', () async {
+      expect(
+        await cutOf(
+          snapshotResponseJson(
+            antExpenseCut: {...octoberAntCutJson, 'status': 'PARTIAL'},
+          ),
+        ),
+        isNull,
+      );
+      expect(
+        await cutOf(
+          snapshotResponseJson(
+            antExpenseCut: {...octoberAntCutJson, 'month': 42},
+          ),
+        ),
+        isNull,
+      );
+      expect(
+        await cutOf(
+          snapshotResponseJson(
+            antExpenseCut: {...octoberAntCutJson, 'amountTaken': 'many'},
+          ),
+        ),
+        isNull,
+      );
+      expect(await cutOf(snapshotResponseJson(antExpenseCut: 'CUT')), isNull);
+    });
+  });
+
   test('reports a failed snapshot in the interface language', () {
     adapter.handler = (_) async => FakeResponse(
           400,
