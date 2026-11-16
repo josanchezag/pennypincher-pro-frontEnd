@@ -89,9 +89,11 @@ class GoalJsonCodec implements ItemJsonCodec<FinancialGoal, GoalDraft> {
   JsonMap toJson(GoalDraft draft) => {
         ItemJsonKeys.name: draft.name,
         GoalJsonKeys.level: ApiEnum.nameOf(draft.level),
-        GoalJsonKeys.targetAmount: draft.targetAmount.toJson(),
-        GoalJsonKeys.monthlyInvestment: draft.monthlyInvestment.toJson(),
+        GoalJsonKeys.targetAmount: draft.targetAmount?.toJson(),
+        GoalJsonKeys.monthlyInvestment: draft.monthlyInvestment?.toJson(),
         GoalJsonKeys.expectedAnnualReturn: draft.expectedAnnualReturn,
         GoalJsonKeys.targetYears: draft.targetYears,
+        GoalJsonKeys.incomeMode: ApiEnum.nameOf(draft.incomeMode),
+        GoalJsonKeys.desiredMonthlyIncome: draft.desiredMonthlyIncome?.toJson(),
       };
 }

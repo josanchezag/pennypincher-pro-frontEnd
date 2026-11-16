@@ -2,13 +2,21 @@ import 'package:injectable/injectable.dart';
 import 'package:pennypincher_pro/core/constants/app_constants.dart';
 import 'package:pennypincher_pro/core/crud/data/crud_remote_data_source.dart';
 import 'package:pennypincher_pro/core/network/api_envelope.dart';
+import 'package:pennypincher_pro/core/utils/money.dart';
 import 'package:pennypincher_pro/features/financial_goals/data/model/goal_json_codec.dart';
 import 'package:pennypincher_pro/features/financial_goals/data/model/goal_projection_json.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_projection_entity.dart';
 
-/// `/financial-goals` endpoints, called with the authenticated client.
-/// Every method throws `AppException` on failure.
+/// Keys of the income source and net worth JSON the goal form reads.
+abstract final class GoalBasisJsonKeys {
+  static const String amount = 'amount';
+  static const String netWorth = 'netWorth';
+}
+
+/// `/financial-goals` endpoints, called with the authenticated client, and
+/// the two figures the goal form previews a plan from. Every method throws
+/// `AppException` on failure.
 @lazySingleton
 class FinancialGoalRemoteDataSource
     extends CrudRemoteDataSource<FinancialGoal, GoalDraft> {
@@ -40,5 +48,30 @@ class FinancialGoalRemoteDataSource
       () => client.post<Object?>(ApiPaths.financialGoalDefaults),
     );
     return ApiEnvelope.parseList(response.data, codec.fromJson);
+  }
+
+  /// `GET /income-sources`: the current monthly income, the sum of the
+  /// amounts of every income source, as the backend computes it for the
+  /// goals based on the income.
+  Future<Money> getMonthlyIncome() async {
+    final response = await ApiEnvelope.send(
+      () => client.get<Object?>(ApiPaths.incomeSources),
+    );
+    final amounts = ApiEnvelope.parseList(
+      response.data,
+      (json) => Money.fromJson(json[GoalBasisJsonKeys.amount]),
+    );
+    return sumMoney(amounts, (amount) => amount);
+  }
+
+  /// `GET /net-worth/current`: the current net worth.
+  Future<Money> getCurrentNetWorth() async {
+    final response = await ApiEnvelope.send(
+      () => client.get<Object?>(ApiPaths.netWorthCurrent),
+    );
+    return ApiEnvelope.parseData(
+      response.data,
+      (json) => Money.fromJson(json[GoalBasisJsonKeys.netWorth]),
+    );
   }
 }

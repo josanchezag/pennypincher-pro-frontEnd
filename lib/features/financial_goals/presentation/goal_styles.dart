@@ -52,4 +52,18 @@ extension GoalIncomeModeStyle on GoalIncomeMode {
         GoalIncomeMode.desiredIncome => l10n.goalsModeDesiredIncomeLabel,
         GoalIncomeMode.manual => null,
       };
+
+  /// Name of the mode in the selector of the goal form.
+  String choiceLabel(AppLocalizations l10n) => switch (this) {
+        GoalIncomeMode.currentIncome => l10n.goalsModeCurrentIncome,
+        GoalIncomeMode.desiredIncome => l10n.goalsModeDesiredIncome,
+        GoalIncomeMode.manual => l10n.goalsModeManual,
+      };
+
+  /// What choosing the mode means, under the selector.
+  String help(AppLocalizations l10n) => switch (this) {
+        GoalIncomeMode.currentIncome => l10n.goalsModeCurrentIncomeHelp,
+        GoalIncomeMode.desiredIncome => l10n.goalsModeDesiredIncomeHelp,
+        GoalIncomeMode.manual => l10n.goalsModeManualHelp,
+      };
 }

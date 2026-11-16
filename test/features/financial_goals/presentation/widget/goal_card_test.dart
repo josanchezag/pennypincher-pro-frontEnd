@@ -264,7 +264,7 @@ void main() {
       expect(find.text(l10n.goalsModeDesiredIncomeLabel), findsOneWidget);
       expect(find.textContaining('×'), findsNothing);
       expect(find.text('10 years'), findsOneWidget);
-      expect(find.text(_copCents(269066676)), findsOneWidget);
+      expect(find.text(_copCents(269066677)), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 

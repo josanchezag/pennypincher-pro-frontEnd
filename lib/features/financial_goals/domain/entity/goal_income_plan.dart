@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
+import 'package:equatable/equatable.dart';
 import 'package:pennypincher_pro/core/utils/money.dart';
+import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_income_mode.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_level.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/reference_return.dart';
 
@@ -8,7 +10,11 @@ import 'package:pennypincher_pro/features/financial_goals/domain/entity/referenc
 /// (EPIC-015), for the live preview of the goal form. The backend stays
 /// the source of truth: a saved goal shows the values it answers with.
 ///
-/// Amounts are rounded to the cent, half up.
+/// Amounts are rounded to the cent, half up, except the required monthly
+/// investment, which is rounded up so that it always reaches the target.
+/// In the current income mode the desired income is rounded before the
+/// target is derived from it, and every other figure uses the rounded
+/// target.
 abstract final class GoalIncomePlan {
   /// The reference rate of return: 10 % effective annual.
   static const double referenceAnnualRate = 0.10;
@@ -61,7 +67,7 @@ abstract final class GoalIncomePlan {
     final missing = rate == 0
         ? (target.cents - currentNetWorth.cents) / months
         : _annuity(target, currentNetWorth, rate, months);
-    return missing <= 0 ? Money.zero : _money(missing);
+    return missing <= 0 ? Money.zero : _moneyRoundedUp(missing);
   }
 
   static double _annuity(Money target, Money present, double rate, int n) {
@@ -77,6 +83,89 @@ abstract final class GoalIncomePlan {
         monthlyAmount: _money(target.cents * referenceMonthlyRate),
       );
 
+  /// The figures of a goal in [mode] as the form holds it, each null while
+  /// what it depends on is unknown or not typed yet:
+  ///
+  /// * the desired income: [monthlyIncome] times the factor of [level] in
+  ///   the current income mode, [typedDesiredIncome] in the desired income
+  ///   mode, none for a manual goal;
+  /// * the target: the one that pays the desired income, or [manualTarget];
+  /// * the [requiredMonthlyInvestment] from [currentNetWorth] at
+  ///   [annualReturn] in [targetYears];
+  /// * the [referenceReturnOf] the target.
+  static GoalPlanFigures figures({
+    required GoalIncomeMode mode,
+    GoalLevel? level,
+    Money? monthlyIncome,
+    Money? typedDesiredIncome,
+    Money? manualTarget,
+    Money? currentNetWorth,
+    double? annualReturn,
+    int? targetYears,
+  }) {
+    final desired = switch (mode) {
+      GoalIncomeMode.currentIncome => monthlyIncome == null || level == null
+          ? null
+          : desiredIncomeOf(monthlyIncome, incomeFactorOf(level)),
+      GoalIncomeMode.desiredIncome => typedDesiredIncome,
+      GoalIncomeMode.manual => null,
+    };
+    final target = switch (mode) {
+      GoalIncomeMode.manual => manualTarget,
+      _ => desired == null || desired.isZero ? null : targetFor(desired),
+    };
+    final required = target == null ||
+            currentNetWorth == null ||
+            annualReturn == null ||
+            targetYears == null
+        ? null
+        : requiredMonthlyInvestment(
+            target: target,
+            currentNetWorth: currentNetWorth,
+            annualReturn: annualReturn,
+            targetYears: targetYears,
+          );
+    return GoalPlanFigures(
+      desiredMonthlyIncome: desired,
+      target: target,
+      requiredMonthlyInvestment: required,
+      referenceReturn: target == null ? null : referenceReturnOf(target),
+    );
+  }
+
   /// Amount of [cents], rounded half up.
   static Money _money(double cents) => Money.fromCents(cents.round());
+
+  /// Floating point error tolerated before rounding up, in cents: far
+  /// below a cent, above the error of a double near the largest amounts.
+  static const double _roundingTolerance = 1e-4;
+
+  /// Amount of [cents], rounded up to the cent like the backend's
+  /// `CEILING`, ignoring floating point noise above a whole cent.
+  static Money _moneyRoundedUp(double cents) =>
+      Money.fromCents((cents - _roundingTolerance).ceil());
+}
+
+/// Figures of a goal computed by [GoalIncomePlan.figures]; null while
+/// unknown.
+final class GoalPlanFigures extends Equatable {
+  const GoalPlanFigures({
+    this.desiredMonthlyIncome,
+    this.target,
+    this.requiredMonthlyInvestment,
+    this.referenceReturn,
+  });
+
+  final Money? desiredMonthlyIncome;
+  final Money? target;
+  final Money? requiredMonthlyInvestment;
+  final ReferenceReturn? referenceReturn;
+
+  @override
+  List<Object?> get props => [
+        desiredMonthlyIncome,
+        target,
+        requiredMonthlyInvestment,
+        referenceReturn,
+      ];
 }

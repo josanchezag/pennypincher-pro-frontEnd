@@ -6,6 +6,7 @@ import 'package:pennypincher_pro/core/error/failure.dart';
 import 'package:pennypincher_pro/core/error/failure_guard.dart';
 import 'package:pennypincher_pro/features/financial_goals/data/datasource/financial_goal_remote_datasource.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
+import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_plan_basis.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_projection_entity.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/repository/financial_goal_repository.dart';
 
@@ -42,6 +43,24 @@ class FinancialGoalRepositoryImpl
   @override
   Future<Either<Failure, List<FinancialGoal>>> createDefaults() =>
       guardFailures(_goals.createDefaults);
+
+  @override
+  Future<GoalPlanBasis> getPlanBasis() async {
+    final income = _orNull(_goals.getMonthlyIncome);
+    final netWorth = _orNull(_goals.getCurrentNetWorth);
+    return GoalPlanBasis(
+      monthlyIncome: await income,
+      currentNetWorth: await netWorth,
+    );
+  }
+
+  static Future<R?> _orNull<R>(Future<R> Function() call) async {
+    try {
+      return await call();
+    } on AppException {
+      return null;
+    }
+  }
 
   /// [goals] with the projection of the same goal, when there is one.
   static List<FinancialGoal> withProjections(

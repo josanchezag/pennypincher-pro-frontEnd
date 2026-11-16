@@ -10,7 +10,10 @@ import 'package:pennypincher_pro/core/widgets/confirmation_dialog.dart';
 import 'package:pennypincher_pro/core/widgets/loading_skeleton.dart';
 import 'package:pennypincher_pro/core/widgets/status_message.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
+import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_income_mode.dart';
+import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_plan_basis.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/halfway_milestone.dart';
+import 'package:pennypincher_pro/features/financial_goals/presentation/bloc/goal_plan_basis_cubit.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/bloc/goals_bloc.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_card.dart';
 import 'package:pennypincher_pro/features/financial_goals/presentation/widget/goal_form_sheet.dart';
@@ -23,7 +26,8 @@ typedef _State = CrudState<FinancialGoal>;
 /// `/goals`: a card per goal with its progress and projected date, an add
 /// button, an edit sheet with delete, and an empty state that offers the
 /// standard goals. A goal that a reload shows past half of its target is
-/// celebrated once. Expects a [GoalsBloc] above it.
+/// celebrated once. Manual goals offer to base them on the income.
+/// Expects a [GoalsBloc] and a [GoalPlanBasisCubit] above it.
 class GoalsScreen extends StatefulWidget {
   const GoalsScreen({super.key});
 
@@ -131,6 +135,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
         key: ValueKey(goal.id),
         goal: goal,
         onTap: busy ? null : () => _edit(context, goal),
+        onBaseOnIncome: busy
+            ? null
+            : () => _edit(context, goal, mode: GoalIncomeMode.currentIncome),
         onSeeProjection: () => context.goNamed(
           AppRoute.goalProjection.name,
           pathParameters: {AppRoute.goalIdParam: goal.id},
@@ -141,14 +148,31 @@ class _GoalsScreenState extends State<GoalsScreen> {
         ),
       );
 
-  Future<void> _edit(BuildContext context, FinancialGoal? goal) async {
+  /// Opens the form of [goal], or of a new goal, in [mode] when given.
+  Future<void> _edit(
+    BuildContext context,
+    FinancialGoal? goal, {
+    GoalIncomeMode? mode,
+  }) async {
     final bloc = context.read<GoalsBloc>();
-    final deleteRequested =
-        await GoalFormSheet.show(context, bloc: bloc, goal: goal);
+    final deleteRequested = await GoalFormSheet.show(
+      context,
+      bloc: bloc,
+      goal: goal,
+      basis: _basis(context, bloc.state),
+      mode: mode,
+    );
     if (deleteRequested && goal != null && context.mounted) {
       await _delete(context, bloc, goal);
     }
   }
+
+  /// The income and net worth loaded for the form, completed with those
+  /// the goals carry while either is unknown.
+  static GoalPlanBasis _basis(BuildContext context, _State state) =>
+      context.read<GoalPlanBasisCubit>().state.orElse(
+            GoalPlanBasis.ofGoals(_goalsOf(state) ?? const []),
+          );
 
   static Future<void> _delete(
     BuildContext context,

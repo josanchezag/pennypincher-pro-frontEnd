@@ -72,14 +72,20 @@ class FinancialGoal with _$FinancialGoal implements CrudItem {
 }
 
 /// The editable fields of a [FinancialGoal], sent to create or update it.
+/// A manual goal carries its [targetAmount] and [monthlyInvestment]; a goal
+/// based on an income leaves them null for the backend to derive, needs
+/// [targetYears] and, when the income is typed, its
+/// [desiredMonthlyIncome].
 final class GoalDraft extends Equatable {
   const GoalDraft({
     required this.name,
     required this.level,
-    required this.targetAmount,
-    required this.monthlyInvestment,
     required this.expectedAnnualReturn,
+    this.targetAmount,
+    this.monthlyInvestment,
     this.targetYears,
+    this.incomeMode = GoalIncomeMode.manual,
+    this.desiredMonthlyIncome,
   });
 
   /// Smallest and largest number of target years the backend accepts.
@@ -88,12 +94,14 @@ final class GoalDraft extends Equatable {
 
   final String name;
   final GoalLevel level;
-  final Money targetAmount;
-  final Money monthlyInvestment;
+  final Money? targetAmount;
+  final Money? monthlyInvestment;
 
   /// Fraction of one, above 0 and at most 1, with up to four decimals.
   final double expectedAnnualReturn;
   final int? targetYears;
+  final GoalIncomeMode incomeMode;
+  final Money? desiredMonthlyIncome;
 
   @override
   List<Object?> get props => [
@@ -103,5 +111,7 @@ final class GoalDraft extends Equatable {
         monthlyInvestment,
         expectedAnnualReturn,
         targetYears,
+        incomeMode,
+        desiredMonthlyIncome,
       ];
 }

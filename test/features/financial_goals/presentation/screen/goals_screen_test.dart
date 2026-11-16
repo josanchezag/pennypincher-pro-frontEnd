@@ -30,6 +30,27 @@ final CrudLoaded<FinancialGoal> _loaded = CrudLoaded(excelGoals);
 Finder _card(String name) =>
     find.ancestor(of: find.text(name), matching: find.byType(GoalCard));
 
+/// Taps [finder] after scrolling the sheet to it.
+Future<void> tapInSheet(WidgetTester tester, Finder finder) async {
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
+  await tester.tap(finder);
+}
+
+/// Types [values] into the goal sheet fields with those labels, scrolling
+/// to each one, and saves.
+Future<void> fillAndSaveGoal(
+  WidgetTester tester,
+  Map<String, String> values,
+) async {
+  for (final MapEntry(key: label, value: text) in values.entries) {
+    await tester.ensureVisible(fieldLabeled(label));
+    await tester.enterText(fieldLabeled(label), text);
+  }
+  await tapInSheet(tester, find.byKey(ItemFormSheet.saveKey));
+  await tester.pump();
+}
+
 void main() {
   setUpAll(() {
     registerFallbackValue(const CrudLoadRequested<GoalDraft>());
@@ -197,7 +218,7 @@ void main() {
       final bloc = await pumpGoals(tester, const CrudLoaded([]));
       await openAddSheet(tester);
 
-      await fillAndSave(tester, {
+      await fillAndSaveGoal(tester, {
         l10n.goalsTarget: '0',
         l10n.goalsMonthlyInvestment: '',
         l10n.goalsExpectedAnnualReturn: '101',
@@ -220,11 +241,11 @@ void main() {
       await pumpGoals(tester, const CrudLoaded([]));
       await openAddSheet(tester);
 
-      await fillAndSave(tester, {l10n.goalsExpectedAnnualReturn: '0'});
+      await fillAndSaveGoal(tester, {l10n.goalsExpectedAnnualReturn: '0'});
       await tester.pumpAndSettle();
       expect(find.text(l10n.goalsReturnInvalid), findsOneWidget);
 
-      await fillAndSave(tester, {l10n.goalsExpectedAnnualReturn: ''});
+      await fillAndSaveGoal(tester, {l10n.goalsExpectedAnnualReturn: ''});
       await tester.pumpAndSettle();
       expect(find.text(l10n.goalsReturnRequired), findsOneWidget);
     });
@@ -234,7 +255,7 @@ void main() {
       await openAddSheet(tester);
 
       await chooseLevel(tester, 'Absolute freedom');
-      await fillAndSave(tester, {
+      await fillAndSaveGoal(tester, {
         l10n.crudNameLabel: ' Libertad Absoluta ',
         l10n.goalsTarget: '4.366.000.000',
         l10n.goalsMonthlyInvestment: '15.850.000',
@@ -268,7 +289,7 @@ void main() {
       expect(find.text('1,470,000'), findsOneWidget);
       expect(find.text('11'), findsOneWidget);
       expect(find.text('16'), findsOneWidget);
-      await fillAndSave(tester, {
+      await fillAndSaveGoal(tester, {
         l10n.goalsMonthlyInvestment: '2.000.000',
         l10n.goalsTargetYears: '',
       });
@@ -317,7 +338,7 @@ void main() {
 
       await tester.tap(find.text('Seguridad Financiera'));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(ItemFormSheet.deleteKey));
+      await tapInSheet(tester, find.byKey(ItemFormSheet.deleteKey));
       await tester.pumpAndSettle();
       expect(find.text(l10n.goalsDeleteTitle), findsOneWidget);
       await tester.tap(find.text(l10n.commonCancel));
@@ -326,7 +347,7 @@ void main() {
 
       await tester.tap(find.text('Seguridad Financiera'));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(ItemFormSheet.deleteKey));
+      await tapInSheet(tester, find.byKey(ItemFormSheet.deleteKey));
       await tester.pumpAndSettle();
       await tester.tap(find.text(l10n.commonDelete));
       await tester.pumpAndSettle();

@@ -3,10 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:pennypincher_pro/core/l10n/l10n.dart';
 import 'package:pennypincher_pro/core/utils/percent_input.dart';
 import 'package:pennypincher_pro/features/financial_goals/domain/entity/financial_goal_entity.dart';
+import 'package:pennypincher_pro/features/financial_goals/domain/entity/goal_income_mode.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 /// The goal fields the generic item fields do not cover: the expected
-/// return, typed as a percentage, and the optional target years.
+/// return, typed as a percentage, and the target years, optional in a
+/// manual goal and required in the income modes.
 abstract final class GoalFormFields {
   static const String returnInvalidError = 'returnInvalid';
   static const String targetYearsInvalidError = 'targetYearsInvalid';
@@ -29,6 +31,19 @@ abstract final class GoalFormFields {
         validators: [Validators.delegate(_targetYears)],
       );
 
+  /// Makes the target years [control] [required] or optional.
+  static void requireTargetYears(
+    AbstractControl<dynamic> control, {
+    required bool required,
+  }) {
+    control
+      ..setValidators([
+        if (required) Validators.required,
+        Validators.delegate(_targetYears),
+      ])
+      ..updateValueAndValidity();
+  }
+
   /// Fraction of one typed in the valid control [controlName] of [form].
   static double returnOf(FormGroup form, String controlName) =>
       PercentInput.fractionOf(_basisPoints(form.control(controlName).value)!);
@@ -37,6 +52,26 @@ abstract final class GoalFormFields {
   static int? targetYearsOf(FormGroup form, String controlName) {
     final text = (form.control(controlName).value as String?)?.trim() ?? '';
     return text.isEmpty ? null : int.parse(text);
+  }
+
+  /// Fraction of one typed in the control [controlName], or null while
+  /// it is not a valid return.
+  static double? tryReturnOf(FormGroup form, String controlName) {
+    final control = form.control(controlName);
+    final basisPoints = _basisPoints(control.value);
+    return basisPoints == null || _return(control) != null || basisPoints == 0
+        ? null
+        : PercentInput.fractionOf(basisPoints);
+  }
+
+  /// Target years typed in the control [controlName], or null while they
+  /// are empty or out of range.
+  static int? tryTargetYearsOf(FormGroup form, String controlName) {
+    final control = form.control(controlName);
+    final text = control.value;
+    return text is String && _targetYears(control) == null
+        ? int.tryParse(text.trim())
+        : null;
   }
 
   static Widget returnField(AppLocalizations l10n, String controlName) =>
@@ -53,20 +88,16 @@ abstract final class GoalFormFields {
         },
       );
 
+  /// Target years of the control [controlName]: optional while the
+  /// [GoalIncomeMode] control [modeControlName] is manual, required in the
+  /// income modes, as its hint says.
   static Widget targetYearsField(
-    AppLocalizations l10n,
-    String controlName,
-  ) =>
-      _NumberField(
+    String controlName, {
+    required String modeControlName,
+  }) =>
+      _TargetYearsField(
         controlName: controlName,
-        label: l10n.goalsTargetYears,
-        helper: l10n.goalsTargetYearsHelper,
-        suffix: l10n.goalsYearsSuffix,
-        allowed: FilteringTextInputFormatter.digitsOnly,
-        decimal: false,
-        messages: {
-          targetYearsInvalidError: (_) => l10n.goalsTargetYearsInvalid,
-        },
+        modeControlName: modeControlName,
       );
 
   static int? _basisPoints(Object? value) =>
@@ -128,6 +159,42 @@ class _NumberField extends StatelessWidget {
         suffixText: suffix,
       ),
       validationMessages: messages,
+    );
+  }
+}
+
+class _TargetYearsField extends StatelessWidget {
+  const _TargetYearsField({
+    required this.controlName,
+    required this.modeControlName,
+  });
+
+  final String controlName;
+  final String modeControlName;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return ReactiveValueListenableBuilder<GoalIncomeMode>(
+      formControlName: modeControlName,
+      builder: (context, mode, _) {
+        final required = mode.value?.derivesFromIncome ?? false;
+        return _NumberField(
+          controlName: controlName,
+          label: l10n.goalsTargetYears,
+          helper: required
+              ? l10n.goalsTargetYearsRequiredHelper
+              : l10n.goalsTargetYearsHelper,
+          suffix: l10n.goalsYearsSuffix,
+          allowed: FilteringTextInputFormatter.digitsOnly,
+          decimal: false,
+          messages: {
+            ValidationMessage.required: (_) => l10n.goalsTargetYearsRequired,
+            GoalFormFields.targetYearsInvalidError: (_) =>
+                l10n.goalsTargetYearsInvalid,
+          },
+        );
+      },
     );
   }
 }

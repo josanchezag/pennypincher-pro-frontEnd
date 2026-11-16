@@ -177,8 +177,8 @@ final FinancialGoal desiredFreedom = freedom.copyWith(
   monthlyIncomeBasis: monthlyIncome,
   desiredMonthlyIncome: const Money.fromUnits(6000000),
   targetAmount: const Money.fromCents(75243219674),
-  monthlyInvestment: const Money.fromCents(269066676),
-  requiredMonthlyInvestment: const Money.fromCents(269066676),
+  monthlyInvestment: const Money.fromCents(269066677),
+  requiredMonthlyInvestment: const Money.fromCents(269066677),
   expectedAnnualReturn: 0.12,
   targetYears: 10,
   referenceReturn: const ReferenceReturn(
