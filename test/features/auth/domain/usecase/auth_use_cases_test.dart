@@ -8,6 +8,8 @@ import 'package:pennypincher_pro/features/auth/domain/usecase/restore_session.da
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_dev_login.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_google.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_out.dart';
+import 'package:pennypincher_pro/features/auth/domain/usecase/wake_up_server.dart';
+import 'package:pennypincher_pro/features/auth/domain/usecase/watch_server_wake_up.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/watch_session_expiry.dart';
 
 import '../../../../helpers/mocks.dart';
@@ -49,5 +51,20 @@ void main() {
     when(() => repository.sessionExpirations).thenAnswer((_) => expirations);
 
     expect(WatchSessionExpiry(repository)(), same(expirations));
+  });
+
+  test('WakeUpServer delegates to the repository', () async {
+    when(repository.wakeUpServer).thenAnswer((_) async {});
+
+    await WakeUpServer(repository)();
+
+    verify(repository.wakeUpServer).called(1);
+  });
+
+  test('WatchServerWakeUp exposes the repository waits', () {
+    const waits = Stream<bool>.empty();
+    when(() => repository.waitingForServer).thenAnswer((_) => waits);
+
+    expect(WatchServerWakeUp(repository)(), same(waits));
   });
 }

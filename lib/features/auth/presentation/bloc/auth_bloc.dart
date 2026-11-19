@@ -10,6 +10,8 @@ import 'package:pennypincher_pro/features/auth/domain/usecase/restore_session.da
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_dev_login.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_google.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_out.dart';
+import 'package:pennypincher_pro/features/auth/domain/usecase/wake_up_server.dart';
+import 'package:pennypincher_pro/features/auth/domain/usecase/watch_server_wake_up.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/watch_session_expiry.dart';
 import 'package:pennypincher_pro/features/auth/presentation/bloc/sign_in_messages.dart';
 
@@ -27,7 +29,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     this._signInWithGoogle,
     this._signInWithDevLogin,
     this._signOut,
+    this._wakeUpServer,
     WatchSessionExpiry watchSessionExpiry,
+    WatchServerWakeUp watchServerWakeUp,
   ) : super(const AuthInitial()) {
     on<AuthCheckRequested>(_onCheckRequested);
     on<AuthSignInRequested>((_, emit) => _signIn(_signInWithGoogle.call, emit));
@@ -36,8 +40,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
     on<AuthSignOutRequested>(_onSignOutRequested);
     on<AuthSessionExpired>((_, emit) => emit(const AuthUnauthenticated()));
+    on<AuthLoginScreenOpened>((_, __) => unawaited(_wakeUpServer()));
+    on<AuthServerWakeUpChanged>(_onServerWakeUpChanged);
     _expirySubscription = watchSessionExpiry().listen(
       (_) => add(const AuthSessionExpired()),
+    );
+    _wakeUpSubscription = watchServerWakeUp().listen(
+      (waiting) => add(AuthServerWakeUpChanged(waiting: waiting)),
     );
   }
 
@@ -45,7 +54,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignInWithGoogle _signInWithGoogle;
   final SignInWithDevLogin _signInWithDevLogin;
   final SignOut _signOut;
+  final WakeUpServer _wakeUpServer;
   late final StreamSubscription<void> _expirySubscription;
+  late final StreamSubscription<bool> _wakeUpSubscription;
 
   Future<void> _signIn(_SignInAction action, Emitter<AuthState> emit) async {
     if (state is AuthLoading) {
@@ -79,6 +90,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  /// Only an operation in progress waits for the server; a wait reported
+  /// after it ended is ignored.
+  void _onServerWakeUpChanged(
+    AuthServerWakeUpChanged event,
+    Emitter<AuthState> emit,
+  ) {
+    if (state is AuthLoading) {
+      emit(AuthLoading(wakingServer: event.waiting));
+    }
+  }
+
   /// The local session ends even when the backend cannot be reached.
   Future<void> _onSignOutRequested(
     AuthSignOutRequested event,
@@ -91,6 +113,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   @override
   Future<void> close() async {
     await _expirySubscription.cancel();
+    await _wakeUpSubscription.cancel();
     return super.close();
   }
 }

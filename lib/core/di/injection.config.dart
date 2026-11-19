@@ -24,6 +24,7 @@ import 'package:pennypincher_pro/core/l10n/locale_cubit.dart' as _i132;
 import 'package:pennypincher_pro/core/l10n/locale_store.dart' as _i84;
 import 'package:pennypincher_pro/core/network/auth_interceptor.dart' as _i93;
 import 'package:pennypincher_pro/core/network/network_module.dart' as _i683;
+import 'package:pennypincher_pro/core/network/server_wake_up.dart' as _i410;
 import 'package:pennypincher_pro/core/router/app_router.dart' as _i446;
 import 'package:pennypincher_pro/core/shortcuts/ant_expense_shortcut.dart'
     as _i250;
@@ -72,6 +73,10 @@ import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_googl
     as _i255;
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_out.dart'
     as _i128;
+import 'package:pennypincher_pro/features/auth/domain/usecase/wake_up_server.dart'
+    as _i81;
+import 'package:pennypincher_pro/features/auth/domain/usecase/watch_server_wake_up.dart'
+    as _i687;
 import 'package:pennypincher_pro/features/auth/domain/usecase/watch_session_expiry.dart'
     as _i614;
 import 'package:pennypincher_pro/features/auth/presentation/bloc/auth_bloc.dart'
@@ -292,6 +297,10 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i113.AuthRemoteDataSource>(() =>
         _i113.DioAuthRemoteDataSource(gh<_i361.Dio>(instanceName: 'plainDio')));
+    gh.lazySingleton<_i410.ServerWakeUp>(() => _i410.ServerWakeUp(
+          gh<_i361.Dio>(instanceName: 'plainDio'),
+          gh<_i656.Clock>(),
+        ));
     gh.lazySingleton<_i506.WebAuthenticator>(
         () => _i506.FlutterWebAuthenticator());
     gh.lazySingleton<_i84.LocaleStore>(() => _i84.BrowserLocaleStore());
@@ -307,6 +316,7 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i886.GoogleAuthDataSource>(),
           gh<_i113.AuthRemoteDataSource>(),
           gh<_i852.TokenService>(),
+          gh<_i410.ServerWakeUp>(),
         ));
     gh.lazySingleton<_i1018.SessionRefresher>(
         () => _i268.RepositorySessionRefresher(gh<_i246.AuthRepository>()));
@@ -325,12 +335,18 @@ extension GetItInjectableX on _i174.GetIt {
         () => authModule.restoreSession(gh<_i246.AuthRepository>()));
     gh.factory<_i614.WatchSessionExpiry>(
         () => authModule.watchSessionExpiry(gh<_i246.AuthRepository>()));
+    gh.factory<_i81.WakeUpServer>(
+        () => authModule.wakeUpServer(gh<_i246.AuthRepository>()));
+    gh.factory<_i687.WatchServerWakeUp>(
+        () => authModule.watchServerWakeUp(gh<_i246.AuthRepository>()));
     gh.lazySingleton<_i238.AuthBloc>(() => _i238.AuthBloc(
           gh<_i180.RestoreSession>(),
           gh<_i255.SignInWithGoogle>(),
           gh<_i440.SignInWithDevLogin>(),
           gh<_i128.SignOut>(),
+          gh<_i81.WakeUpServer>(),
           gh<_i614.WatchSessionExpiry>(),
+          gh<_i687.WatchServerWakeUp>(),
         ));
     gh.lazySingleton<_i361.Dio>(() => networkModule.dio(
           gh<_i504.AppConfig>(),

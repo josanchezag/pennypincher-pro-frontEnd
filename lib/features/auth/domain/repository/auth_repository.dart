@@ -19,4 +19,12 @@ abstract interface class AuthRepository {
 
   /// Emits when the session expired and could not be renewed.
   Stream<void> get sessionExpirations;
+
+  /// Starts waking the backend up, so it is ready for the next sign-in.
+  /// Never fails.
+  Future<void> wakeUpServer();
+
+  /// Emits `true` when a sign-in or session check has been waiting a while
+  /// for the backend to wake up, and `false` when that wait ends.
+  Stream<bool> get waitingForServer;
 }

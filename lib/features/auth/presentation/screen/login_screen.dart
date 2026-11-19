@@ -12,17 +12,33 @@ import 'package:pennypincher_pro/features/auth/presentation/widget/google_sign_i
 
 /// Sign-in screen: a centered card on tablet and desktop, full screen on
 /// mobile. Leaving it after signing in is the router guard's job.
-class LoginScreen extends StatelessWidget {
+///
+/// Opening it starts waking the server up, so it is usually ready by the
+/// time the user presses a sign-in button.
+class LoginScreen extends StatefulWidget {
   const LoginScreen({required this.config, super.key});
 
   static const double cardMaxWidth = 440;
   static const Key cardKey = Key('login-card');
   static const Key devLoginKey = Key('dev-login-button');
+  static const Key wakingServerKey = Key('waking-server-notice');
 
   final AppConfig config;
 
   @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _add(context, const AuthLoginScreenOpened());
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final config = widget.config;
     return Scaffold(
       body: BlocListener<AuthBloc, AuthState>(
         listener: _onStateChanged,
@@ -101,6 +117,12 @@ class _LoginContent extends StatelessWidget {
     final isLoading = context.select<AuthBloc, bool>(
       (bloc) => bloc.state is AuthLoading,
     );
+    final wakingServer = context.select<AuthBloc, bool>(
+      (bloc) => switch (bloc.state) {
+        AuthLoading(:final wakingServer) => wakingServer,
+        _ => false,
+      },
+    );
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -112,6 +134,15 @@ class _LoginContent extends StatelessWidget {
               ? () => _add(context, const AuthSignInRequested())
               : null,
         ),
+        if (wakingServer) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            context.l10n.wakingServer,
+            key: LoginScreen.wakingServerKey,
+            style: AppTypography.bodySmall,
+            textAlign: TextAlign.center,
+          ),
+        ],
         if (!config.isGoogleSignInConfigured) ...[
           const SizedBox(height: AppSpacing.xs),
           Text(

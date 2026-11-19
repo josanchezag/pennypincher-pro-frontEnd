@@ -1,10 +1,15 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pennypincher_pro/core/auth/token_service.dart';
+import 'package:pennypincher_pro/core/constants/app_constants.dart';
 import 'package:pennypincher_pro/core/error/app_exception.dart';
 import 'package:pennypincher_pro/core/error/error_codes.dart';
 import 'package:pennypincher_pro/core/error/failure.dart';
+import 'package:pennypincher_pro/core/network/server_wake_up.dart';
 import 'package:pennypincher_pro/features/auth/data/datasource/auth_remote_datasource.dart';
 import 'package:pennypincher_pro/features/auth/data/datasource/google_auth_datasource.dart';
 import 'package:pennypincher_pro/features/auth/data/model/auth_session_model.dart';
@@ -20,6 +25,8 @@ import '../../../../helpers/mocks.dart';
 class _MockGoogleAuthDataSource extends Mock implements GoogleAuthDataSource {}
 
 class _MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
+
+class _MockServerWakeUp extends Mock implements ServerWakeUp {}
 
 const GoogleAuthorization _authorization = GoogleAuthorization(
   code: 'auth-code',
@@ -43,6 +50,7 @@ void main() {
   late _MockGoogleAuthDataSource google;
   late _MockAuthRemoteDataSource remote;
   late TokenService tokens;
+  late _MockServerWakeUp server;
   late AuthRepositoryImpl repository;
   final session = AuthSessionModel.fromJson(sessionJson());
 
@@ -52,8 +60,14 @@ void main() {
     google = _MockGoogleAuthDataSource();
     remote = _MockAuthRemoteDataSource();
     tokens = TokenService();
-    repository = AuthRepositoryImpl(google, remote, tokens);
+    server = _MockServerWakeUp();
+    when(server.wakeUp).thenAnswer((_) async {});
+    repository = AuthRepositoryImpl(google, remote, tokens, server);
   });
+
+  /// Makes the server take until [awake] completes to wake up.
+  void serverWakesUpWith(Completer<void> awake) =>
+      when(server.wakeUp).thenAnswer((_) => awake.future);
 
   group('signInWithGoogle', () {
     test('exchanges the Google code and keeps the token in memory', () async {
@@ -84,6 +98,41 @@ void main() {
       expect(tokens.hasToken, isFalse);
     });
 
+    test('opens the Google flow at once while the server wakes up', () async {
+      final awake = Completer<void>();
+      serverWakesUpWith(awake);
+      when(google.authorize).thenAnswer((_) async => _authorization);
+      when(() => remote.exchangeGoogleCode(_authorization))
+          .thenAnswer((_) async => session);
+
+      final result = repository.signInWithGoogle();
+
+      verifyInOrder([server.wakeUp, google.authorize]);
+      await pumpEventQueue();
+      verifyNever(() => remote.exchangeGoogleCode(any()));
+
+      awake.complete();
+
+      expect(await result, Right<Failure, Object>(testUser));
+      verify(() => remote.exchangeGoogleCode(_authorization)).called(1);
+    });
+
+    test('exchanges the code only once even if the server stays down',
+        () async {
+      when(google.authorize).thenAnswer((_) async => _authorization);
+      when(() => remote.exchangeGoogleCode(any())).thenThrow(
+        AppException(
+          code: ErrorCodes.networkError,
+          message: ErrorMessages.network,
+        ),
+      );
+
+      final result = await repository.signInWithGoogle();
+
+      expect(result.fold((f) => f, (_) => null), isA<NetworkFailure>());
+      verify(() => remote.exchangeGoogleCode(any())).called(1);
+    });
+
     test('maps a rejected code to an unauthorized failure', () async {
       when(google.authorize).thenAnswer((_) async => _authorization);
       when(() => remote.exchangeGoogleCode(any())).thenThrow(_unauthorized);
@@ -96,6 +145,19 @@ void main() {
   });
 
   group('signInWithDevLogin', () {
+    test('waits for the server before signing in', () async {
+      final awake = Completer<void>();
+      serverWakesUpWith(awake);
+      when(remote.devLogin).thenAnswer((_) async => session);
+
+      final result = repository.signInWithDevLogin();
+      await pumpEventQueue();
+      verifyNever(remote.devLogin);
+      awake.complete();
+
+      expect(await result, Right<Failure, Object>(testUser));
+    });
+
     test('opens a session for the test user', () async {
       when(remote.devLogin).thenAnswer((_) async => session);
 
@@ -148,6 +210,19 @@ void main() {
   });
 
   group('refreshSession', () {
+    test('waits for the server before refreshing', () async {
+      final awake = Completer<void>();
+      serverWakesUpWith(awake);
+      when(remote.refresh).thenAnswer((_) async => session);
+
+      final result = repository.refreshSession();
+      await pumpEventQueue();
+      verifyNever(remote.refresh);
+      awake.complete();
+
+      expect(await result, Right<Failure, Object>(testUser));
+    });
+
     test('stores the renewed token and returns the user', () async {
       when(remote.refresh).thenAnswer((_) async => session);
 
@@ -217,5 +292,50 @@ void main() {
     tokens.expireSession();
 
     await expired;
+  });
+
+  test('wakes the server up on request', () async {
+    await repository.wakeUpServer();
+
+    verify(server.wakeUp).called(1);
+  });
+
+  group('waitingForServer', () {
+    test('reports a long wait for the server and its end', () {
+      fakeAsync((async) {
+        final awake = Completer<void>();
+        serverWakesUpWith(awake);
+        when(remote.refresh).thenAnswer((_) async => session);
+        final waits = <bool>[];
+        final subscription = repository.waitingForServer.listen(waits.add);
+
+        unawaited(repository.refreshSession());
+        async.elapse(
+          AppConstants.serverWakeUpNoticeDelay - const Duration(seconds: 1),
+        );
+        expect(waits, isEmpty);
+        async.elapse(const Duration(seconds: 1));
+        expect(waits, [true]);
+        awake.complete();
+        async.flushMicrotasks();
+
+        expect(waits, [true, false]);
+        unawaited(subscription.cancel());
+      });
+    });
+
+    test('says nothing when the server is already awake', () {
+      fakeAsync((async) {
+        when(remote.devLogin).thenAnswer((_) async => session);
+        final waits = <bool>[];
+        final subscription = repository.waitingForServer.listen(waits.add);
+
+        unawaited(repository.signInWithDevLogin());
+        async.elapse(AppConstants.serverWakeUpNoticeDelay * 2);
+
+        expect(waits, isEmpty);
+        unawaited(subscription.cancel());
+      });
+    });
   });
 }

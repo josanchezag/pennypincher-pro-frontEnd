@@ -33,3 +33,19 @@ final class AuthSignOutRequested extends AuthEvent {
 final class AuthSessionExpired extends AuthEvent {
   const AuthSessionExpired();
 }
+
+/// The login screen was shown: wake the server up before the user signs in.
+final class AuthLoginScreenOpened extends AuthEvent {
+  const AuthLoginScreenOpened();
+}
+
+/// A sign-in or session check started or stopped waiting a while for the
+/// server to wake up. Raised by the bloc itself.
+final class AuthServerWakeUpChanged extends AuthEvent {
+  const AuthServerWakeUpChanged({required this.waiting});
+
+  final bool waiting;
+
+  @override
+  List<Object?> get props => [waiting];
+}
