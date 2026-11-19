@@ -15,7 +15,13 @@ final class AuthInitial extends AuthState {
 
 /// A sign-in, sign-out or session check is in progress.
 final class AuthLoading extends AuthState {
-  const AuthLoading();
+  const AuthLoading({this.wakingServer = false});
+
+  /// It has been waiting a while for the server to wake up.
+  final bool wakingServer;
+
+  @override
+  List<Object?> get props => [wakingServer];
 }
 
 final class AuthAuthenticated extends AuthState {

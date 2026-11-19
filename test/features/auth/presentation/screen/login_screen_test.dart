@@ -82,6 +82,45 @@ void main() {
     );
   });
 
+  testWidgets('starts waking the server up when shown', (tester) async {
+    final bloc = await pumpLogin(tester);
+
+    verify(() => bloc.add(const AuthLoginScreenOpened())).called(1);
+  });
+
+  testWidgets('explains a slow sign-in while the server wakes up',
+      (tester) async {
+    await pumpLogin(tester, state: const AuthLoading());
+    expect(find.text(l10n.wakingServer), findsNothing);
+
+    states.add(const AuthLoading(wakingServer: true));
+    await tester.pump();
+
+    expect(find.byKey(LoginScreen.wakingServerKey), findsOneWidget);
+    expect(find.text(l10n.wakingServer), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.byKey(LoginScreen.wakingServerKey)).dy,
+      greaterThan(tester.getBottomLeft(_googleButton).dy),
+    );
+    expect(_button(tester).onPressed, isNull);
+
+    states.add(AuthError(SignInMessages.accountNotAllowed));
+    await tester.pump();
+
+    expect(find.byKey(LoginScreen.wakingServerKey), findsNothing);
+  });
+
+  test('says in both languages that the server is waking up', () {
+    expect(
+      l10nEs.wakingServer,
+      'Despertando el servidor, esto puede tardar hasta un minuto…',
+    );
+    expect(
+      l10n.wakingServer,
+      'Waking up the server, this can take up to a minute…',
+    );
+  });
+
   testWidgets('shows the error message in a snack bar', (tester) async {
     await pumpLogin(tester);
 

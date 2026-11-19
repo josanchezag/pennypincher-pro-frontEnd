@@ -15,6 +15,28 @@ abstract final class AppConstants {
   static const Duration refreshSupersededRetryDelay =
       Duration(milliseconds: 300);
 
+  /// The hosted backend sleeps after about 15 idle minutes and a cold start
+  /// takes about a minute. Before signing in or restoring the session the
+  /// client probes it until it answers, for at most [serverWakeUpBudget];
+  /// after that the real request runs anyway and reports its own error.
+  static const Duration serverWakeUpBudget = Duration(seconds: 90);
+
+  /// Connect and receive timeout of one wake-up probe, long enough for a
+  /// cold start to answer the first request.
+  static const Duration serverWakeUpProbeTimeout = Duration(seconds: 60);
+
+  /// Wait between wake-up probes that got no answer or a `5xx`.
+  static const Duration serverWakeUpRetryDelay = Duration(seconds: 2);
+
+  /// How long a server that answered a probe is assumed to stay awake, so
+  /// later wake-ups return at once. Well below the idle time after which
+  /// the backend sleeps again.
+  static const Duration serverAwakeFor = Duration(minutes: 5);
+
+  /// A sign-in that has waited this long for the server to wake up tells
+  /// the user why it is slow.
+  static const Duration serverWakeUpNoticeDelay = Duration(seconds: 3);
+
   static const String contentTypeJson = 'application/json';
 }
 
@@ -67,6 +89,12 @@ abstract final class ApiPaths {
   static const String netWorthTrend = '/reports/net-worth-trend';
   static const String monthlyComparison = '/reports/monthly-comparison';
   static const String exchangeRatesToday = '/exchange-rates/today';
+
+  /// Cheap endpoint probed to wake the backend up. It is sent without a
+  /// token: the `401` it then gets is enough to know the server is up, and
+  /// unlike paths outside the API it carries the CORS headers the browser
+  /// needs to read it.
+  static const String wakeUpProbe = exchangeRatesToday;
 }
 
 /// Query parameters of the backend endpoints.
@@ -107,4 +135,7 @@ abstract final class HttpHeaders {
 abstract final class HttpStatusCodes {
   static const int unauthorized = 401;
   static const int notFound = 404;
+
+  /// First status code of the server errors (`5xx`).
+  static const int firstServerError = 500;
 }

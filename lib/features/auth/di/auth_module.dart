@@ -4,6 +4,8 @@ import 'package:pennypincher_pro/features/auth/domain/usecase/restore_session.da
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_dev_login.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_in_with_google.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/sign_out.dart';
+import 'package:pennypincher_pro/features/auth/domain/usecase/wake_up_server.dart';
+import 'package:pennypincher_pro/features/auth/domain/usecase/watch_server_wake_up.dart';
 import 'package:pennypincher_pro/features/auth/domain/usecase/watch_session_expiry.dart';
 
 /// Registers the auth use cases, keeping the domain layer free of
@@ -28,4 +30,12 @@ abstract class AuthModule {
   @injectable
   WatchSessionExpiry watchSessionExpiry(AuthRepository repository) =>
       WatchSessionExpiry(repository);
+
+  @injectable
+  WakeUpServer wakeUpServer(AuthRepository repository) =>
+      WakeUpServer(repository);
+
+  @injectable
+  WatchServerWakeUp watchServerWakeUp(AuthRepository repository) =>
+      WatchServerWakeUp(repository);
 }

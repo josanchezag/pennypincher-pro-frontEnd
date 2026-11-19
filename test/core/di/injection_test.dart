@@ -5,6 +5,7 @@ import 'package:pennypincher_pro/core/config/app_config.dart';
 import 'package:pennypincher_pro/core/constants/app_constants.dart';
 import 'package:pennypincher_pro/core/di/injection.dart';
 import 'package:pennypincher_pro/core/network/auth_interceptor.dart';
+import 'package:pennypincher_pro/core/network/server_wake_up.dart';
 import 'package:pennypincher_pro/core/router/app_router.dart';
 import 'package:pennypincher_pro/core/shortcuts/ant_expense_shortcut.dart';
 import 'package:pennypincher_pro/core/time/clock.dart';
@@ -48,6 +49,7 @@ void main() {
     expect(getIt<AppRouter>(), same(getIt<AppRouter>()));
     expect(getIt<AuthBloc>(), same(getIt<AuthBloc>()));
     expect(getIt<SessionRefresher>(), isA<SessionRefresher>());
+    expect(getIt<ServerWakeUp>(), same(getIt<ServerWakeUp>()));
   });
 
   test('keeps one preferences cubit for the whole app', () {

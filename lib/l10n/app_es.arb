@@ -159,6 +159,7 @@
   "appTagline": "Tu centro de control de finanzas personales",
   "signInWithGoogle": "Iniciar sesión con Google",
   "signingIn": "Iniciando sesión",
+  "wakingServer": "Despertando el servidor, esto puede tardar hasta un minuto…",
   "devLogin": "Acceso de desarrollo",
   "googleSignInNotConfiguredForBuild": "El inicio de sesión con Google no está configurado en esta versión.",
   "signInAccountNotAllowed": "Esta cuenta de Google no tiene permiso para usar PennyPincher Pro.",
